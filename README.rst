@@ -28,12 +28,16 @@ Ubuntu: `apt-get install libevent-dev openssl`
 Fedora: `yum install libevent-devel openssl-devel`
 OS X: `brew install libevent openssl`
 
+
 Pyramid Setup
 -------------
 Run `python setup.py develop` to set up the development environment.
 This only needs to be run once or when the "requires" package versions in setup.py are modified.
 
 Note: It is strongly recommended to set up the development environment in a virtualenv.
+
+If setup.py fails with an M2Crypto error and you're on a yum-based system (Fedora, CentOS, RHEL),
+download the M2Crypto package at https://pypi.python.org/pypi/M2Crypto and install via `fedora_setup.sh install`
 
 Sass/Compass Setup
 ------------------
@@ -118,6 +122,12 @@ To run all tests, run the following at the repo root:
 
     python setup.py test
 
+To run the tests with nose and report test coverage:
+
+    python setup.py nosetests --with-coverage
+
+Note that you will need to `pip install nose, coverage, nose-cov` to use nose with coverage
+
 
 Technology Stack
 ================
@@ -136,4 +146,5 @@ Secondary Components
 * pyramid_layout (layout/themes for Pyramid)
 * Waitress or gunicorn (WSGI server)
 * WTForms (server-side forms and validation)
+
 
