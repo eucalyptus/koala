@@ -25,5 +25,4 @@ class KeyPairForm(BaseSecureForm):
         self.name.error_msg = self.name_error_msg  # Used for Foundation Abide error message
         if keypair is not None:
             self.name.data = keypair.name
-        print "HERe"
 

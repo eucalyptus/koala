@@ -62,7 +62,6 @@ class KeyPairView(BaseView):
         self.conn = self.get_connection()
         self.keypair = self.get_keypair()
         self.keypair_form = KeyPairForm(self.request, keypair=self.keypair, formdata=self.request.params or None)
-        print "INIT COMPLETE"
 
     def get_keypair(self):
         keypair_param = self.request.matchdict.get('id')
@@ -75,6 +74,7 @@ class KeyPairView(BaseView):
     def keypair_view(self):
         return dict(
             keypair=self.keypair,
+            keypair_form=self.keypair_form
         )
 
     @view_config(route_name='keypair_create', request_method='POST', renderer=TEMPLATE)
