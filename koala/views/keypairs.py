@@ -77,8 +77,7 @@ class KeyPairView(BaseView):
             keypair_form=self.keypair_form
         )
 
-    #@view_config(route_name='keypair_create', request_method='POST', renderer=TEMPLATE)
-    @view_config(route_name='keypair_create', renderer=TEMPLATE)
+    @view_config(route_name='keypair_create', request_method='POST', renderer=TEMPLATE)
     def keypair_create(self):
         print "HERE"       
         """
