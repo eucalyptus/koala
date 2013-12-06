@@ -10,8 +10,7 @@
         <!-- Notifications -->
         <metal:block metal:use-macro="layout.global_macros['notifications']"></metal:block>
 
-        <div class="large-7 columns"
-            tal:define="form_action request.route_url('keypair_create')">
+        <div class="large-7 columns">
             <div class="panel has-title">
                 <h6 class="title">
                     <span tal:condition="keypair">
@@ -33,7 +32,8 @@
                     </div>
                 </div>
                 <div tal:condition="not keypair">
-                    <form tal:attributes="action form_action" method="post" data-abide="abide"> 
+                    <form method="post" data-abide="abide" action="${request.route_url('keypair_create')}"> 
+                        ${structure:keypair_form['csrf_token']}
                         <hr>
                         <div class="row">
                             <div class="small-3 columns">&nbsp;</div>
