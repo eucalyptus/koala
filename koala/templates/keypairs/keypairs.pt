@@ -17,7 +17,7 @@
                 <a class="button small" i18n:translate=""
                     href="${request.route_url('keypair_view', id='new')}">Create new key pair</a>
             </div>
-            <div metal:fill-slot="tile_content">
+            <div metal:fill-slot="tile_content" tal:omit-tag="">
                 <div>
                     <span class="label" title="Keypair Name" i18n:attributes="title" data-tooltip="">NM</span>
                     {{ item.name }}
