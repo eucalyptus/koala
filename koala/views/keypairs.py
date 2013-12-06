@@ -77,8 +77,10 @@ class KeyPairView(BaseView):
             keypair_form=self.keypair_form
         )
 
-    @view_config(route_name='keypair_create', request_method='POST', renderer=TEMPLATE)
+    #@view_config(route_name='keypair_create', request_method='POST', renderer=TEMPLATE)
+    @view_config(route_name='keypair_create', renderer=TEMPLATE)
     def keypair_create(self):
+        print "HERE"       
         """
         if self.keypair_form.validate():
             name = self.request.params.get('name')
@@ -88,13 +90,12 @@ class KeyPairView(BaseView):
             notification_msg = msg.format(keypair=name)
             self.request.session.flash(notification_msg, queue=Notification.SUCCESS)
             return HTTPFound(location=location)
-        """
-        print "HERELO"
+        print "OR HERE"
         return dict(
             keypair=self.keypair,
             keypair_form=self.keypair_form,
             #keypair_names=self.get_security_group_names(),
         )
-
+        """
 
 
