@@ -6,6 +6,7 @@ Pyramid views for Eucalyptus and AWS key pairs
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.i18n import TranslationString as _
 from pyramid.view import view_config
+from pyramid.response import Response
 
 from ..forms.keypairs import KeyPairForm
 from ..models import Notification
@@ -89,18 +90,24 @@ class KeyPairView(BaseView):
         if self.keypair_form.validate():
             name = self.request.params.get('name')
             msg = ""
+            material = ""
             try:
                 new_keypair = self.conn.create_key_pair(name)
-                print "PEM: " , new_keypair
+                print "PEM: " , new_keypair.material
+                material = new_keypair.material
                 msg_template = _(u'Successfully created key pair {keypair}')
                 msg = msg_template.format(keypair=name)
                 queue = Notification.SUCCESS
             except EC2ResponseError as err:
                 msg = err.message
                 queue = Notification.ERROR
-            location = self.request.route_url('keypairs')
+            location = self.request.route_url('keypairs', keypair_name=name)
             self.request.session.flash(msg, queue=queue)
-            return HTTPFound(location=location)
+            response = Response(content_type='application/x-pem-file;charset=ISO-8859-1')
+            response.body=str(material)
+            response.content_disposition="attachment; filename=\"" + name + ".pem\""
+            return response
+            #return HTTPFound(location=location)
 
         return dict(
             keypair=self.keypair,
