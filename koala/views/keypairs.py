@@ -3,6 +3,7 @@
 Pyramid views for Eucalyptus and AWS key pairs
 
 """
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.i18n import TranslationString as _
 from pyramid.view import view_config
 
@@ -74,27 +75,36 @@ class KeyPairView(BaseView):
     def keypair_view(self):
         return dict(
             keypair=self.keypair,
-            keypair_form=self.keypair_form
+            keypair_form=self.keypair_form,
         )
+
+    def get_keypair_names(self):
+        keypairs = []
+        if self.conn:
+            keypairs = [k.name for k in self.conn.get_all_key_pairs()]
+        return sorted(set(keypairs))
 
     @view_config(route_name='keypair_create', request_method='POST', renderer=TEMPLATE)
     def keypair_create(self):
-        print "HERE"       
-        """
         if self.keypair_form.validate():
             name = self.request.params.get('name')
-            new_keypair = self.conn.create_key_pair(name)
+            msg = ""
+            try:
+                new_keypair = self.conn.create_key_pair(name)
+                print "PEM: " , new_keypair
+                msg_template = _(u'Successfully created key pair {keypair}')
+                msg = msg_template.format(keypair=name)
+                queue = Notification.SUCCESS
+            except EC2ResponseError as err:
+                msg = err.message
+                queue = Notification.ERROR
             location = self.request.route_url('keypairs')
-            msg = _(u'Successfully created key pair {keypair}')
-            notification_msg = msg.format(keypair=name)
-            self.request.session.flash(notification_msg, queue=Notification.SUCCESS)
+            self.request.session.flash(msg, queue=queue)
             return HTTPFound(location=location)
-        print "OR HERE"
+
         return dict(
             keypair=self.keypair,
             keypair_form=self.keypair_form,
-            #keypair_names=self.get_security_group_names(),
+            keypair_names=self.get_keypair_names()
         )
-        """
-
 

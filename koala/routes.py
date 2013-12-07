@@ -83,8 +83,8 @@ urls = [
     # Key pairs
     Route(name='keypairs', pattern='/keypairs'),
     Route(name='keypairs_json', pattern='/keypairs/json'),
-    Route(name='keypair_view', pattern='/keypairs/{id}'),
     Route(name='keypair_create', pattern='/keypairs/create'),
+    Route(name='keypair_view', pattern='/keypairs/{id}'),
     # IP Addresses
     Route(name='ipaddresses', pattern='/ipaddresses'),
     Route(name='ipaddresses_json', pattern='/ipaddresses/json'),
