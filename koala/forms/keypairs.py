@@ -16,8 +16,14 @@ class KeyPairForm(BaseSecureForm):
     """
     name_error_msg = _(u'Name is required')
     name = wtforms.TextField(
+        id=(u'key-name'),
         label=_(u'Name'),
-        validators=[validators.Required(message=name_error_msg)],
+        validators=[validators.Required(message=name_error_msg), validators.Length(min=1, max=255)],
+    )
+    keycontent = wtforms.TextAreaField(
+        id=(u'key-import-contents'),
+        label=_(u'Public SSH Key Content'),
+        validators=[validators.Length(min=1)],
     )
 
     def __init__(self, request, keypair=None, **kwargs):
