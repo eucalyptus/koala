@@ -93,6 +93,7 @@ class KeyPairView(BaseView):
             material = ""
             try:
                 new_keypair = self.conn.create_key_pair(name)
+                print "NAME: " , new_keypair.name
                 print "PEM: " , new_keypair.material
                 material = new_keypair.material
                 msg_template = _(u'Successfully created key pair {keypair}')
@@ -108,6 +109,33 @@ class KeyPairView(BaseView):
             response.content_disposition="attachment; filename=\"" + name + ".pem\""
             return response
             #return HTTPFound(location=location)
+
+        return dict(
+            keypair=self.keypair,
+            keypair_form=self.keypair_form,
+            keypair_names=self.get_keypair_names()
+        )
+
+    @view_config(route_name='keypair_import', request_method='POST', renderer=TEMPLATE)
+    def keypair_import(self):
+        if self.keypair_form.validate():
+            name = self.request.params.get('name')
+            key_material = self.request.params.get('key_material')
+            msg = ""
+            material = ""
+            try:
+                new_keypair = self.conn.import_key_pair(name, key_material)
+                print "NAME: " , new_keypair.name
+                material = new_keypair.material
+                msg_template = _(u'Successfully imported key pair {keypair}')
+                msg = msg_template.format(keypair=name)
+                queue = Notification.SUCCESS
+            except EC2ResponseError as err:
+                msg = err.message
+                queue = Notification.ERROR
+            location = self.request.route_url('keypairs', keypair_name=name)
+            self.request.session.flash(msg, queue=queue)
+            return HTTPFound(location=location)
 
         return dict(
             keypair=self.keypair,

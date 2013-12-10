@@ -20,10 +20,11 @@ class KeyPairForm(BaseSecureForm):
         label=_(u'Name'),
         validators=[validators.Required(message=name_error_msg), validators.Length(min=1, max=255)],
     )
-    keycontent = wtforms.TextAreaField(
+    key_material = wtforms.TextAreaField(
         id=(u'key-import-contents'),
         label=_(u'Public SSH Key Content'),
-        validators=[validators.Length(min=1)],
+        # NEED A WAY TO SELECTIVELY VALIDATE DEPENDING WHICH FORM WAS CHOSEN, CREATE VS. IMPORT
+        #validators=[validators.Length(min=1)],
     )
 
     def __init__(self, request, keypair=None, **kwargs):
@@ -32,3 +33,7 @@ class KeyPairForm(BaseSecureForm):
         self.name.error_msg = self.name_error_msg  # Used for Foundation Abide error message
         if keypair is not None:
             self.name.data = keypair.name
+            if keypair.key_material is not None:
+                self.key_material.data = keypair.key_material
+
+
