@@ -33,7 +33,6 @@ class KeyPairForm(BaseSecureForm):
         self.name.error_msg = self.name_error_msg  # Used for Foundation Abide error message
         if keypair is not None:
             self.name.data = keypair.name
-            if keypair.key_material is not None:
-                self.key_material.data = keypair.key_material
+#            self.key_material.data = keypair.key_material if keypair.key_material else ''
 
 
