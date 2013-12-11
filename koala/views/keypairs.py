@@ -74,9 +74,17 @@ class KeyPairView(BaseView):
 
     @view_config(route_name='keypair_view', renderer=TEMPLATE)
     def keypair_view(self):
+        session = self.request.session
+        new_keypair_created = False
+        if 'new_keypair_name' in session:
+            print "New Keypair Name: " , session['new_keypair_name']
+            print "Material: " , session['material']
+            new_keypair_created = True
+
         return dict(
             keypair=self.keypair,
             keypair_form=self.keypair_form,
+            keypair_created=new_keypair_created,
         )
 
     def get_keypair_names(self):
@@ -89,6 +97,7 @@ class KeyPairView(BaseView):
     def keypair_create(self):
         if self.keypair_form.validate():
             name = self.request.params.get('name')
+            session = self.request.session
             msg = ""
             material = ""
             try:
@@ -96,19 +105,21 @@ class KeyPairView(BaseView):
                 print "NAME: " , new_keypair.name
                 print "PEM: " , new_keypair.material
                 material = new_keypair.material
+                session['new_keypair_name'] = new_keypair.name 
+                session['material'] = new_keypair.material
                 msg_template = _(u'Successfully created key pair {keypair}')
                 msg = msg_template.format(keypair=name)
                 queue = Notification.SUCCESS
             except EC2ResponseError as err:
                 msg = err.message
                 queue = Notification.ERROR
-            location = self.request.route_url('keypairs', keypair_name=name)
+            location = self.request.route_url('keypair_view', id=name)
             self.request.session.flash(msg, queue=queue)
             response = Response(content_type='application/x-pem-file;charset=ISO-8859-1')
             response.body=str(material)
             response.content_disposition="attachment; filename=\"" + name + ".pem\""
-            return response
-            #return HTTPFound(location=location)
+            #return response
+            return HTTPFound(location=location)
 
         return dict(
             keypair=self.keypair,
