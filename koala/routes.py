@@ -83,6 +83,7 @@ urls = [
     # Key pairs
     Route(name='keypairs', pattern='/keypairs'),
     Route(name='keypairs_json', pattern='/keypairs/json'),
+    Route(name='keypair_download', pattern='/keypairs/download'),
     Route(name='keypair_create', pattern='/keypairs/create'),
     Route(name='keypair_import', pattern='/keypairs/import'),
     Route(name='keypair_view', pattern='/keypairs/{id}'),
