@@ -133,7 +133,7 @@ class KeyPairView(BaseView):
             except EC2ResponseError as err:
                 msg = err.message
                 queue = Notification.ERROR
-            location = self.request.route_url('keypairs', keypair_name=name)
+            location = self.request.route_url('keypair_view', id=name)
             self.request.session.flash(msg, queue=queue)
             return HTTPFound(location=location)
 
