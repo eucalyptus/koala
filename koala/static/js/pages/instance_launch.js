@@ -4,6 +4,19 @@
  *
  */
 
+// TO ENABLE THE USERDATA INPUT BOX TO READ UPLOADED FILE CONTENT
+$('html body').find("#instance-launch-import-userdata").on('change', function(evt) {
+    var file = evt.target.files[0];
+    var reader = new FileReader();
+    reader.onloadend = function(evt) {
+        if (evt.target.readyState == FileReader.DONE) {
+            $('html body').find("#userdata-contents").val(evt.target.result).trigger('keyup');
+        }
+    }
+    reader.readAsText(file);
+});
+
+
 // Launch Instance page includes the Tag Editor, the Image Picker, and the Block Device Mapping editor
 angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'ImagePicker'])
     .controller('LaunchInstanceCtrl', function ($scope, $timeout) {

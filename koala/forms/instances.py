@@ -77,7 +77,10 @@ class LaunchInstanceForm(BaseSecureForm):
         label=_(u'Security group'),
         validators=[validators.Required(message=securitygroup_error_msg)],
     )
-    userdata = wtforms.TextAreaField(label=_(u'User data'))
+    userdata = wtforms.TextAreaField(
+        label=_(u'User data'),
+        id=(u'userdata-contents'),
+    )
     kernel_id = wtforms.SelectField(label=_(u'Kernel ID'))
     ramdisk_id = wtforms.SelectField(label=_(u'RAM disk ID (RAMFS)'))
     monitoring_enabled = wtforms.BooleanField(label=_(u'Enable detailed monitoring'))

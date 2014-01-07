@@ -129,6 +129,10 @@
                                 User data and other advanced options (optional).
                             </p>
                             ${panel('form_field', field=launch_form['userdata'])}
+                            <div class="small-4 columns">&nbsp;</div>
+                            <div class="small-8 columns">
+                                <input type="file" id="instance-launch-import-userdata"/>
+                            </div>
                             ${panel('form_field', field=launch_form['kernel_id'])}
                             ${panel('form_field', field=launch_form['ramdisk_id'])}
                             ${panel('form_field', field=launch_form['monitoring_enabled'])}
