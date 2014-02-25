@@ -24,7 +24,8 @@
              tal:define="form_action request.route_url('snapshot_update', id=snapshot.id)
                          if snapshot else request.route_url('snapshot_create');
                          snapshot_tags snapshot.tags if snapshot else {};
-                         html_attrs {'disabled': 'disabled'} if snapshot else {'data-placeholder': 'select...'};">
+                         html_attrs {'disabled': 'disabled'} if snapshot else {'data-placeholder': 'select...'};
+                         form_name 'snapshotCreateForm';">
             <div class="panel ${'has-actions' if snapshot else ''}">
                 <metal:block metal:use-macro="layout.global_macros['actions_menu']" tal:condition="snapshot">
                     <metal:actions metal:fill-slot="actions">
@@ -46,7 +47,7 @@
                         </li>
                     </metal:actions>
                 </metal:block>
-                <form tal:attributes="action form_action" method="post" data-abide="abide" ng-cloak="">
+                <form name="${form_name}" tal:attributes="action form_action" method="post" data-abide="abide" ng-cloak="">
                     ${structure:snapshot_form['csrf_token']}
                     <h6 i18n:translate="">Snapshot</h6>
                     <div class="row controls-wrapper readonly" ng-cloak="" tal:condition="snapshot">
@@ -101,7 +102,7 @@
                         ${panel('form_field', field=snapshot_form['description'], **html_attrs)}
                     </div>
                     <hr />
-                    ${panel('tag_editor', tags=snapshot_tags)}
+                    ${panel('tag_editor', tags=snapshot_tags, form_name=form_name)}
                     <hr  />
                     <div ng-show="snapshotStatus == 'deleted'">
                         <span i18n:translate="">Snapshot was successfully deleted.</span>

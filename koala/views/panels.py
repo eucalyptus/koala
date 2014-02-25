@@ -78,13 +78,13 @@ def form_field_row(context, request, field=None, reverse=False, leftcol_width=4,
     )
 
 @panel_config('tag_editor', renderer='../templates/panels/tag_editor.pt')
-def tag_editor(context, request, tags=None, leftcol_width=4, rightcol_width=8):
+def tag_editor(context, request, tags=None, form_name='myForm', leftcol_width=4, rightcol_width=8):
     """ Tag editor panel.
         Usage example (in Chameleon template): ${panel('tag_editor', tags=security_group.tags)}
     """
     tags = tags or {}
     tags_json = json.dumps(tags)
-    return dict(tags=tags, tags_json=tags_json, leftcol_width=leftcol_width, rightcol_width=rightcol_width)
+    return dict(tags=tags, tags_json=tags_json, form_name=form_name, leftcol_width=leftcol_width, rightcol_width=rightcol_width)
 
 
 @panel_config('user_editor', renderer='../templates/panels/user_editor.pt')
