@@ -18,7 +18,7 @@
         <!-- Notifications -->
         <metal:block metal:use-macro="layout.global_macros['notifications']" />
 
-        <div class="large-8 columns" tal:define="form_name 'snapshotCreateForm';">
+        <div class="large-8 columns" tal:define="form_name 'instanceCreateForm';">
             <dl class="tabs" id="instance-subnav">
                 <dd class="active"><a href="#" i18n:translate="">General</a></dd>
                 <dd><a href="${request.route_url('instance_volumes', id=instance.id)}" i18n:translate="">Volumes</a></dd>
