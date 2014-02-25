@@ -15,9 +15,9 @@
         </metal:breadcrumbs>
         <!-- Notifications -->
         <metal:block metal:use-macro="layout.global_macros['notifications']" />
-        <div class="large-8 columns" tal:define="_ import: pyramid.i18n.TranslationString">
+        <div class="large-8 columns" tal:define="_ import: pyramid.i18n.TranslationString; form_name 'instanceLaunchForm';">
             <div class="wizard no-title">
-                <form action="${request.route_url('instance_launch')}" id="launch-instance-form"
+                <form name="${form_name}" action="${request.route_url('instance_launch')}" id="launch-instance-form"
                       method="post" data-abide="abide" enctype="multipart/form-data">
                     ${structure:launch_form['csrf_token']}
                     ${structure:launch_form['image_id']}
@@ -101,7 +101,7 @@
                             ${panel('form_field', field=launch_form['zone'], leftcol_width=3, rightcol_width=9,
                                     ng_attrs={'model': 'instanceZone'})}
                             <hr />
-                            ${panel('tag_editor', leftcol_width=3, rightcol_width=9)}
+                            ${panel('tag_editor', form_name=form_name, leftcol_width=3, rightcol_width=9)}
                             <hr />
                             <div class="row">
                                 <div class="small-3 columns">&nbsp;</div>
