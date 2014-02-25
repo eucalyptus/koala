@@ -36,6 +36,9 @@ angular.module('TagEditor', [])
         };
         $scope.addTag = function ($event) {
             $event.preventDefault();
+            if( $('#add-tag-btn').is('[disabled=disabled]') ){
+                return;
+            };
             var tagEntry = $($event.currentTarget).closest('.tagentry'),
                 tagKeyField = tagEntry.find('.key'),
                 tagValueField = tagEntry.find('.value'),

@@ -78,16 +78,16 @@
         <!--! modal dialogs -->
         <div id="snapshot-dialogs">
             <div id="create-snapshot-modal" class="reveal-modal small" data-reveal=""
-                tal:define="snapshot_tags {};">
+                tal:define="snapshot_tags {}; form_name 'volumeSnapshotCreateForm';">
                 <h3 i18n:translate="">Create snapshot from volume</h3>
                 <p><span i18n:translate="">Add a snapshot for</span> <strong>${volume_name}</strong></p>
-                <form method="post" action="${request.route_url('volume_snapshot_create', id=volume.id)}"
+                <form name="${form_name}" method="post" action="${request.route_url('volume_snapshot_create', id=volume.id)}"
                       id="create-snapshot-form" data-abide="">
                     ${structure:create_form['csrf_token']}
                     ${panel('form_field', field=create_form.name)}
                     ${panel('form_field', field=create_form.description)}
                     <hr />
-                    ${panel('tag_editor', tags=snapshot_tags)}
+                    ${panel('tag_editor', tags=snapshot_tags, form_name=form_name)}
                     <div>&nbsp;</div>
                     <div class="row">
                         <div class="small-4 columns">&nbsp;</div>

@@ -29,7 +29,8 @@
              tal:define="form_action request.route_url('volume_update', id=volume.id)
                          if volume else request.route_url('volume_create');
                          volume_tags volume.tags if volume else {};
-                         html_attrs {'disabled': 'disabled'} if volume else {};">
+                         html_attrs {'disabled': 'disabled'} if volume else {};
+                         form_name 'volumeCreateForm';">
             <dl class="tabs" id="volume-subnav" tal:condition="volume">
                 <dd class="active"><a href="#" i18n:translate="">General</a></dd>
                 <dd><a href="${request.route_url('volume_snapshots', id=volume.id)}" i18n:translate="">Snapshots</a></dd>
@@ -52,7 +53,7 @@
                         </li>
                     </metal:actions>
                 </metal:block>
-                <form tal:attributes="action form_action" method="post" data-abide="abide" ng-cloak="">
+                <form name="${form_name}" tal:attributes="action form_action" method="post" data-abide="abide" ng-cloak="">
                     ${structure:volume_form['csrf_token']}
                     <h6 i18n:translate="">Volume</h6>
                     <div class="row controls-wrapper readonly" ng-cloak="" tal:condition="volume">
@@ -100,7 +101,7 @@
                         <div class="small-8 columns value">${volume_create_time.strftime(layout.date_format)}</div>
                     </div>
                     <hr />
-                    ${panel('tag_editor', tags=volume_tags)}
+                    ${panel('tag_editor', tags=volume_tags, form_name=form_name)}
                     <hr />
                     <div ng-show="volumeStatus == 'deleted'">
                         <span i18n:translate="">Volume was successfully deleted.</span>

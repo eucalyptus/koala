@@ -78,13 +78,13 @@ def form_field_row(context, request, field=None, reverse=False, leftcol_width=4,
     )
 
 @panel_config('tag_editor', renderer='../templates/panels/tag_editor.pt')
-def tag_editor(context, request, tags=None, leftcol_width=4, rightcol_width=8):
+def tag_editor(context, request, tags=None, form_name='myForm', leftcol_width=4, rightcol_width=8):
     """ Tag editor panel.
         Usage example (in Chameleon template): ${panel('tag_editor', tags=security_group.tags)}
     """
     tags = tags or {}
     tags_json = json.dumps(tags)
-    return dict(tags=tags, tags_json=tags_json, leftcol_width=leftcol_width, rightcol_width=rightcol_width)
+    return dict(tags=tags, tags_json=tags_json, form_name=form_name, leftcol_width=leftcol_width, rightcol_width=rightcol_width)
 
 
 @panel_config('user_editor', renderer='../templates/panels/user_editor.pt')
@@ -104,7 +104,7 @@ def policy_list(context, request, policies_url=None, policy_url=None, remove_url
 
 
 @panel_config('autoscale_tag_editor', renderer='../templates/panels/autoscale_tag_editor.pt')
-def autoscale_tag_editor(context, request, tags=None, leftcol_width=2, rightcol_width=10):
+def autoscale_tag_editor(context, request, tags=None, form_name='myForm', leftcol_width=2, rightcol_width=10):
     """ Tag editor panel for Scaling Groups.
         Usage example (in Chameleon template): ${panel('autoscale_tag_editor', tags=scaling_group.tags)}
     """
@@ -117,7 +117,7 @@ def autoscale_tag_editor(context, request, tags=None, leftcol_width=2, rightcol_
             propagate_at_launch=tag.propagate_at_launch,
         ))
     tags_json = json.dumps(tags_list)
-    return dict(tags=tags, tags_json=tags_json, leftcol_width=leftcol_width, rightcol_width=rightcol_width)
+    return dict(tags=tags, tags_json=tags_json, form_name=form_name, leftcol_width=leftcol_width, rightcol_width=rightcol_width)
 
 
 @panel_config('securitygroup_rules', renderer='../templates/panels/securitygroup_rules.pt')

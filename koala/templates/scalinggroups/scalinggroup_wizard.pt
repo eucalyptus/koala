@@ -15,9 +15,9 @@
         </metal:breadcrumbs>
         <!-- Notifications -->
         <metal:block metal:use-macro="layout.global_macros['notifications']" />
-        <div class="large-8 columns" tal:define="_ import: pyramid.i18n.TranslationString">
+        <div class="large-8 columns" tal:define="_ import: pyramid.i18n.TranslationString; form_name 'scailinggroupLaunchForm';">
             <div class="wizard no-title">
-                <form action="${request.route_url('scalinggroup_create')}" id="scalinggroup-wizard-form"
+                <form name="${form_name}" action="${request.route_url('scalinggroup_create')}" id="scalinggroup-wizard-form"
                       method="post" data-abide="abide">
                     ${structure:create_form['csrf_token']}
                     <dl class="tabs" data-tab="">
@@ -52,7 +52,7 @@
                                 </div>
                             </div>
                             <hr />
-                            ${panel('autoscale_tag_editor', tags=[])}
+                            ${panel('autoscale_tag_editor', tags=[], form_name=form_name)}
                             <hr />
                             <div>&nbsp;</div>
                             <div class="row">
