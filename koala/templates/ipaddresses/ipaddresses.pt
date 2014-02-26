@@ -62,7 +62,7 @@
             <metal:block metal:fill-slot="tableview_columns">
                 <td><a ng-href="${prefix}/{{ item.public_ip }}">{{ item.public_ip }}</a></td>
                 <td><a ng-href="/instances/{{item.instance_id}}">{{ item.instance_name }}</a></td>
-                <td>
+                <td class="no-overflow">
                     <span class="actions">
                         <a class="tiny secondary button dropdown right round"><i class="fi-widget"></i></a>
                         <ul id="item-dropdown_{{ item.public_ip }}" class="f-dropdown">

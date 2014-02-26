@@ -119,7 +119,7 @@
                     </div>
                 </td>
                 <td>{{ item.launch_time | date:'${layout.angular_date_format}' }}</td>
-                <td>
+                <td class="no-overflow">
                    <span class="actions">
                         <span class="tiny secondary button dropdown round"><i class="fi-widget"></i></span>
                         <ul id="item-dropdown_{{ item.id }}" class="f-dropdown">

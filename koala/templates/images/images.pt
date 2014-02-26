@@ -93,7 +93,7 @@
                 <td><span class="label radius {{ item.architecture }}">{{ item.architecture }}</span></td>
                 <td><span class="label radius {{ item.root_device_type }}">{{ item.root_device_type }}</span></td>
                 <td>{{ item.platform_name }}</td>
-                <td>
+                <td class="no-overflow">
                     <span class="actions">
                         <a class="tiny secondary button dropdown round"><i class="fi-widget"></i></a>
                         <ul id="item-dropdown_{{ item.id }}" class="f-dropdown">

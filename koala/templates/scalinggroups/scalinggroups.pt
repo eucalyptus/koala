@@ -104,7 +104,7 @@
                         {{ item.status }}
                     </span>
                 </td>
-                <td>
+                <td class="no-overflow">
                     <span class="actions">
                         <span class="tiny secondary button dropdown round"><i class="fi-widget"></i></span>
                         <ul id="item-dropdown_{{ item.name }}" class="f-dropdown">
