@@ -728,6 +728,9 @@ table.table {
         overflow: hidden;
         white-space: nowrap;
     }
+    .no-overflow {
+        overflow: visible;
+    }
 }
 
 
