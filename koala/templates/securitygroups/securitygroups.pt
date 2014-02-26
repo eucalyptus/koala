@@ -56,7 +56,7 @@
                 <td>{{ item.description }}</td>
                 <td>${panel('securitygroup_rules_landingpage', tile_view=False)}</td>
                 <td>{{ item.tags }}</td>
-                <td>
+                <td class="no-overflow">
                     <span class="actions">
                         <a class="tiny secondary button dropdown round"><i class="fi-widget"></i></a>
                         <ul id="item-dropdown_{{ item.id }}" class="f-dropdown">

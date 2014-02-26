@@ -57,7 +57,7 @@
                 <td class="id"><a ng-href="${prefix}/{{ item.group_name }}">{{ item.group_name }}</a></td>
                 <td><a ng-click="linkGroup(item, '#group-users')">{{ item.user_count }}</a></td>
                 <td><a ng-click="linkGroup(item, '#policy-list')">{{ item.policy_count }}</a></td>
-                <td>
+                <td class="no-overflow">
                   <span class="actions">
                     <a class="tiny secondary button dropdown round"><i class="fi-widget"></i></a>
                     <ul id="item-dropdown_{{ item.id }}" class="f-dropdown">

@@ -1543,7 +1543,9 @@ textarea.hidden.debug { display: block; }
 
 /* ----------------------------------------- Tables
 ----------------------------------------- */
-table.table tr td { vertical-align: top; }
+table.table { table-layout: fixed; }
+table.table tr td { vertical-align: top; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+table.table .no-overflow { overflow: visible; white-space: normal; }
 
 /* ----------------------------------------- Footer
 ----------------------------------------- */

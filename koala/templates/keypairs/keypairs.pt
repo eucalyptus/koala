@@ -53,7 +53,7 @@
             <metal:block metal:fill-slot="tableview_columns">
                 <td><a ng-href="${prefix}/{{ item.id || item.name | escapeURL }}">{{ item.name }}</a></td>
                 <td>{{ item.fingerprint }}</td>
-                <td>
+                <td class="no-overflow">
                     <span class="actions">
                         <a class="tiny secondary button dropdown right round"><i class="fi-widget"></i></a>
                         <ul id="item-dropdown_{{ item.name }}" class="f-dropdown">
