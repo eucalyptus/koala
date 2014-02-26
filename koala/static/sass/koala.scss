@@ -721,8 +721,12 @@ textarea.hidden {
    Tables
 ----------------------------------------- */
 table.table {
+    table-layout: fixed;
     tr td {
         vertical-align: top;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
 }
 
