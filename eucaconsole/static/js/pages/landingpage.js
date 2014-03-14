@@ -160,6 +160,9 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
         };
         $scope.sanitizeContent = function (content) {
             return $sanitize(content);
-        }
+        };
+        $scope.getID = function (prefix, id) {
+           return prefix + "-" + encodeURIComponent(id).replace(/[\%\+\.\,]/g, "");
+        };
     })
 ;
