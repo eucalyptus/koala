@@ -26,8 +26,8 @@
                    href="#" data-reveal-id="batch-terminate-modal">Terminate {{ unterminatedInstancesCount(items) }} Instances</a>
             </div>
             <div metal:fill-slot="tile_dropdown_button" tal:omit-tag="">
-                <span class="tiny secondary button dropdown" data-dropdown="{{ getID('item-dropdown', item.name) }}"><i class="fi-widget"></i></span>
-                <ul id="{{ getID('item-dropdown', item.name) }}" class="f-dropdown" data-dropdown-content="">
+                <span class="tiny secondary button dropdown" data-dropdown="{{ getID('item-dropdown', item.id) }}"><i class="fi-widget"></i></span>
+                <ul id="{{ getID('item-dropdown', item.id) }}" class="f-dropdown" data-dropdown-content="">
                     <li>
                         <a ng-href="${prefix}/{{ item.id }}" i18n:translate="">View details</a>
                     </li>
@@ -138,8 +138,8 @@
                 <td>{{ item.launch_time | date:'${layout.angular_date_format}' }}</td>
                 <td>
                    <span class="actions">
-                        <span class="tiny secondary button dropdown round" data-dropdown="{{ getID('item-dropdown', item.name) }}"><i class="fi-widget"></i></span>
-                        <ul id="{{ getID('item-dropdown', item.name) }}" class="f-dropdown" data-dropdown-content="">
+                        <span class="tiny secondary button dropdown round" data-dropdown="{{ getID('item-dropdown', item.id) }}"><i class="fi-widget"></i></span>
+                        <ul id="{{ getID('item-dropdown', item.id) }}" class="f-dropdown" data-dropdown-content="">
                             <li>
                                 <a ng-href="${prefix}/{{ item.id }}" i18n:translate="">View details</a>
                             </li>
