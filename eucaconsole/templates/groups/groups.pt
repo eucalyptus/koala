@@ -24,8 +24,8 @@
                    href="${request.route_path('group_view', name='new')}">Create Group</a>
             </div>
             <div metal:fill-slot="tile_dropdown_button" tal:omit-tag="">
-                <a class="tiny secondary button dropdown right" data-dropdown="{{ getID('item-dropdown', item.name) }}"><i class="fi-widget"></i></a>
-                <ul id="{{ getID('item-dropdown', item.name) }}" class="f-dropdown" data-dropdown-content="">
+                <a class="tiny secondary button dropdown right" data-dropdown="{{ getID('item-dropdown', item.group_name) }}"><i class="fi-widget"></i></a>
+                <ul id="{{ getID('item-dropdown', item.group_name) }}" class="f-dropdown" data-dropdown-content="">
                     <li><a i18n:translate="" ng-href="${prefix}/{{ item.group_name }}">View details</a></li>
                     <li><a i18n:translate="" ng-click="revealModal('delete', item)">Delete</a></li>
                 </ul>
@@ -65,8 +65,8 @@
                 <td> {{ item.create_date | date:'${layout.angular_date_format}' }} </td>
                 <td>
                   <span class="actions">
-                    <a class="tiny secondary button dropdown round" data-dropdown="{{ getID('item-dropdown', item.name) }}"><i class="fi-widget"></i></a>
-                    <ul id="{{ getID('item-dropdown', item.name) }}" class="f-dropdown" data-dropdown-content="">
+                    <a class="tiny secondary button dropdown round" data-dropdown="{{ getID('item-dropdown', item.group_name) }}"><i class="fi-widget"></i></a>
+                    <ul id="{{ getID('item-dropdown', item.group_name) }}" class="f-dropdown" data-dropdown-content="">
                         <li><a i18n:translate="" ng-href="${prefix}/{{ item.group_name }}">View details</a></li>
                         <li>
                             <a i18n:translate="" ng-click="revealModal('delete', item)">Delete</a>
