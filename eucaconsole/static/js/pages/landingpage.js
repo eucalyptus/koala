@@ -162,7 +162,7 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
             return $sanitize(content);
         };
         $scope.getID = function (prefix, id) {
-           return prefix + "-" + escape(id).replace(/[\%\+]/g, "");
+           return prefix + "-" + escape(id).replace(/[\%\+\.\,]/g, "");
         };
     })
 ;
