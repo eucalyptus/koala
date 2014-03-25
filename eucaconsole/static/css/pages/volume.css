@@ -109,6 +109,10 @@
 
 .status.in-use { background-color: darkorange; }
 
+.status.deleting { background-color: #777777; }
+
+.status.deleted { background-color: #777777; }
+
 .reveal-modal #device { width: 10rem; }
 
 .tile { background-color: white; border: 1px solid #cccccc; width: 190px; height: 160px; }
