@@ -15,7 +15,7 @@
             ${panel('form_field', field=associate_form.instance_id)}
             <div class="row">
                 <div>
-                    <input type="submit" class="button expand" value="Associate Address with Instance" i18n:attributes="value" />
+                    <input type="submit" class="button expand" value="Associate address with instance" i18n:attributes="value" />
                 </div>
             </div>
         </form>
@@ -39,7 +39,7 @@
             <div tal:condition="landingpage" tal:omit-tag="">
                 <input type="hidden" name="public_ip" value="{{ publicIP }}" />
             </div>
-            <input type="submit" class="button expand" value="Yes, Disassociate Address from Instance" />
+            <input type="submit" class="button expand" value="Yes, disassociate address from instance" />
         </form>
         <a href="#" class="close-reveal-modal">&#215;</a>
     </div>

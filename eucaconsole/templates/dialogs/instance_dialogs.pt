@@ -169,7 +169,7 @@
                 <div class="row">
                     <div ng-model="showProgress" ng-init="showProgress=false" ng-show="!showProgress">
                         <button type="submit" class="button expand" i18n:translate=""
-                            ng-click="showProgress=true">Associate Address with Instance</button>
+                            ng-click="showProgress=true">Associate address with instance</button>
                     </div>
                     <div ng-show="showProgress">
                         <span i18n:translate="">Sending request </span><em><span class="dots">&nbsp;</span></em>
@@ -216,7 +216,7 @@
                 <div class="row">
                     <div ng-model="showProgress" ng-init="showProgress=false" ng-show="!showProgress">
                         <button type="submit" class="button expand" i18n:translate=""
-                            ng-click="showProgress=true">Yes, Disassociate Address from Instance</button>
+                            ng-click="showProgress=true">Yes, disassociate address from instance</button>
                     </div>
                     <div ng-show="showProgress">
                         <span i18n:translate="">Sending request </span><em><span class="dots">&nbsp;</span></em>
