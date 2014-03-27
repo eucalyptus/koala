@@ -126,15 +126,17 @@ class BaseView(object):
             _cache.clear()
 
     def log_request(self, message):
-        account=self.request.session['account']
-        username=self.request.session['username']
-        logging.info("{acct}/{user}[{id}]: {msg}".format(id=self.request.id, acct=account, user=username, msg=message))
+        if self.cloud_type != 'aws':
+            account=self.request.session['account']
+            username=self.request.session['username']
+            logging.info("{acct}/{user}[{id}]: {msg}".format(id=self.request.id, acct=account, user=username, msg=message))
 
     @staticmethod
     def log_error(request, message):
-        account=request.session['account']
-        username=request.session['username']
-        logging.error("{acct}/{user}[{id}]: {msg}".format(id=request.id, acct=account, user=username, msg=message))
+        if self.cloud_type != 'aws':
+            account=request.session['account']
+            username=request.session['username']
+            logging.error("{acct}/{user}[{id}]: {msg}".format(id=request.id, acct=account, user=username, msg=message))
 
     @staticmethod
     def handle_error(err=None, request=None, location=None, template="{0}"):
