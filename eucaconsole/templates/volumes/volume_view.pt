@@ -153,7 +153,6 @@
                 </div> 
             </div>
             <div class="help-content" tal:condition="volume" ng-show="isHelpExpanded" ng-cloak="">
-                ${panel('help_volumes', 'manage_snapshot', request.route_path('volume_snapshots', id=volume.id))}
                 <!--! Tag editor help content -->
                 <div id="help-html-console_volume_detail"
                     ng-include="'${layout.help_path('console_volume_detail.html')}'">
