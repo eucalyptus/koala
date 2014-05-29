@@ -10,18 +10,22 @@ angular.module('VolumePage', ['TagEditor'])
         $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $scope.volumeStatusEndpoint = '';
         $scope.transitionalStates = ['creating', 'deleting', 'attaching', 'detaching'];
+        $scope.volumeName = '';
+        $scope.originalVolumeName = ''; 
         $scope.volumeStatus = '';
         $scope.volumeAttachStatus = '';
         $scope.snapshotId = '';
         $scope.instanceId = '';
+        $scope.isNotChanged = true;
         $scope.isUpdating = false;
         $scope.fromSnapshot = false;
         $scope.volumeSize = 1;
         $scope.snapshotSize = 1;
-        $scope.initController = function (jsonEndpoint, status, attachStatus) {
+        $scope.initController = function (jsonEndpoint, volumeName, status, attachStatus) {
             $scope.initChosenSelectors();
             $scope.volumeStatusEndpoint = jsonEndpoint;
-            $scope.volumeStatus = status.replace('-', ' ');
+            $scope.volumeName = decodeURIComponent(volumeName);
+            $scope.originalVolumeName = $scope.volumeName; 
             $scope.volumeAttachStatus = attachStatus;
             if (jsonEndpoint) {
                 $scope.getVolumeState();
@@ -95,6 +99,14 @@ angular.module('VolumePage', ['TagEditor'])
             });
         };
         $scope.setWatch = function () {
+            $scope.$on('tagUpdate', function($event) {
+                $scope.isNotChanged = false;
+            });
+            $scope.$watch('volumeName', function () {
+                if( $scope.volumeName != $scope.originalVolumeName ){
+                    $scope.isNotChanged = false;
+                }
+            });
             $scope.$watch('volumeSize', function () {
                 if( $scope.volumeSize < $scope.snapshotSize ){
                     $('#volume_size_error').removeClass('hide');

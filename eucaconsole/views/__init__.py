@@ -272,6 +272,16 @@ class TaggedItemView(BaseView):
         return name
 
     @staticmethod
+    def get_resource_name(resource):
+        name = ''
+        if resource:
+            name_tag = resource.tags.get('Name', '')
+            name = '{0}'.format(
+                name_tag if name_tag else '' 
+            )
+        return name
+
+    @staticmethod
     def get_tags_display(tags, skip_name=True, wrap_width=0):
         """Return comma-separated list of tags as a string.
            Skips the 'Name' tag by default. no wrapping by default, otherwise honor wrap_width"""
