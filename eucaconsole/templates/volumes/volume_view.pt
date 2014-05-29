@@ -13,6 +13,7 @@
     <div class="row" id="contentwrap"
          ng-app="VolumePage" ng-controller="VolumePageCtrl"
          ng-init="initController('${request.route_path('volume_state_json', id=volume.id) if volume else ''}',
+                 '${volume_resource_name if volume_resource_name else ''}',
                  '${volume.status if volume else ''}',
                  '${volume.attach_data.status if volume else ''}')">
         <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
@@ -72,8 +73,8 @@
                             &nbsp;<span class="dots" ng-show="isUpdating">&nbsp;</span>
                         </div>
                     </div>
-                    <div tal:define="autofocus_attr {'autofocus': 'autofocus'} if not volume else {};" ng-non-bindable="">
-                        ${panel('form_field', field=volume_form.name, pattern=layout.tag_pattern_value, **autofocus_attr)}
+                    <div tal:define="autofocus_attr {'autofocus': 'autofocus'} if not volume else {};">
+                        ${panel('form_field', field=volume_form.name, pattern=layout.tag_pattern_value, ng_attrs={'model':'volumeName'}, **autofocus_attr)}
                     </div>
                     <div class="row controls-wrapper readonly" ng-show="attach_instance">
                         <div class="small-4 columns"><label i18n:translate="">Attached to instance</label></div>
@@ -132,7 +133,7 @@
                     ${panel('tag_editor', tags=volume_tags, show_name_tag=False)}
                     <hr />
                     <div>
-                        <button type="submit" class="button" tal:condition="volume" ng-disabled="isUpdating || volumeStatus === 'deleted'">
+                        <button type="submit" class="button" tal:condition="volume" ng-disabled="isNotChanged || isUpdating || volumeStatus === 'deleted'">
                             <span  i18n:translate="" >Save Changes</span>
                         </button>
                         <button type="submit" id="create_volume_submit_button" class="button" tal:condition="not volume">

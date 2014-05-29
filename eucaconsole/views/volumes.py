@@ -45,6 +45,7 @@ from ..forms.volumes import (
 from ..models import Notification
 from ..views import LandingPageView, TaggedItemView, BaseView
 from . import boto_error_handler
+import urllib
 
 
 class BaseVolumeView(BaseView):
@@ -259,6 +260,7 @@ class VolumeView(TaggedItemView, BaseVolumeView):
         self.tagged_obj = self.volume
         self.attach_data = self.volume.attach_data if self.volume else None
         self.volume_name = self.get_volume_name()
+        self.volume_resource_name = self.get_volume_resource_name()
         self.instance_name = None
         if self.attach_data is not None and self.attach_data.instance_id is not None:
             instance = self.get_instance(self.attach_data.instance_id)
@@ -266,6 +268,7 @@ class VolumeView(TaggedItemView, BaseVolumeView):
         self.render_dict = dict(
             volume=self.volume,
             volume_name=self.volume_name,
+            volume_resource_name=self.volume_resource_name,
             instance_name=self.instance_name,
             device_name=self.attach_data.device if self.attach_data else None,
             attachment_time=self.get_attachment_time(),
@@ -393,6 +396,11 @@ class VolumeView(TaggedItemView, BaseVolumeView):
     def get_volume_name(self):
         if self.volume:
             return TaggedItemView.get_display_name(self.volume)
+        return None
+
+    def get_volume_resource_name(self):
+        if self.volume:
+            return urllib.quote(TaggedItemView.get_resource_name(self.volume))
         return None
 
 
