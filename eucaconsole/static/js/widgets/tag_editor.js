@@ -60,6 +60,7 @@ angular.module('TagEditor', ['ngSanitize'])
             $event.preventDefault();
             $scope.tagsArray.splice(index, 1);
             $scope.syncTags();
+            $scope.resourceForm && $scope.resourceForm.$setDirty();
         };
         $scope.addTag = function ($event) {
             $event.preventDefault();

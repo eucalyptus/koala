@@ -131,6 +131,7 @@ angular.module('SecurityGroupRules', [])
             $event.preventDefault();
             $scope.rulesArray.splice(index, 1);
             $scope.syncRules();
+            $scope.resourceForm && $scope.resourceForm.$setDirty();
         };
         // Adjust the IP Protocol atrributes for specical cases
         $scope.adjustIpProtocol = function () {
