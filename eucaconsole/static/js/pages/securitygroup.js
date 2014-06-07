@@ -6,12 +6,49 @@
 
 angular.module('SecurityGroupPage', ['TagEditor', 'SecurityGroupRules'])
     .controller('SecurityGroupPageCtrl', function ($scope) {
+        $scope.isNotValid = true;
         $scope.isNotChanged = true;
+        $scope.securityGroupName = undefined;
+        $scope.securityGroupDescription = undefined;
         $scope.initController = function () {
             $scope.setWatch();
             $scope.setFocus();
         };
+        $scope.checkRequiredInput = function () {
+            if($scope.securityGroupName === undefined || $scope.securityGroupDescription === undefined){
+               $scope.isNotValid = true;
+            } else {
+               $scope.isNotValid = false;
+            }
+        };
         $scope.setWatch = function () {
+            $scope.$watch('securityGroupName', function () {
+                $scope.checkRequiredInput(); 
+            });
+            $scope.$watch('securityGroupDescription', function () {
+                $scope.checkRequiredInput();
+            });
+            // Handle the unsaved tag issue
+            $(document).on('submit', '#security-group-detail-form', function(event) {
+                $('input.taginput').each(function(){
+                    if($(this).val() !== ''){
+                        event.preventDefault(); 
+                        $('#unsaved-tag-warn-modal').foundation('reveal', 'open');
+                        return false;
+                    }
+                });
+            });
+            window.addEventListener("beforeunload", function(event) {
+                var existsUnsavedTag = false;
+                $('input.taginput').each(function(){
+                    if($(this).val() !== ''){
+                        existsUnsavedTag = true;
+                    }
+                });
+                if(existsUnsavedTag){
+                    return "You must click the \"Add\" button before you submit this for your tag to be included.";
+                }
+            });
             $(document).on('submit', '[data-reveal] form', function () {
                 $(this).find('.dialog-submit-button').css('display', 'none');                
                 $(this).find('.dialog-progress-display').css('display', 'block');                
