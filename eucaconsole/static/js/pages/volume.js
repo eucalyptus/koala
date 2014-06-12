@@ -15,6 +15,7 @@ angular.module('VolumePage', ['TagEditor'])
         $scope.snapshotId = '';
         $scope.instanceId = '';
         $scope.isNotChanged = true;
+        $scope.isSubmitted = false;
         $scope.isUpdating = false;
         $scope.fromSnapshot = false;
         $scope.volumeSize = 1;
@@ -106,6 +107,35 @@ angular.module('VolumePage', ['TagEditor'])
                 }else{
                     $('#volume_size_error').addClass('hide');
                     $('#create_volume_submit_button').removeAttr('disabled');
+                }
+            });
+            // Handle the unsaved tag issue
+            $(document).on('submit', '#volume-detail-form', function(event) {
+                $('input.taginput').each(function(){
+                    if($(this).val() !== ''){
+                        event.preventDefault(); 
+                        $('#unsaved-tag-warn-modal').foundation('reveal', 'open');
+                        return false;
+                    }
+                });
+            });
+            $(document).on('submit', function () {
+                $scope.isSubmitted = true;
+            });
+            window.addEventListener("beforeunload", function(event) {
+                var existsUnsavedTag = false;
+                $('input.taginput').each(function(){
+                    if($(this).val() !== ''){
+                        existsUnsavedTag = true;
+                    }
+                });
+                if(existsUnsavedTag){
+                    return "You must click the \"Add\" button before you submit this for your tag to be included.";
+                }else if($scope.isNotChanged === false){
+                    if( $scope.isSubmitted === true ){
+                        return;
+                    }
+                    return "You must click the \"Save Changes\" button before you leave this page.";
                 }
             });
             $(document).on('submit', '[data-reveal] form', function () {
