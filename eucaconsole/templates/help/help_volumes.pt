@@ -42,7 +42,7 @@
         <h5 class="title">Manage Snapshots</h5>
 
         <p> To manage snapshots for this volume, click the
-            <strong><a href="${snapshot_url}">Snapshots</a></strong> link.
+            <strong><a href="${snapshot_url}" target="_self">Snapshots</a></strong> link.
         </p>
     </div>
 

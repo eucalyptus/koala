@@ -17,7 +17,7 @@
                  '${volume.attach_data.status if volume else ''}')">
         <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
             <metal:crumbs metal:fill-slot="crumbs">
-                <li><a href="${request.route_path('volumes')}" i18n:translate="">Volumes</a></li>
+                <li><a href="${request.route_path('volumes')}" target="_self" i18n:translate="">Volumes</a></li>
                 <li class="current"><a href="#">${volume_name or 'Create volume'}</a></li>
             </metal:crumbs>
         </metal:breadcrumbs>
@@ -40,7 +40,7 @@
                          instance_id volume.attach_data.instance_id if volume else None;">
             <dl class="tabs" id="volume-subnav" tal:condition="volume">
                 <dd class="active"><a href="#" i18n:translate="">General</a></dd>
-                <dd><a href="${request.route_path('volume_snapshots', id=volume.id)}" i18n:translate="">Snapshots</a></dd>
+                <dd><a href="${request.route_path('volume_snapshots', id=volume.id)}" target="_self" i18n:translate="">Snapshots</a></dd>
             </dl>
             <div class="panel ${'has-actions' if volume else ''}">
                 <metal:block metal:use-macro="layout.global_macros['actions_menu']" tal:condition="volume">
@@ -78,7 +78,7 @@
                     <div class="row controls-wrapper readonly" ng-show="attach_instance">
                         <div class="small-4 columns"><label i18n:translate="">Attached to instance</label></div>
                         <div class="small-8 columns value">
-                            <a href="${request.route_path('instance_view', id=instance_id)}">${instance_name}</a>
+                            <a href="${request.route_path('instance_view', id=instance_id)}" target="_self">${instance_name}</a>
                         </div>
                     </div>
                     <div class="row controls-wrapper readonly" ng-show="device_name">
@@ -144,7 +144,7 @@
                         <button tal:condition="not volume" type="submit" id="create_volume_submit_button" class="button" ng-disabled="isNotValid">
                             <span tal:condition="not volume" i18n:translate="">Create Volume</span>
                         </button>
-                        <a href="${request.route_path('volumes')}"
+                        <a href="${request.route_path('volumes')}" target="_self" 
                            class="cancel-link" i18n:translate="">Cancel</a>
                     </div>
                 </form>
