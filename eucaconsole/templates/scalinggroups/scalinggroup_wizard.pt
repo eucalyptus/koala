@@ -9,7 +9,7 @@
          ng-init="initController(${launchconfigs_count})">
         <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
             <metal:crumbs metal:fill-slot="crumbs">
-                <li><a href="${request.route_path('scalinggroups')}" i18n:translate="">Scaling groups</a></li>
+                <li><a href="${request.route_path('scalinggroups')}" target="_self" i18n:translate="">Scaling groups</a></li>
                 <li class="current"><a href="#" i18n:translate="">Create scaling group</a></li>
             </metal:crumbs>
         </metal:breadcrumbs>
@@ -77,7 +77,7 @@
                                 <div class="small-8 columns field inline">
                                     <a id="visit-step-2" class="button small round" ng-click="visitNextStep(2, $event)" ng-disabled="isNotValid">
                                         <span i18n:translate="">Next</span>
-                                        <a class="cancel-link" href="${request.route_path('scalinggroups')}" i18n:translate="">Cancel</a>
+                                        <a class="cancel-link" href="${request.route_path('scalinggroups')}" target="_self" i18n:translate="">Cancel</a>
                                     </a>
                                 </div>
                             </div>
@@ -103,7 +103,7 @@
                                     <button type="submit" class="button" id="create-scalinggroup-btn" ng-disabled="isNotValid">
                                         <span i18n:translate="">Create Scaling Group</span>
                                     </button>
-                                    <a class="cancel-link" href="${request.route_path('scalinggroups')}" i18n:translate="">Cancel</a>
+                                    <a class="cancel-link" href="${request.route_path('scalinggroups')}" target="_self" i18n:translate="">Cancel</a>
                                 </div>
                             </div>
                         </div>
@@ -166,7 +166,7 @@
             <p i18n:translate="">
                 You must create a launch configuration before you can create a scaling group.
             </p>
-            <a href="${request.route_path('launchconfig_new')}" i18n:translate="">Create launch configuration</a>
+            <a href="${request.route_path('launchconfig_new')}" target="_self" i18n:translate="">Create launch configuration</a>
             <a href="#" class="close-reveal-modal">&#215;</a>
         </div>
     </div>
