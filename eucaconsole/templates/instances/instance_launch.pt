@@ -11,7 +11,7 @@
                                 '${role_choices_json}', '${request.route_path('image_json', id='_id_')}')">
         <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
             <metal:crumbs metal:fill-slot="crumbs">
-                <li><a href="${request.route_path('instances')}" i18n:translate="">Instances</a></li>
+                <li><a href="${request.route_path('instances')}" target="_self" i18n:translate="">Instances</a></li>
                 <li class="current"><a href="#" i18n:translate="">Launch instance</a></li>
             </metal:crumbs>
         </metal:breadcrumbs>
@@ -94,7 +94,7 @@
                                 <div class="small-9 columns field inline">
                                     <a id="visit-step-3" class="button small round" ng-click="visitNextStep(3, $event)" ng-disabled="isNotValid">
                                         <span i18n:translate="">Next</span>
-                                        <a class="cancel-link" href="${request.route_path('instances')}">Cancel</a>
+                                        <a class="cancel-link" href="${request.route_path('instances')}" target="_self">Cancel</a>
                                     </a>
                                 </div>
                             </div>
@@ -140,7 +140,7 @@
                                     <button type="submit" class="button" ng-click="saveOptions()" id="launch-instance-btn-step3" ng-disabled="isNotValid">
                                         <span i18n:translate="">Launch Instance<span ng-show="instanceNumber > 1">s</span></span>
                                     </button>
-                                    <a class="cancel-link" href="${request.route_path('instances')}">Cancel</a>
+                                    <a class="cancel-link" href="${request.route_path('instances')}" target="_self">Cancel</a>
                                     <br />
                                     <span class="or">Or:</span>
                                     <a id="visit-step-4" ng-click="visitNextStep(4, $event)">
@@ -189,7 +189,7 @@
                                     <button type="submit" class="button" ng-click="saveOptions()" id="launch-instance-btn-step4">
                                         <span i18n:translate="">Launch Instance</span><span ng-show="instanceNumber > 1">s</span>
                                     </button>
-                                    <a href="${request.route_path('instances')}"
+                                    <a href="${request.route_path('instances')}" target="_self"
                                        class="cancel-link" i18n:translate="">Cancel</a>
                                 </div>
                             </div>
