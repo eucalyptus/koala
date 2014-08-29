@@ -37,6 +37,9 @@ from markupsafe import escape
 from ..i18n import _
 from . import BaseSecureForm, ChoicesManager, TextEscapedField
 
+class NonValidatingSelectMultipleField(wtforms.SelectMultipleField):
+    def pre_validate(self, form):
+        pass
 
 class NgNonBindableOptionSelect(Select):
     @classmethod
@@ -57,6 +60,9 @@ class BaseScalingGroupForm(BaseSecureForm):
         ],
         widget=NgNonBindableOptionSelect(),
     )
+    vpc_network = wtforms.SelectField(label=_(u'VPC network'))
+    vpc_network_helptext = _(u'Launch your instance into one of your Virtual Private Clouds')
+    vpc_subnet = NonValidatingSelectMultipleField(label=_(u'VPC subnets'))
     availability_zones_error_msg = _(u'At least one availability zone is required')
     availability_zones = wtforms.SelectMultipleField(
         label=_(u'Availability zones'),
@@ -111,18 +117,22 @@ class BaseScalingGroupForm(BaseSecureForm):
     )
 
     def __init__(self, request, scaling_group=None, launch_configs=None,
-                 autoscale_conn=None, ec2_conn=None, elb_conn=None, **kwargs):
+                 autoscale_conn=None, ec2_conn=None, vpc_conn=None, elb_conn=None, **kwargs):
         super(BaseScalingGroupForm, self).__init__(request, **kwargs)
         self.scaling_group = scaling_group
         self.launch_configs = launch_configs
         self.autoscale_conn = autoscale_conn
         self.ec2_conn = ec2_conn
+        self.vpc_conn=vpc_conn
         self.elb_conn = elb_conn
 
         # Set choices
         self.ec2_choices_manager = ChoicesManager(conn=ec2_conn)
+        self.vpc_choices_manager = ChoicesManager(conn=vpc_conn)
         self.elb_choices_manager = ChoicesManager(conn=elb_conn) if elb_conn else None
         self.launch_config.choices = self.get_launch_config_choices()
+        self.vpc_network.choices = self.get_vpc_network_choices()
+        self.vpc_subnet.choices = self.get_vpc_subnet_choices()
         self.health_check_type.choices = self.get_healthcheck_type_choices()
         region = request.session.get('region')
         self.availability_zones.choices = self.get_availability_zone_choices(region)
@@ -137,8 +147,14 @@ class BaseScalingGroupForm(BaseSecureForm):
         self.health_check_type.error_msg = self.health_check_type_error_msg
         self.health_check_period.error_msg = self.health_check_period_error_msg
 
+        # Set help text
+        self.vpc_network.label_help_text = self.vpc_network_helptext
+
         if scaling_group is not None:
             self.launch_config.data = scaling_group.launch_config_name
+            self.vpc_network.data = ''
+            if scaling_group.vpc_zone_identifier:
+                self.vpc_subnet.data = scaling_group.vpc_zone_identifier.split(',')
             self.availability_zones.data = scaling_group.availability_zones
             self.load_balancers.data = scaling_group.load_balancers
             self.desired_capacity.data = int(scaling_group.desired_capacity) if scaling_group else 1
@@ -166,6 +182,14 @@ class BaseScalingGroupForm(BaseSecureForm):
                 sg_lc_name = BaseView.escape_braces(sg_lc_name)
             choices.append((sg_lc_name, sg_lc_name))
         return sorted(set(choices))
+
+    def get_vpc_network_choices(self):
+        choices = self.vpc_choices_manager.vpc_networks()
+        return choices
+
+    def get_vpc_subnet_choices(self):
+        choices = self.vpc_choices_manager.vpc_subnets(add_blank=False)
+        return choices
 
     def get_availability_zone_choices(self, region):
         return self.ec2_choices_manager.availability_zones(region, add_blank=False)
@@ -204,10 +228,10 @@ class ScalingGroupCreateForm(BaseScalingGroupForm):
         ],
     )
 
-    def __init__(self, request, scaling_group=None, autoscale_conn=None, ec2_conn=None, launch_configs=None, **kwargs):
+    def __init__(self, request, scaling_group=None, autoscale_conn=None, ec2_conn=None, vpc_conn=None, launch_configs=None, **kwargs):
         super(ScalingGroupCreateForm, self).__init__(
             request, scaling_group=scaling_group, autoscale_conn=autoscale_conn,
-            ec2_conn=ec2_conn, launch_configs=launch_configs, **kwargs)
+            ec2_conn=ec2_conn, vpc_conn=vpc_conn, launch_configs=launch_configs, **kwargs)
 
         # Set error messages
         self.name.error_msg = self.name_error_msg
@@ -236,10 +260,10 @@ class ScalingGroupEditForm(BaseScalingGroupForm):
         ],
     )
 
-    def __init__(self, request, scaling_group=None, autoscale_conn=None, ec2_conn=None, launch_configs=None, **kwargs):
+    def __init__(self, request, scaling_group=None, autoscale_conn=None, ec2_conn=None, vpc_conn=None, launch_configs=None, **kwargs):
         super(ScalingGroupEditForm, self).__init__(
             request, scaling_group=scaling_group, autoscale_conn=autoscale_conn,
-            ec2_conn=ec2_conn, launch_configs=launch_configs, **kwargs)
+            ec2_conn=ec2_conn, vpc_conn=vpc_conn, launch_configs=launch_configs, **kwargs)
 
         # Set choices
         self.termination_policies.choices = self.get_termination_policy_choices()

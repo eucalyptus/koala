@@ -17,6 +17,10 @@ angular.module('ScalingGroupWizard', ['AutoScaleTagEditor'])
         $scope.maxSize = 1;
         $scope.urlParams = $.url().param();
         $scope.launchConfig = '';
+        $scope.vpcNetwork = '';
+        $scope.vpcSubnet = '';
+        $scope.vpcSubnetList = {};
+        $scope.vpcSubnetChoices = {};
         $scope.availZones = '';
         $scope.summarySection = $('.summary');
         $scope.currentStepIndex = 1;
@@ -25,6 +29,7 @@ angular.module('ScalingGroupWizard', ['AutoScaleTagEditor'])
             $('#launch_config').chosen({'width': '80%', search_contains: true});
             $('#load_balancers').chosen({'width': '80%', search_contains: true});
             $('#availability_zones').chosen({'width': '100%', search_contains: true});
+            $('#vpc_subnet').chosen({'width': '100%', search_contains: true});
         };
         $scope.setInitialValues = function () {
             $scope.availZones = $('#availability_zones').val();
@@ -34,7 +39,9 @@ angular.module('ScalingGroupWizard', ['AutoScaleTagEditor'])
                 $scope.launchConfig = $('#hidden_launch_config_input').val();
             }
         };
-        $scope.initController = function (launchConfigCount) {
+        $scope.initController = function (launchConfigCount, vpcSubnetJson) {
+            vpcSubnetJson = vpcSubnetJson.replace(/__apos__/g, "\'");
+            $scope.vpcSubnetList = JSON.parse(vpcSubnetJson);
             $scope.initChosenSelectors();
             $scope.setInitialValues();
             $scope.checkLaunchConfigParam();
@@ -91,7 +98,30 @@ angular.module('ScalingGroupWizard', ['AutoScaleTagEditor'])
             $scope.$watch('availZones', function(){
                 $scope.checkRequiredInput();
             });
+            $scope.$watch('vpcNetwork', function () {
+                $scope.updateVPCSubnetChoices();
+            });
         }
+        $scope.updateVPCSubnetChoices = function () {
+            $scope.vpcSubnetChoices = {};
+            $scope.vpcSubnet = '';
+            for( var i=0; i < $scope.vpcSubnetList.length; i++){
+                if ($scope.vpcSubnetList[i]['vpc_id'] === $scope.vpcNetwork) {
+                    $scope.vpcSubnetChoices[$scope.vpcSubnetList[i]['id']] = 
+                        $scope.vpcSubnetList[i]['cidr_block'] + ' (' + $scope.vpcSubnetList[i]['id'] + ') | ' + 
+                        $scope.vpcSubnetList[i]['availability_zone'];
+                    if ($scope.vpcSubnet == '') {
+                        $scope.vpcSubnet = $scope.vpcSubnetList[i]['id'];
+                    }
+                }
+            } 
+            if ($scope.vpcSubnet == '') {
+                $scope.vpcSubnetChoices[''] = $('#vpc_subnet_empty_option').text();
+            }
+            $timeout(function() {
+                $('#vpc_subnet').trigger('chosen:updated');
+            }, 500);
+        };
         $scope.setWizardFocus = function (stepIdx) {
             var modal = $('div').filter("#step" + stepIdx);
             var inputElement = modal.find('input[type!=hidden]').get(0);
