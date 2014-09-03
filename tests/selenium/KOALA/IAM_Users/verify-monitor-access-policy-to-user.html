@@ -3,12 +3,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>delete-user_1</title>
+<title>verify-monitor-access-policy-to-user_1</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">delete-user_1</td></tr>
+<tr><td rowspan="1" colspan="3">verify-monitor-access-policy-to-user_1</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -37,32 +37,27 @@
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>link=${user_1}</td>
+	<td>link=${user}</td>
 	<td></td>
 </tr>
 <tr>
 	<td>assertVisible</td>
-	<td>link=${user_1}</td>
+	<td>link=${user}</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=${user_1}</td>
+	<td>link=${user}</td>
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>css=span.button.dropdown</td>
+	<td>waitForTextPresent</td>
+	<td>ReadOnlyAccessPolicy-${user}</td>
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>id=delete-user-action</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>id=delete_user_submit_button</td>
+	<td>verifyTextPresent</td>
+	<td>ReadOnlyAccessPolicy-${user}</td>
 	<td></td>
 </tr>
 </tbody></table>
