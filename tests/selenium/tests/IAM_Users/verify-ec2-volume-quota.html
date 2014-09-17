@@ -42,7 +42,47 @@
 </tr>
 <tr>
 	<td>waitForTextPresent</td>
-	<td>items found</td>
+	<td>Eucalyptus Systems</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeTextPresent</td>
+	<td>deleted</td>
+	<td>vol_search</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${vol_search}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>1</td>
+	<td>c</td>
+</tr>
+<tr>
+	<td>while</td>
+	<td>${vol_search}==true &amp;&amp; ${c}&lt;5</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=refresh-btn</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeTextPresent</td>
+	<td>deleted</td>
+	<td>vol_search</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${c}+1</td>
+	<td>c</td>
+</tr>
+<tr>
+	<td>endWhile</td>
+	<td></td>
 	<td></td>
 </tr>
 <tr>
@@ -107,7 +147,7 @@
 </tr>
 <tr>
 	<td>waitForTextPresent</td>
-	<td>items found</td>
+	<td>Eucalyptus Systems</td>
 	<td></td>
 </tr>
 <tr>
@@ -119,6 +159,26 @@
 	<td>assertEval</td>
 	<td>${tcount1}+1==${tcount2}</td>
 	<td>true</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=i.fi-widget</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Delete volume</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=delete_volume_submit_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>deleted</td>
+	<td></td>
 </tr>
 <tr>
 	<td>storeText</td>

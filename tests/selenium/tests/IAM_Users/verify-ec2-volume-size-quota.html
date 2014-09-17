@@ -47,7 +47,7 @@
 </tr>
 <tr>
 	<td>waitForTextPresent</td>
-	<td>items found</td>
+	<td>Eucalyptus Systems</td>
 	<td></td>
 </tr>
 <tr>
@@ -89,6 +89,41 @@
 	<td>assertEval</td>
 	<td>${tcount1}==${tcount2}</td>
 	<td>true</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>id=notifications</td>
+	<td>breadcrumbs</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${breadcrumbs}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=create-volume-btn</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=name</td>
+	<td>ui-volume-1</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=create_volume_submit_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>available</td>
+	<td></td>
 </tr>
 <tr>
 	<td>storeText</td>
