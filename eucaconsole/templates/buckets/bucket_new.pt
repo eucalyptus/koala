@@ -2,7 +2,7 @@
 
 <head metal:fill-slot="head_css">
     <style type="text/css">
-        .expando .content { padding-left: 1.5rem; }
+        .expando .content { padding-left: 1.5rem; padding-top: 0.5rem; }
         .required-fields-indicator { margin-top: 0.8rem; margin-right: 2rem; }
     </style>
 </head>
@@ -26,8 +26,6 @@
                     ${structure:create_form['csrf_token']}
                     ${panel('form_field', field=create_form.bucket_name, pattern=bucket_name_pattern, leftcol_width=12, rightcol_width=12, inline=False, ng_attrs={'model': 'bucketName'})}
                     <hr />
-                    ${panel('s3_sharing_panel', sharing_form=sharing_form)}
-                    <hr />
                     <div class="expando" id="create-bucket-advanced-section" ng-cloak="" ng-init="advancedExpanded=false">
                         <h6 class="title" >
                             <a ng-click="advancedExpanded = !advancedExpanded">
@@ -37,9 +35,7 @@
                             </a>
                         </h6>
                         <div class="content" ng-show="advancedExpanded">
-                            <div class="row controls-wrapper">
-                                ${panel('form_field', field=create_form.enable_versioning, reverse=True)}
-                            </div>
+                            ${panel('s3_sharing_panel', sharing_form=sharing_form)}
                         </div>
                         <hr />
                     </div>
