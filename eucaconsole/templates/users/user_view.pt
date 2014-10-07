@@ -42,7 +42,7 @@
                         </metal:actions>
                     </metal:block>
                     <div ng-controller="UserUpdateCtrl"
-                         ng-init="initController('${request.route_path('user_update', name=user.user_name)}')">
+                         ng-init="initController('${request.route_path('user_update', name=user.user_name)}', '${user_arn if user_arn else ''}')">
                         <form data-abide="abide" id="user-update-form" ng-submit="submit($event)">
                             ${structure:user_form['csrf_token']}
                             <input type='hidden' name='as-account' value="${as_account}"/>
@@ -61,7 +61,7 @@
                                 </div>
                                 <div class="row controls-wrapper readonly">
                                     <div class="small-3 columns"><label i18n:translate="">ARN</label></div>
-                                    <div class="small-9 columns value" ng-non-bindable="">${user_arn if user_arn else ''}</div>
+                                    <div class="small-9 columns value" ng-cloak="">{{ userARN }}</div>
                                 </div>
                                 ${panel('form_field', field=user_form['path'], leftcol_width=3, rightcol_width=9)}
                             </div>

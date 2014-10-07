@@ -459,19 +459,12 @@ class UserView(BaseView):
             return JSONResponse(status=400, message="missing CSRF token")
         as_account = self.request.params.get('as_account', '')
         with boto_error_handler(self.request):
-            new_name = self.request.params.get('user_name', self.user.user_name)
+            new_name = self.request.params.get('user_name', None)
             path = self.request.params.get('path', None)
             self.log_request(
                 _(u"Updating user {0} (new_name={1}, path={2})").format(self.user.user_name, new_name, path))
-            params={'UserName': self.user.user_name, 'Path': path}
-            if new_name != self.user.user_name:
-                params['NewUserName'] = new_name
-            if as_account != '':
-                params['DelegateAccount'] = as_account
-            self.conn.get_response('UpdateUser', params=params)
-            self.user.path = path
-            if self.user.user_name != new_name:
-                pass  # TODO: need to force view refresh if name changes
+            self.conn.update_user(self.user.user_name, new_user_name=new_name, new_path=path)
+            self.user = self.conn.get_user(user_name=self.user.user_name)
             return dict(message=_(u"Successfully updated user information"),
                         results=self.user)
 
