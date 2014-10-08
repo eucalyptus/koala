@@ -8,6 +8,7 @@
 // user view page includes the User Editor editor
 angular.module('UserView', ['PolicyList', 'Quotas', 'EucaConsoleUtils'])
     .controller('UserViewCtrl', function ($scope, $http, eucaUnescapeJson) {
+        $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $scope.disable_url = '';
         $scope.allUsersRedirect = '';
         $scope.form = $('#user-update-form');
@@ -201,9 +202,11 @@ angular.module('UserView', ['PolicyList', 'Quotas', 'EucaConsoleUtils'])
     .controller('UserUpdateCtrl', function($scope, $http, $timeout) {
         $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $scope.jsonEndpoint = '';
+        $scope.userARN = '';
         $scope.isUserInfoNotChanged = true;
-        $scope.initController = function (jsonEndpoint) {
+        $scope.initController = function (jsonEndpoint, userARN) {
             $scope.jsonEndpoint = jsonEndpoint;
+            $scope.userARN = userARN;
             $scope.setWatch();
         };
         $scope.setWatch = function () {
@@ -229,6 +232,7 @@ angular.module('UserView', ['PolicyList', 'Quotas', 'EucaConsoleUtils'])
                 // could put data back into form, but form already contains changes
                 if (oData.error == undefined) {
                     Notify.success(oData.message);
+                    $scope.userARN = results.get_user_response.get_user_result.user.arn;
                     $scope.isUserInfoNotChanged = true;
                 } else {
                     Notify.failure(oData.message);
