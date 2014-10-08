@@ -463,7 +463,14 @@ class UserView(BaseView):
             path = self.request.params.get('path', None)
             self.log_request(
                 _(u"Updating user {0} (new_name={1}, path={2})").format(self.user.user_name, new_name, path))
-            self.conn.update_user(self.user.user_name, new_user_name=new_name, new_path=path)
+            params={'UserName': self.user.user_name, 'Path': path}
+            if new_name is not None and new_name != self.user.user_name:
+                params['NewUserName'] = new_name
+            if path is not None and path != self.user.path:
+                params['NewPath'] = path
+            if as_account != '':
+                params['DelegateAccount'] = as_account
+            response = self.conn.get_response('UpdateUser', params=params)
             self.user = self.conn.get_user(user_name=self.user.user_name)
             return dict(message=_(u"Successfully updated user information"),
                         results=self.user)

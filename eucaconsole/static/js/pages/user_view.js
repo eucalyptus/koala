@@ -8,6 +8,7 @@
 // user view page includes the User Editor editor
 angular.module('UserView', ['PolicyList', 'Quotas', 'EucaConsoleUtils'])
     .controller('UserViewCtrl', function ($scope, $http, eucaUnescapeJson) {
+        $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $scope.disable_url = '';
         $scope.allUsersRedirect = '';
         $scope.form = $('#user-update-form');
