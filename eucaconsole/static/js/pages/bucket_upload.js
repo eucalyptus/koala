@@ -26,8 +26,9 @@ angular.module('UploadFilePage', ['S3SharingPanel', 'S3MetadataEditor'])
         $scope.uploading = false;
         $scope.progress = 0;
         $scope.total = 0;
-        $scope.initController = function (uploadUrl) {
+        $scope.initController = function (uploadUrl, bucketUrl) {
             $scope.uploadUrl = uploadUrl;
+            $scope.bucketUrl = bucketUrl;
             $scope.handleUnsavedChanges();
             $scope.handleUnsavedSharingEntry($scope.createBucketForm);
         };
@@ -58,7 +59,7 @@ angular.module('UploadFilePage', ['S3SharingPanel', 'S3MetadataEditor'])
         $scope.handleUnsavedSharingEntry = function (form) {
             // Display warning when there's an unsaved Sharing Panel entry
             form.on('submit', function (event) {
-                var accountInputField = form.find('#share_account');
+                var accountInputField = form.find('#share_account:visible');
                 if (accountInputField.length && accountInputField.val() != '') {
                     event.preventDefault();
                     $scope.isSubmitted = false;
@@ -96,7 +97,7 @@ angular.module('UploadFilePage', ['S3SharingPanel', 'S3MetadataEditor'])
                     if ($scope.progress == $scope.total) {
                         $('#upload-files-modal').foundation('reveal', 'close');
                         $scope.hasChangesToBeSaved = false;
-                        window.history.back()
+                        $scope.cancel()
                     }
                     if ($scope.uploading == true) {
                         $scope.uploadFile();
@@ -114,7 +115,15 @@ angular.module('UploadFilePage', ['S3SharingPanel', 'S3MetadataEditor'])
             $scope.uploading = false;
             $scope.progress = 0;
             $scope.hasChangesToBeSaved = false;
-            window.history.back()
+            $scope.cancel()
+        };
+        $scope.cancel = function () {
+            if (window.matchMedia(Foundation.media_queries['small']).matches === false) {
+                window.close()
+            }
+            else {
+                window.location = $scope.bucketUrl;
+            }
         };
     })
 ;
