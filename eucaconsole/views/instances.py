@@ -929,12 +929,13 @@ class InstanceLaunchView(BlockDeviceMappingItemView):
             tags_json = self.request.params.get('tags')
             image_id = self.image.id
             num_instances = int(self.request.params.get('number', 1))
-            key_name = self.request.params.get('keypair')
+            key_name = self.unescape_braces(self.request.params.get('keypair', ''))
             if key_name and key_name == 'none':
                 key_name = None  # Handle "None (advanced)" option
             if key_name:
                 key_name = self.unescape_braces(key_name)
-            securitygroup_ids = self.request.params.getall('securitygroup')
+            securitygroup = self.unescape_braces(self.request.params.get('securitygroup', 'default'))
+            security_groups = [securitygroup]  # Security group names
             instance_type = self.request.params.get('instance_type', 'm1.small')
             availability_zone = self.request.params.get('zone') or None
             vpc_network = self.request.params.get('vpc_network') or None

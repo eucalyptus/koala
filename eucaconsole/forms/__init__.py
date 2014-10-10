@@ -37,6 +37,8 @@ import sys
 from beaker.cache import cache_region
 from wtforms import StringField
 from wtforms.ext.csrf import SecureForm
+from wtforms.widgets import html_params, HTMLString, Select
+from markupsafe import escape
 
 import boto
 from boto.exception import BotoServerError
@@ -47,6 +49,15 @@ from ..i18n import _
 
 
 BLANK_CHOICE = ('', _(u'Select...'))
+
+
+class NgNonBindableOptionSelect(Select):
+    @classmethod
+    def render_option(cls, value, label, selected):
+        options = {'value': value}
+        if selected:
+            options['selected'] = u'selected'
+        return HTMLString(u'<option %s ng-non-bindable="">%s</option>' % (html_params(**options), escape(unicode(label))))
 
 
 class BaseSecureForm(SecureForm):
@@ -175,6 +186,19 @@ class ChoicesManager(object):
             volumes = self.conn.get_all_volumes()
             if self.conn:
                 for volume in volumes:
+                    value = volume.id
+                    label = TaggedItemView.get_display_name(volume, escapebraces=escapebraces)
+                    choices.append((value, label))
+        return choices
+
+    def snapshots(self, snapshots=None, escapebraces=True):
+        from ..views import TaggedItemView
+        choices = [('', _(u'None'))]
+        snapshots = snapshots or []
+        if not snapshots and self.conn is not None:
+            snapshots = self.conn.get_all_snapshots()
+            if self.conn:
+                for volume in snapshots:
                     value = volume.id
                     label = TaggedItemView.get_display_name(volume, escapebraces=escapebraces)
                     choices.append((value, label))
