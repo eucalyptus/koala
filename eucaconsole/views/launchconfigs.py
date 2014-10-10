@@ -390,12 +390,13 @@ class CreateLaunchConfigView(BlockDeviceMappingItemView):
             location = self.request.route_path('launchconfigs')
             image_id = self.image.id
             name = self.request.params.get('name')
-            key_name = self.request.params.get('keypair')
+            key_name = self.unescape_braces(self.request.params.get('keypair', ''))
             if key_name and key_name == 'none':
                 key_name = None  # Handle "None (advanced)" option
             if key_name:
                 key_name = self.unescape_braces(key_name)
-            security_groups = self.request.params.getall('securitygroup')
+            securitygroup = self.unescape_braces(self.request.params.get('securitygroup', 'default'))
+            security_groups = [securitygroup]  # Security group names
             instance_type = self.request.params.get('instance_type', 'm1.small')
             associate_public_ip_address = self.request.params.get('associate_public_ip_address')
             # associate_public_ip_address's value can be None, True, or False 

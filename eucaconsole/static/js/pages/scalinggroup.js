@@ -36,11 +36,18 @@ angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
             $scope.createVPCSubnetZonesMap();
             $scope.setInitialVPCSubnets();
         };
+<<<<<<< HEAD
         $scope.initController = function (optionsJson) {
             var options = JSON.parse(eucaUnescapeJson(optionsJson));
             // scalingGroupName, policiesCount
             $scope.scalingGroupName = options['scaling_group_name'];
             $scope.policiesCount = options['policies_count'];
+=======
+        $scope.initController = function (scalingGroupName, policiesCount) {
+            $scope.scalingGroupName = scalingGroupName.replace(/__apos__/g, "\'")
+                .replace(/__curlyfront__/g, "{").replace(/__curlyback__/g, "}");
+            $scope.policiesCount = policiesCount;
+>>>>>>> maint-4.0
             $scope.setInitialValues();
             $scope.initChosenSelectors();
             $scope.setWatch();
