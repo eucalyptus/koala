@@ -58,3 +58,5 @@ angular.module('EucaConsoleUtils', [])
         Notify.failure(errorMsg);
     };
 });
+
+angular.module('EucaConsoleUtils');
