@@ -1,9 +1,10 @@
 <!--! Block Device Mapping editor -->
 <div id="bdmapping-editor" class="row controls-wrapper" ng-app="BlockDeviceMappingEditor" i18n:domain="eucaconsole"
      ng-controller="BlockDeviceMappingEditorCtrl" ng-init="initBlockDeviceMappingEditor('${controller_options_json}')">
+    <link rel="stylesheet" type="text/css" href="${request.static_path('eucaconsole:static/css/widgets/bdmapping_editor.css')}" />
     <div class="columns" ng-show="bdMapping">
         <h6 i18n:translate="" class="storage-label">Storage</h6>
-        <table class="table">
+        <table class="table bdmapping-table">
             <thead>
                 <tr>
                     <th i18n:translate="" class="volume">Volume</th>
@@ -13,7 +14,7 @@
                         <span i18n:translate="">Size</span>
                         <span i18n:translate="" class="hide-for-small">(GB)</span>
                     </th>
-                    <th class="delete-on-terminate">
+                    <th class="delete-on-terminate" style="text-align:center;">
                         <span i18n:translate="" class="hide-for-small">Delete on Terminate</span>
                         <span class="show-for-small"
                               title="Delete on terminate" i18n:attributes="title"><i class="fi-trash"></i></span>
@@ -64,7 +65,7 @@
         </div>
         <div class="row" id="new-blockdevice-entry" tal:condition="not read_only">
             <div class="medium-2 columns">
-                <label class="left" i18n:translate="">Volume</label>
+                <label i18n:translate="">Volume</label>
                 <select name="volume_type" ng-model="newVolumeType">
                     <option value="EBS">EBS</option>
                     <!--! There can be only one ephemeral device in Eucalyptus -->
@@ -75,17 +76,17 @@
                 </select>
             </div>
             <div class="medium-2 columns">
-                <label class="left" i18n:translate="">Mapping</label>
+                <label i18n:translate="">Mapping</label>
                 <input type="text" name="path" id="new-mapping-path" ng-model="newMappingPath" />
             </div>
             <div class="medium-4 columns" ng-show="newVolumeType !== 'ephemeral'">
-                <label class="left" i18n:translate="">Create from snapshot</label>
+                <label i18n:translate="">Create from snapshot</label>
                 <select name="snapshot_id" ng-model="newSnapshotID">
                     <option tal:repeat="choice snapshot_choices" value="${choice[0]}">${choice[1]}</option>
                 </select>
             </div>
             <div class="medium-1 columns" ng-show="newVolumeType !== 'ephemeral'">
-                <label class="left" i18n:translate="">Size</label>
+                <label i18n:translate="">Size</label>
                 <input class="number" id="new-size" ng-model="newSize" />
             </div>
             <div class="medium-3 columns" ng-show="newVolumeType !== 'ephemeral'">
