@@ -1,9 +1,125 @@
-/* @fileOverview single Launch Config page CSS */
+/* @fileOverview single Load Balancer page CSS */
 
 @import "../includes/eucavariables";
 
-// Alert icon for missing security group rules
-.fi-alert {
-    color: darkred;
+@import "../includes/landingpage";
+
+
+#elb-view-form {
+    dd {
+        a {
+            font-size: 0.85rem;
+        }
+        span {
+            font-size: 0.85rem;
+        }
+    }
+    input.text-input {
+        width: 300px;
+    }
+    input.timeout-field {
+        width: 60px;
+    }
+    input[type="number"] {
+        width: 100px;
+    }
+    select.ip-protocol {
+        width: 100px;
+    }
+    select.ping-delay {
+        width: 120px;
+    }
+    select.ping-threshold {
+        width: 100px;
+    }
+    .stack-label {
+        margin-bottom: 0.5rem;
+    }
+    .section-label {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        color: $euca-darkblue;
+    }
+    .sub-section-label {
+        color: black;
+    }
+    .helptext-icon {
+        color: $euca-grey;
+        font-size: 1.3rem;
+    }
+    .section-label-with-helptext-icon {
+        margin-bottom: 0.5rem;
+    }
+    .checkbox-with-helptext-icon label {
+        margin-right: 0rem;
+    }
+    .cancel-link {
+        margin-right: 1.5rem;
+    }
+    .description {
+        margin-bottom: 1.0rem;
+    }
+    .enable-button {
+        height: 37px;
+        padding-top: 0.5rem;
+    }
+    .allhealthy { background-color: $euca-darkblue; }
+    .unhealthy { background-color: darkred; }
+    #cross-zone-div {
+        label { 
+            display: inline;
+            margin-left: 0.5rem;
+            margin-right: 1.0rem;
+        }
+        a {
+            margin-right: 0.5rem;
+         }
+        .active { color: $euca-darkgrey; }
+        .inactive { color: $euca-green; }
+    }
+    #elb-listener-security-field {
+        margin-bottom: 1.5rem;
+    }
+    #advanced-section {
+        margin-top: 1.5rem;
+    }
 }
 
+table.elb-listener-table {
+    width: 100%;
+    tr.top-header {
+        border-bottom: 0px;
+    }
+    th.vertical-border-header {
+        border-collapse: collapse;
+        border-right-width: 1px;
+        border-right-style: solid;
+        border-right-color: #ddd;
+    } 
+    th.center {
+        text-align: center;
+    }
+}
+
+table.instance-selector-table {
+    width: 100%;
+}
+
+.tile {
+    @include panel-tile-mixin;
+    .footer {
+        &.has-progress {
+            .progress {
+                padding-right: 0;
+                .meter {
+                    color: black;
+                    text-align: left;
+                }
+            }
+            .completed {
+                position: relative;
+                top: -3px;
+            }
+        }
+    }
+}
