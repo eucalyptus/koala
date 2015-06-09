@@ -15,6 +15,9 @@
   .search-selected {
     top: -0.40rem;
   }
+  .search-bar .search-main-area {
+    padding-top: 4px;
+  }
 }
 /*-----------------------------------------
    Magic Search bar
