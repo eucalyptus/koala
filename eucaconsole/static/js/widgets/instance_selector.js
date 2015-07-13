@@ -53,6 +53,8 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                 $scope.ELBInstanceHealthList = options.elb_instance_health;
                 $scope.healthStatusNames = options.health_status_names;
                 $scope.instanceHealthMapping = $scope.getInstanceHealthMapping();
+                $scope.allAvailabilityZones = options.availability_zone_choices;
+                $scope.allSubnets = options.vpc_subnet_choices;
                 if (options.hasOwnProperty('is_vpc_supported')) {
                     $scope.isVPCSupported = options.is_vpc_supported;
                 }
@@ -284,7 +286,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                         if (selectedInstance.id === instance.id) {
                             var existsZone = false;
                             angular.forEach($scope.availabilityZones, function (zone) {
-                                if (zone == instance.placement) {
+                                if (zone === instance.placement) {
                                     existsZone = true;
                                 }
                             });
@@ -294,6 +296,28 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                         } 
                     });
                 });
+                $scope.updateSelectedInstanceCounts();
+            };
+            $scope.updateSelectedInstanceCounts = function () {
+                if ($scope.isVPCSupported) {
+                    angular.forEach($scope.allSubnets, function (subnet) {
+                        $scope.$parent.instanceCounts[subnet.id] = 0;
+                        angular.forEach($scope.selectedInstanceList, function (selectedInstance) {
+                            if (subnet.id === selectedInstance.subnet_id) {
+                                $scope.$parent.instanceCounts[subnet.id] += 1;
+                            }
+                        });
+                    });
+                } else {
+                    angular.forEach($scope.allAvailabilityZones, function (zone) {
+                        $scope.$parent.instanceCounts[zone.name] = 0;
+                        angular.forEach($scope.selectedInstanceList, function (selectedInstance) {
+                            if (zone.name === selectedInstance.placement) {
+                                $scope.$parent.instanceCounts[zone.name] += 1;
+                            }
+                        });
+                    });
+                }
             };
             $scope.updateInstanceVPCSubnets = function () {
                 $scope.vpcSubnets = [];
@@ -302,7 +326,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                         if (selectedInstance.id === instance.id) {
                             var existsSubnet = false;
                             angular.forEach($scope.vpcSubnets, function (subnet) {
-                                if (subnet == instance.subnet_id) {
+                                if (subnet === instance.subnet_id) {
                                     existsSubnet = true;
                                 }
                             });
@@ -312,6 +336,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                         } 
                     });
                 });
+                $scope.updateSelectedInstanceCounts();
             };
             /*  Filter items client side based on search criteria.
              *  @param {array} filterProps Array of properties to filter items on
