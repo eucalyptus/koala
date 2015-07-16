@@ -414,6 +414,7 @@ class CreateLaunchConfigView(BlockDeviceMappingItemView):
             'securitygroups_rules_json_endpoint': self.request.route_path('securitygroups_rules_json'),
             'image_json_endpoint': self.request.route_path('image_json', id='_id_'),
             'default_vpc_network': self.get_default_vpc_network(),
+            'cloud_type': self.cloud_type,
         }))
         self.is_vpc_supported = BaseView.is_vpc_supported(request)
         self.render_dict = dict(

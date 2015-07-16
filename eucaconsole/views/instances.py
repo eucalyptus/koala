@@ -1106,6 +1106,7 @@ class InstanceLaunchView(BaseInstanceView, BlockDeviceMappingItemView):
             'securitygroups_json_endpoint': self.request.route_path('securitygroups_json'),
             'securitygroups_rules_json_endpoint': self.request.route_path('securitygroups_rules_json'),
             'image_json_endpoint': self.request.route_path('image_json', id='_id_'),
+            'cloud_type': self.cloud_type,
         }))
         self.render_dict = dict(
             image=self.image,
