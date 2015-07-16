@@ -1087,6 +1087,17 @@ class CreateBucketView(BaseView):
             self.request.error_messages = self.create_form.get_errors_list()
         return self.render_dict
 
+    @view_config(route_name='bucket_create', renderer='json', request_method='POST', xhr=True)
+    def bucket_create_xhr(self):
+        if not(self.is_csrf_valid()):
+            return JSONResponse(status=400, message="missing CSRF token")
+        bucket_name = self.request.params.get('bucket_name').lower()
+        with boto_error_handler(self.request):
+            self.log_request(u"Creating bucket {0}".format(bucket_name))
+            self.s3_conn.create_bucket(bucket_name)
+            msg = u'{0} {1}'.format(_(u'Successfully created'), bucket_name)
+            return JSONResponse(status=200, message=msg)
+
     def get_controller_options_json(self):
         return BaseView.escape_json(json.dumps({
             'bucket_name': self.request.params.get('bucket_name', ''),
