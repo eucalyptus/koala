@@ -65,6 +65,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
             $scope.securityGroupJsonEndpoint = options.securitygroups_json_endpoint;
             $scope.securityGroupsRulesJsonEndpoint = options.securitygroups_rules_json_endpoint;
             $scope.imageJsonURL = options.image_json_endpoint;
+            $scope.cloudType = options.cloud_type;
             $scope.setInitialValues();
             $scope.getAllSecurityGroupsRules();
             $scope.preventFormSubmitOnEnter();
@@ -95,7 +96,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
         };
         $scope.setInitialValues = function () {
             $('#number').val($scope.instanceNumber);
-            $scope.instanceType = 'm1.small';
+            $scope.instanceType = $scope.cloudType === 'euca'? 'm1.small' : 't2.small';
             $scope.instanceZone = $('#zone').find(':selected').val();
             var lastVPC = Modernizr.localstorage && localStorage.getItem('lastvpc_inst');
             if (lastVPC !== null && $('#vpc_network option[value=' + lastVPC +']').length > 0) {

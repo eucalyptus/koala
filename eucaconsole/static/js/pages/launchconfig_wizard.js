@@ -58,7 +58,8 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
             $scope.securityGroupsRulesJsonEndpoint = options.securitygroups_rules_json_endpoint;
             $scope.imageJsonURL = options.image_json_endpoint;
             $scope.securityGroupVPC = options.default_vpc_network;
-            $scope.getAllSecurityGroups(); 
+            $scope.cloudType = options.cloud_type;
+            $scope.getAllSecurityGroups();
             $scope.getAllSecurityGroupsRules();
             $scope.setInitialValues();
             $scope.preventFormSubmitOnEnter();
@@ -134,7 +135,7 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
             }, 500);
         };
         $scope.setInitialValues = function () {
-            $scope.instanceType = 'm1.small';
+            $scope.instanceType = $scope.cloudType === 'euca'? 'm1.small' : 't2.small';
             $scope.instanceTypeSelected = $scope.urlParams.instance_type || '';
             $scope.instanceNumber = '1';
             $scope.instanceZone = $('#zone').find(':selected').val();
@@ -145,13 +146,15 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
             $scope.keyPair = $('#keypair').find(':selected').val();
             $scope.imageID = $scope.urlParams.image_id || '';
             $scope.keyPairSelected = $scope.urlParams.keypair || '';
-            if( $scope.instanceTypeSelected !== '' )
+            if ($scope.instanceTypeSelected !== '') {
                 $scope.instanceType = $scope.instanceTypeSelected;
-            if( $scope.keyPairSelected !== '' )
+            }
+            if ($scope.keyPairSelected !== '') {
                 $scope.keyPair = $scope.keyPairSelected;
-            if( $scope.imageID === '' ){
+            }
+            if ($scope.imageID === '') {
                 $scope.currentStepIndex = 1;
-            }else{
+            } else {
                 $scope.currentStepIndex = 2;
                 $scope.step1Invalid = false;
                 $scope.loadImageInfo($scope.imageID);
