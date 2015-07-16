@@ -6,7 +6,8 @@
 
 // Create Image page includes the Tag Editor 
 angular.module('InstanceCreateImage', ['TagEditor'])
-    .controller('InstanceCreateImageCtrl', function ($scope, $timeout) {
+    .controller('InstanceCreateImageCtrl', function ($scope, $http, $timeout) {
+        $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $scope.form = $('#create-image-form');
         $scope.expanded = false;
         $scope.name = '';
@@ -18,7 +19,8 @@ angular.module('InstanceCreateImage', ['TagEditor'])
         $scope.toggleContent = function () {
             $scope.expanded = !$scope.expanded;
         };
-        $scope.initController = function () {
+        $scope.initController = function (bucketCreateUrl) {
+            $scope.bucketCreateUrl = bucketCreateUrl;
             $('#s3_bucket').chosen({search_contains: true, create_option: function(term){
                     var chosen = this;
                     var bucket_name = term;
@@ -70,7 +72,19 @@ angular.module('InstanceCreateImage', ['TagEditor'])
                 $scope.checkRequiredInput();
             });
             $scope.$watch('s3_bucket', function () {
+                $("#bucket-exists-error").css('display', 'none');
                 $scope.checkRequiredInput();
+                if ($scope.s3_bucket.length > 0) {
+                    var data = "csrf_token=" + $('#csrf_token').val() + "&bucket_name=" + $scope.s3_bucket;
+                    $http({method:'POST', url:$scope.bucketCreateUrl, data:data,
+                           headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
+                    // don't need .success() handler. This is a courtesy check
+                    error(function(oData, status) {
+                        if (status === 409) {
+                            $("#bucket-exists-error").css('display', 'block');
+                        }
+                    });
+                }
             });
             $scope.$watch('s3BucketError', function () {
                 $scope.adjustS3BucketClass(); 
