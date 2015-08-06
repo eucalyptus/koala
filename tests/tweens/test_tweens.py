@@ -94,8 +94,8 @@ class TestCTHeaders(unittest.TestCase):
         headers = CTFactory.header_map['text/html']
         self.assertTrue('CONTENT-SECURITY-POLICY' in headers.keys())
         self.assertTrue('X-CONTENT-SECURITY-POLICY' in headers.keys())  # IE requires header prefix
-        self.assertEquals(headers.get('CONTENT-SECURITY-POLICY'), "script-src 'self'")
-        self.assertEquals(headers.get('X-CONTENT-SECURITY-POLICY'), "script-src 'self'")
+        self.assertEquals(headers.get('CONTENT-SECURITY-POLICY'), "default-src 'self'")
+        self.assertEquals(headers.get('X-CONTENT-SECURITY-POLICY'), "default-src 'self'")
 
 
 class TestHTTPSTween(unittest.TestCase):
