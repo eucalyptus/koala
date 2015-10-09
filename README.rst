@@ -2,6 +2,9 @@
 Eucalyptus Management Console
 =============================
 
+.. image:: https://travis-ci.org/eucalyptus/eucaconsole.svg?branch=master
+    :target: https://travis-ci.org/eucalyptus/eucaconsole
+
 The Eucalyptus Management Console is a web-based interface to a local Eucalyptus cloud and/or AWS services.
 
 
@@ -46,8 +49,9 @@ Fedora:
 
 OS X:
 
-Install homebrew, then run `brew install libevent openssl swig libmagic memcached libmemcached`
+Install homebrew, then run
 
+    `brew install libevent openssl swig libmagic memcached libmemcached`
 
 Pyramid Setup
 -------------
@@ -76,6 +80,17 @@ Once you have installed compass, there's a handy shortcut to enable the watcher.
 
     make watch
 
+Note that as of Foundation 5.5, Sass 3.4 and Compass 1.0 or later are required.  Older versions will not work.
+To install the proper versions of Sass and Compass, run the following commands at the root of this repo...
+
+::
+
+    sudo gem install bundler
+    bundle install
+
+
+See http://bundler.io/bundle_install.html for more info about Bundler and using a Gemfile
+
 
 Running the management console
 ==============================
@@ -100,6 +115,15 @@ Run the server with
 
 `launcher.sh` is provided as an alias for `pserve console.ini --reload`
 
+On OSX, you may encounter an M2Crypto error when running `launcher.sh`.  There is a known bug in the M2Crypto bindings
+and swig versions greater than 3.0.4.  Using Homebrew you may install swig 3.0.4...
+
+::
+
+    brew uninstall swig
+    brew install homebrew/versions/swig304
+    python setup.py develop
+    ./launcher.sh
 
 Running the server in development/debug mode
 --------------------------------------------
@@ -175,7 +199,7 @@ Note that you will need to `pip install nose, coverage, nose-cov` to use nose wi
 
 To run a single test (this is not obvious with nose integrated with setup.py)::
 
-    python nosetests --tests tests.somepkg.somemodule
+    python setup.py nosetests --tests tests.somepkg.somemodule
 
 
 Configuring i18n
@@ -208,6 +232,14 @@ Secondary Components
 * pyramid_layout (layout/themes for Pyramid)
 * Waitress or gunicorn (WSGI server)
 * WTForms (server-side forms and validation)
+
+
+Guitester - selenium testing framework for eucaconsole
+===============================
+* Location: tests/selenium/guiops
+* Requirements: python selenium module, an instance of selenium webdriver
+* Setup and intro: https://github.com/eucalyptus/eucaconsole/wiki/Guitester 
+* Contributing: https://github.com/eucalyptus/eucaconsole/wiki/Contributing-to-Guitester
 
 
 Grunt - JavaScript Task Manager
@@ -249,6 +281,7 @@ Grunt Commands
 ::
 
     grunt bowercopy
+
 * Karma:
 ::
 

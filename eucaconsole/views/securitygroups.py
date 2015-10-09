@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -76,9 +76,10 @@ class SecurityGroupsView(LandingPageView):
             dict(key='-name', name=_(u'Name: Z to A')),
             dict(key='description', name=_(u'Description')),
         ]
+        search_facets = self.filters_form.facets
         self.render_dict.update(dict(
-            filter_fields=True,
             filter_keys=self.filter_keys,
+            search_facets=BaseView.escape_json(json.dumps(search_facets)),
             sort_keys=self.sort_keys,
             initial_sort_key=self.initial_sort_key,
             json_items_endpoint=self.json_items_endpoint,

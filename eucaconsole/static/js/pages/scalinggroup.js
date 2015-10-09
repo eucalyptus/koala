@@ -6,7 +6,7 @@
 
 // Scaling Group page includes the AutoScale tag editor, so pull in that module as well.
 angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
-    .controller('ScalingGroupPageCtrl', function ($scope, $timeout, eucaUnescapeJson) {
+    .controller('ScalingGroupPageCtrl', function ($scope, $timeout, eucaUnescapeJson, eucaNumbersOnly) {
         $scope.minSize = 1;
         $scope.desiredCapacity = 1;
         $scope.maxSize = 1;
@@ -14,22 +14,23 @@ angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
         $scope.terminationPoliciesOrder = [];
         $scope.vpcSubnets = [];
         $scope.vpcSubnetZonesMap = {};
+        $scope.isNotValid = false;
         $scope.isNotChanged = true;
         $scope.isSubmitted = false;
         $scope.pendingModalID = '';
         $scope.initChosenSelectors = function () {
-            $('#launch_config').chosen({'width': '60%', search_contains: true});
+            $('#launch_config').chosen({'width': '80%', search_contains: true});
             // Remove the option if it has no vpc subnet ID associated
             var selectVPCSubnetObject = $('#vpc_subnet option');
             if (selectVPCSubnetObject.length > 0) {
-                if (selectVPCSubnetObject.first().attr('value') == ''
-                    || selectVPCSubnetObject.first().attr('value') == 'None') {
+                if (selectVPCSubnetObject.first().attr('value') === '' ||
+                    selectVPCSubnetObject.first().attr('value') == 'None') {
                     selectVPCSubnetObject.first().remove();
                 } 
             }
             $('#vpc_subnet').chosen({'width': '80%', search_contains: true});
             $('#availability_zones').chosen({'width': '80%', search_contains: true});
-            $('#termination_policies').chosen({'width': '80%', search_contains: true});
+            $('#termination_policies').chosen({'width': '70%', search_contains: true});
         };
         $scope.setInitialValues = function () {
             $scope.minSize = parseInt($('#min_size').val(), 10);
@@ -43,6 +44,7 @@ angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
         };
         $scope.initController = function (optionsJson) {
             var options = JSON.parse(eucaUnescapeJson(optionsJson));
+            // scalingGroupName, policiesCount
             $scope.scalingGroupName = options.scaling_group_name;
             $scope.policiesCount = options.policies_count;
             $scope.terminationPoliciesOrder = options.termination_policies;
@@ -55,6 +57,7 @@ angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
             }, 100);
         };
         $scope.handleSizeChange = function () {
+            $scope.isNotChanged = false;
             // Adjust desired/max based on min size change
             if ($scope.desiredCapacity < $scope.minSize) {
                 $scope.desiredCapacity = $scope.minSize;
@@ -82,18 +85,34 @@ angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
                 $scope.pendingModalID = '';
             }
         };
+        $scope.watchCapacityEntries = function () {
+            var entries = ['minSize', 'maxSize', 'desiredCapacity'];
+            angular.forEach(entries, function (item) {
+                $scope.$watch(item, function(newVal, oldVal) {
+                    if (newVal) {
+                        $scope[item] = eucaNumbersOnly(newVal);
+                        $scope.isNotValid = false;
+                    } else {
+                        $scope.isNotValid = true;
+                    }
+                });
+            });
+        };
         $scope.setWatch = function () {
-            $scope.$watch('terminationPoliciesUpdate', function () { 
+            $scope.watchCapacityEntries();
+            $scope.$watch('terminationPoliciesUpdate', function (newVal, oldVal) {
                 // timeout is needed to ensure the chosen widget to complete its update
                 $timeout(function (){
                     // When the termination policies chosen widget is updated, retreive the order the elements displayed
                     $scope.updateTerminationPoliciesOrder(); 
                     // Using the updated termination policies array to re-arrange the options in the select element
                     $scope.rearrangeTerminationPoliciesOptions($scope.terminationPoliciesOrder);
+                    $scope.isNotValid = !newVal || (newVal.length === 0 && oldVal.length > 0);
                 });
             }, true);
-            $scope.$watch('vpcSubnets', function () { 
+            $scope.$watch('vpcSubnets', function (newVal, oldVal) {
                 $scope.disableVPCSubnetOptions();
+                $scope.isNotValid = !newVal || (newVal.length === 0 && oldVal.length > 0);
             }, true);
             // Monitor the action menu click
             $(document).on('click', 'a[id$="action"]', function (event) {
@@ -127,6 +146,10 @@ angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
                 $(this).find('.dialog-progress-display').css('display', 'block');                
             });
             $(document).on('change', 'input[type="number"]', function () {
+                var input = $(this);
+                if (/^\d+$/.test(input.val())) {
+                    $scope.isNotValid = false;
+                }
                 $scope.isNotChanged = false;
                 $scope.$apply();
             });
@@ -169,7 +192,7 @@ angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
             $(document).on('ready', function(){
                 $('.tabs').find('a').get(0).focus();
             });
-            $(document).on('opened', '[data-reveal]', function () {
+            $(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
                 var modal = $(this);
                 var modalID = $(this).attr('id');
                 if (modalID.match(/terminate/) || modalID.match(/delete/) || modalID.match(/release/)) {
@@ -198,7 +221,9 @@ angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
                 modal.foundation('reveal', 'open');
                 modal.on('click', '.close-reveal-modal', function(){
                     if (modal.find('input#check-do-not-show-me-again').is(':checked')) {
-                        Modernizr.localstorage && localStorage.setItem(thisKey, "true");
+                        if (Modernizr.localstorage) {
+                            localStorage.setItem(thisKey, "true");
+                        }
                     }
                 });
             }
@@ -269,7 +294,7 @@ angular.module('ScalingGroupPage', ['AutoScaleTagEditor', 'EucaConsoleUtils'])
             $scope.vpcSubnetZonesMap = {};
             $('#vpc_subnet').find('option').each(function() {
                 var vpcSubnetID = $(this).attr('value');
-                if (vpcSubnetID != null) {
+                if (vpcSubnetID !== null) {
                     var vpcSubnetString = $(this).text();
                     var splitArray = vpcSubnetString.split(' ');
                     $scope.vpcSubnetZonesMap[vpcSubnetID] = splitArray[splitArray.length-1];

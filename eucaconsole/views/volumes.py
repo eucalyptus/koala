@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -49,8 +49,8 @@ from . import boto_error_handler
 
 class BaseVolumeView(BaseView):
     """Base class for volume-related views"""
-    def __init__(self, request):
-        super(BaseVolumeView, self).__init__(request)
+    def __init__(self, request, **kwargs):
+        super(BaseVolumeView, self).__init__(request, **kwargs)
         self.conn = self.get_connection()
 
     def get_volume(self, volume_id=None):
@@ -59,7 +59,7 @@ class BaseVolumeView(BaseView):
             try:
                 volumes_list = self.conn.get_all_volumes(volume_ids=[volume_id])
                 return volumes_list[0] if volumes_list else None
-            except BotoServerError as err:
+            except BotoServerError:
                 return None
         return None
 
@@ -91,17 +91,19 @@ class VolumesView(LandingPageView, BaseVolumeView):
             'attach_status', 'create_time', 'id', 'instance', 'name', 'instance_name',
             'size', 'snapshot_id', 'status', 'tags', 'zone'
         ]
+        filters_form = VolumesFiltersForm(self.request, conn=self.conn, formdata=self.request.params or None)
+        search_facets = filters_form.facets
         # filter_keys are passed to client-side filtering in search box
         self.render_dict.update(dict(
-            filter_fields=True,
-            filters_form=VolumesFiltersForm(self.request, conn=self.conn, formdata=self.request.params or None),
+            filters_form=filters_form,
+            search_facets=BaseView.escape_json(json.dumps(search_facets)),
             sort_keys=self.get_sort_keys(),
             filter_keys=filter_keys,
             json_items_endpoint=self.get_json_endpoint('volumes_json'),
             attach_form=self.attach_form,
             detach_form=self.detach_form,
             delete_form=self.delete_form,
-            instances_by_zone=json.dumps(self.get_instances_by_zone(self.instances)),
+            instances_by_zone=BaseView.escape_json(json.dumps(self.get_instances_by_zone(self.instances))),
         ))
         return self.render_dict
 
@@ -181,9 +183,11 @@ class VolumesView(LandingPageView, BaseVolumeView):
 
 
 class VolumesJsonView(LandingPageView):
-    def __init__(self, request):
-        super(VolumesJsonView, self).__init__(request)
-        self.conn = self.get_connection()
+    def __init__(self, request, conn=None, zone=None, enable_filters=True, **kwargs):
+        super(VolumesJsonView, self).__init__(request, **kwargs)
+        self.conn = conn or self.get_connection()
+        self.zone = zone
+        self.enable_filters = enable_filters
 
     @view_config(route_name='volumes_json', renderer='json', request_method='POST')
     def volumes_json(self):
@@ -192,14 +196,17 @@ class VolumesJsonView(LandingPageView):
         volumes = []
         transitional_states = ['attaching', 'detaching', 'creating', 'deleting']
         filters = {}
-        availability_zone_param = self.request.params.getall('zone')
+        availability_zone_param = self.zone or self.request.params.getall('zone')
         if availability_zone_param:
             filters.update({'availability-zone': availability_zone_param})
         # Don't filter by these request params in Python, as they're included in the "filters" params sent to the CLC
         # Note: the choices are from attributes in VolumesFiltersForm
         ignore_params = ['zone']
         with boto_error_handler(self.request):
-            filtered_items = self.filter_items(self.get_items(filters=filters), ignore=ignore_params)
+            if self.enable_filters:
+                filtered_items = self.filter_items(self.get_items(filters=filters), ignore=ignore_params)
+            else:
+                filtered_items = self.get_items()
             instance_ids = list(set([
                 vol.attach_data.instance_id for vol in filtered_items if vol.attach_data.instance_id is not None]))
             volume_ids = [volume.id for volume in filtered_items]
@@ -213,34 +220,40 @@ class VolumesJsonView(LandingPageView):
                 if volume.attach_data is not None and volume.attach_data.instance_id is not None:
                     instance = [inst for inst in instances if inst.id == volume.attach_data.instance_id][0]
                     instance_name = TaggedItemView.get_display_name(instance, escapebraces=False)
-                volumes.append(dict(
-                    create_time=volume.create_time,
-                    id=volume.id,
-                    instance=volume.attach_data.instance_id,
-                    device=volume.attach_data.device,
-                    instance_name=instance_name,
-                    name=TaggedItemView.get_display_name(volume, escapebraces=False),
-                    snapshots=len([snap.id for snap in snapshots if snap.volume_id == volume.id]),
-                    size=volume.size,
-                    status=status,
-                    attach_status=attach_status,
-                    zone=volume.zone,
-                    tags=TaggedItemView.get_tags_display(volume.tags),
-                    transitional=status in transitional_states or attach_status in transitional_states,
-                ))
+                if status != 'deleted':
+                    volumes.append(dict(
+                        create_time=volume.create_time,
+                        id=volume.id,
+                        instance=volume.attach_data.instance_id,
+                        device=volume.attach_data.device,
+                        instance_name=instance_name,
+                        name=TaggedItemView.get_display_name(volume, escapebraces=False),
+                        snapshots=len([snap.id for snap in snapshots if snap.volume_id == volume.id]),
+                        size=volume.size,
+                        status=status,
+                        attach_status=attach_status,
+                        zone=volume.zone,
+                        tags=TaggedItemView.get_tags_display(volume.tags),
+                        transitional=status in transitional_states or attach_status in transitional_states,
+                    ))
             return dict(results=volumes)
 
     def get_items(self, filters=None):
-        return self.conn.get_all_volumes(filters=filters) if self.conn else []
+        items = self.conn.get_all_volumes(filters=filters) if self.conn else []
+        # because volume status is a combination of status and attach_status, resolve that here
+        for item in items:
+            if item.status == 'in-use':
+                item.status = item.attach_data.status
+        return items
 
 
 class VolumeView(TaggedItemView, BaseVolumeView):
     VIEW_TEMPLATE = '../templates/volumes/volume_view.pt'
 
-    def __init__(self, request):
-        super(VolumeView, self).__init__(request)
+    def __init__(self, request, ec2_conn=None, **kwargs):
+        super(VolumeView, self).__init__(request, **kwargs)
         self.request = request
-        self.conn = self.get_connection()
+        self.conn = ec2_conn or self.get_connection()
         self.location = self.request.route_path('volume_view', id=self.request.matchdict.get('id'))
         with boto_error_handler(request, self.location):
             self.volume = self.get_volume()
@@ -278,7 +291,7 @@ class VolumeView(TaggedItemView, BaseVolumeView):
     @view_config(route_name='volume_view', renderer=VIEW_TEMPLATE, request_method='GET')
     def volume_view(self):
         if self.volume is None and self.request.matchdict.get('id') != 'new':
-            raise HTTPNotFound
+            raise HTTPNotFound()
         return self.render_dict
 
     def get_attachment_time(self):
@@ -408,10 +421,10 @@ class VolumeView(TaggedItemView, BaseVolumeView):
 
 
 class VolumeStateView(BaseVolumeView):
-    def __init__(self, request):
-        super(VolumeStateView, self).__init__(request)
+    def __init__(self, request, ec2_conn=None, **kwargs):
+        super(VolumeStateView, self).__init__(request, **kwargs)
         self.request = request
-        self.conn = self.get_connection()
+        self.conn = ec2_conn or self.get_connection()
         self.volume = self.get_volume()
 
     @view_config(route_name='volume_state_json', renderer='json', request_method='GET')
@@ -434,10 +447,10 @@ class VolumeStateView(BaseVolumeView):
 class VolumeSnapshotsView(BaseVolumeView):
     VIEW_TEMPLATE = '../templates/volumes/volume_snapshots.pt'
 
-    def __init__(self, request):
-        super(VolumeSnapshotsView, self).__init__(request)
+    def __init__(self, request, ec2_conn=None, **kwargs):
+        super(VolumeSnapshotsView, self).__init__(request, **kwargs)
         self.request = request
-        self.conn = self.get_connection()
+        self.conn = ec2_conn or self.get_connection()
         self.location = self.request.route_path('volume_snapshots', id=self.request.matchdict.get('id'))
         with boto_error_handler(request, self.location):
             self.volume = self.get_volume()
@@ -493,7 +506,7 @@ class VolumeSnapshotsView(BaseVolumeView):
                 if description:
                     params['Description'] = description[0:255]
                 snapshot = self.volume.connection.get_object('CreateSnapshot', params, Snapshot, verb='POST')
-                
+
                 # Add name tag
                 if name:
                     snapshot.add_tag('Name', name)

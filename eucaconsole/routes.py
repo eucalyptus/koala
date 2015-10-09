@@ -1,4 +1,4 @@
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -104,6 +104,8 @@ urls = [
     Route(name='instance_volumes_json', pattern='/instances/{id}/volumes/json'),
     Route(name='instance_volume_attach', pattern='/instances/{id}/volumes/attach'),
     Route(name='instance_volume_detach', pattern='/instances/{id}/volumes/{volume_id}/detach'),
+    Route(name='instance_monitoring', pattern='/instances/{id}/monitoring'),
+    Route(name='instance_monitoring_update', pattern='/instances/{id}/monitoring/update'),
 
     # Instance Types page
     Route(name='instance_types', pattern='/instance-types'),
@@ -140,6 +142,26 @@ urls = [
     Route(name='launchconfig_create', pattern='/launchconfigs/create'),
     Route(name='launchconfig_delete', pattern='/launchconfigs/{id}/delete'),
     Route(name='launchconfig_view', pattern='/launchconfigs/{id}'),
+    Route(name='launchconfig_more', pattern='/launchconfigs/{id}/more'),
+
+    # ELBs #####
+    # Landing page
+    Route(name='elbs', pattern='/elbs'),
+    Route(name='elbs_json', pattern='/elbs/json'),
+    Route(name='elbs_delete', pattern='/elbs/delete'),
+    # Detail page
+    Route(name='elb_new', pattern='/elbs/new'),
+    Route(name='elb_create', pattern='/elbs/create'),
+    Route(name='elb_delete', pattern='/elbs/{id}/delete'),
+    Route(name='elb_view', pattern='/elbs/{id}'),
+    Route(name='elb_update', pattern='/elbs/{id}/update'),
+    Route(name='elb_instances', pattern='/elbs/{id}/instances'),
+    Route(name='elb_instances_update', pattern='/elbs/{id}/instances/update'),
+    Route(name='elb_healthchecks', pattern='/elbs/{id}/healthchecks'),
+    Route(name='elb_healthchecks_update', pattern='/elbs/{id}/healthchecks/update'),
+    Route(name='elb_monitoring', pattern='/elbs/{id}/monitoring'),
+    # Certificate modal
+    Route(name='certificate_create', pattern='/certificate/create'),
 
     # Volumes #####
     # Landing page
@@ -184,6 +206,7 @@ urls = [
     # Contents/detail pages
     Route(name='bucket_new', pattern='/buckets/new'),
     Route(name='bucket_create', pattern='/buckets/create'),
+    Route(name='bucket_create_xhr', pattern='/buckets/create_xhr'),
     Route(name='bucket_details', pattern='/buckets/{name}/details'),
     Route(name='bucket_objects_count_versioning_json', pattern='/buckets/{name}/objectscount.json'),
     Route(name='bucket_update', pattern='/buckets/{name}/update'),
@@ -194,12 +217,14 @@ urls = [
     Route(name='bucket_keys', pattern='/buckets/{name}/keys/*subpath'),
     Route(name='bucket_item_details', pattern='/buckets/{name}/itemdetails/*subpath'),
     Route(name='bucket_item_update', pattern='/buckets/{name}/itemupdate/*subpath'),
+    Route(name='bucket_item_generate_url', pattern='/buckets/{name}/generateurl/*subpath'),
     Route(name='bucket_item_make_public', pattern='/buckets/{name}/makepublic/*subpath'),
     Route(name='bucket_put_item', pattern='/buckets/{name}/putitem/*subpath'),
     Route(name='bucket_put_items', pattern='/buckets/{name}/putitems/*subpath'),
     Route(name='bucket_create_folder', pattern='/buckets/{name}/createfolder/*subpath'),
     Route(name='bucket_upload', pattern='/buckets/{name}/upload/*subpath'),
     Route(name='bucket_sign_req', pattern='/buckets/{name}/signreq/*subpath'),
+    Route(name='bucket_item_url', pattern='/buckets/{name}/geturl/*subpath'),
 
 
     # Security Groups #####
@@ -223,7 +248,7 @@ urls = [
     Route(name='keypair_create', pattern='/keypairs/create'),
     Route(name='keypair_import', pattern='/keypairs/import'),
     Route(name='keypair_delete', pattern='/keypairs/delete'),
-    Route(name='keypair_view', pattern='/keypairs/{id}'),
+    Route(name='keypair_view', pattern='/keypairs/*subpath'),
 
     # IP Addresses #####
     # Landing page
@@ -238,12 +263,14 @@ urls = [
     Route(name='ipaddress_disassociate', pattern='/ipaddresses/{public_ip}/disassociate'),
     Route(name='ipaddress_release', pattern='/ipaddresses/{public_ip}/release'),
 
-    # CloudWatch Alarms #####
-    # Landing page
+    # CloudWatch #####
+    # Alarms Landing page
     Route(name='cloudwatch_alarms', pattern='/cloudwatch/alarms'),
     Route(name='cloudwatch_alarms_json', pattern='/cloudwatch/alarms/json'),
     Route(name='cloudwatch_alarms_create', pattern='/cloudwatch/alarms/create'),
     Route(name='cloudwatch_alarms_delete', pattern='/cloudwatch/alarms/delete'),
+    # REST API
+    Route(name='cloudwatch_api', pattern='/cloudwatch/api'),
 
     # Accounts #####
     Route(name='accounts', pattern='/accounts'),
@@ -319,6 +346,20 @@ urls = [
     Route(name='iam_policy_new', pattern='/policies/new'),
     Route(name='iam_policy_create', pattern='/policies/create'),
     Route(name='iam_policy_json', pattern='/policies/canned/json'),
+
+    # Stacks #####
+    # Landing page
+    Route(name='stacks', pattern='/stacks'),
+    Route(name='stacks_json', pattern='/stacks/json'),
+    Route(name='stacks_delete', pattern='/stacks/delete'),
+    # Detail page
+    Route(name='stack_new', pattern='/stacks/new'),
+    Route(name='stack_create', pattern='/stacks/create'),
+    Route(name='stack_template_parse', pattern='/stacks/templateparse'),
+    Route(name='stack_template_convert', pattern='/stacks/templateconvert'),
+    Route(name='stack_view', pattern='/stacks/{name}'),
+    Route(name='stack_delete', pattern='/stacks/{name}/delete'),
+    Route(name='stack_state_json', pattern='/stacks/{name}/state/json'),
+    Route(name='stack_template', pattern='/stacks/{name}/template'),
+    Route(name='stack_events', pattern='/stacks/{name}/events'),
 ]
-
-

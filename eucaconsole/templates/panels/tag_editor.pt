@@ -1,6 +1,6 @@
 
 <!--! Tag editor -->
-<div id="tag-editor" class="row controls-wrapper" ng-app="TagEditor" i18n:domain="eucaconsole"
+<div id="tag-editor" class="row controls-wrapper" i18n:domain="eucaconsole"
      ng-controller="TagEditorCtrl" ng-init="initTags('${controller_options_json}')">
     <style type="text/css" tal:condition="not show_name_tag">
         /* Hide name tag based on option passed to tag editor panel */
@@ -27,7 +27,7 @@
                 <div id="tag-name-input-div" class="small-4 columns">
                     <input id='tag-name-input' class="taginput key" placeholder="name..." ng-model="newTagKey" pattern="${layout.tag_pattern_key}" />
                     <div ng-show="!existsTagKey">
-                        <small class="error" i18n:translate="">Tag may not begin with "aws:" or its length cannot be longer than 128 chars</small>
+                        <small class="error" i18n:translate="">Tag may not begin with "aws:", "euca:" or its length cannot be longer than 128 chars</small>
                     </div>
                     <div ng-show="existsTagKey">
                         <small class="error" i18n:translate="">Key already in use, please use another key.</small>

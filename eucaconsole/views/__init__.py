@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -34,6 +34,7 @@ import hmac
 import logging
 import pylibmc
 import simplejson as json
+import string
 import textwrap
 import time
 from datetime import datetime, timedelta
@@ -43,6 +44,7 @@ from cgi import FieldStorage
 from contextlib import contextmanager
 from dateutil import tz
 from markupsafe import Markup
+from random import choice
 from urllib import urlencode
 from urlparse import urlparse
 try:
@@ -103,7 +105,7 @@ class JSONError(HTTPUnprocessableEntity):
 
 class BaseView(object):
     """Base class for all views"""
-    def __init__(self, request):
+    def __init__(self, request, **kwargs):
         self.request = request
         self.region = request.session.get('region')
         self.access_key = request.session.get('access_id')
@@ -131,37 +133,17 @@ class BaseView(object):
         if self.request.registry.settings:  # do this to pass tests
             validate_certs = asbool(self.request.registry.settings.get('connection.ssl.validation', False))
             certs_file = self.request.registry.settings.get('connection.ssl.certfile', None)
-            
         if cloud_type == 'aws':
             conn = ConnectionManager.aws_connection(
                 region, access_key, secret_key, security_token, conn_type, validate_certs)
         elif cloud_type == 'euca':
-            host = self.request.registry.settings.get('clchost', 'localhost')
-            port = int(self.request.registry.settings.get('clcport', 8773))
-            if conn_type == 'ec2':
-                host = self.request.registry.settings.get('ec2.host', host)
-                port = int(self.request.registry.settings.get('ec2.port', port))
-            elif conn_type == 'autoscale':
-                host = self.request.registry.settings.get('autoscale.host', host)
-                port = int(self.request.registry.settings.get('autoscale.port', port))
-            elif conn_type == 'cloudwatch':
-                host = self.request.registry.settings.get('cloudwatch.host', host)
-                port = int(self.request.registry.settings.get('cloudwatch.port', port))
-            elif conn_type == 'elb':
-                host = self.request.registry.settings.get('elb.host', host)
-                port = int(self.request.registry.settings.get('elb.port', port))
-            elif conn_type == 'iam':
-                host = self.request.registry.settings.get('iam.host', host)
-                port = int(self.request.registry.settings.get('iam.port', port))
-            elif conn_type == 's3':
-                host = self.request.registry.settings.get('s3.host', host)
-                port = int(self.request.registry.settings.get('s3.port', port))
-            elif conn_type == 'vpc':
-                host = self.request.registry.settings.get('vpc.host', host)
-                port = int(self.request.registry.settings.get('vpc.port', port))
-
+            host = self._get_ufs_host_setting_()
+            port = self._get_ufs_port_setting_()
+            dns_enabled = self.request.session.get('dns_enabled', True)
             conn = ConnectionManager.euca_connection(
-                host, port, access_key, secret_key, security_token, conn_type, validate_certs, certs_file)
+                host, port, access_key, secret_key, security_token,
+                conn_type, dns_enabled, validate_certs, certs_file
+            )
 
         return conn
 
@@ -206,8 +188,16 @@ class BaseView(object):
             userdata = userdata_file or userdata_input or None  # Look up file upload first
         return userdata
 
+    def get_shared_buckets_storage_key(self, host):
+        return "{0}{1}{2}{3}".format(
+            host,
+            self.region,
+            self.request.session['account' if self.cloud_type == 'euca' else 'access_id'],
+            self.request.session['username'] if self.cloud_type == 'euca' else '',
+        )
+
     @long_term.cache_on_arguments(namespace='images')
-    def _get_images_cached_(self, _owners, _executors, _ec2_region, acct):
+    def _get_images_cached_(self, _owners, _executors, _ec2_region, acct, ufshost):
         """
         This method is decorated and will cache the image set
         """
@@ -246,9 +236,13 @@ class BaseView(object):
             acct = self.request.session.get('access_id', '')
         if 'amazon' in owners or 'aws-marketplace' in owners:
             acct = ''
+        ufshost = self.get_connection().host if self.cloud_type == 'euca' else ''
         try:
-            return self._get_images_cached_(owners, executors, ec2_region, acct)
-        except pylibmc.Error as err:
+            if self.cloud_type == 'euca' and asbool(self.request.registry.settings.get('cache.images.disable', False)):
+                return self._get_images_(owners, executors, ec2_region)
+            else:
+                return self._get_images_cached_(owners, executors, ec2_region, acct, ufshost)
+        except pylibmc.Error:
             logging.warn('memcached not responding')
             return self._get_images_(owners, executors, ec2_region)
 
@@ -265,17 +259,15 @@ class BaseView(object):
         """
         This method centralizes configuration of the EucaAuthenticator.
         """
-        host = self.request.registry.settings.get('clchost', 'localhost')
-        port = int(self.request.registry.settings.get('clcport', 8773))
-        host = self.request.registry.settings.get('sts.host', host)
-        port = int(self.request.registry.settings.get('sts.port', port))
+        host = self._get_ufs_host_setting_()
+        port = self._get_ufs_port_setting_()
         validate_certs = asbool(self.request.registry.settings.get('connection.ssl.validation', False))
         conn = AWSAuthConnection(None, aws_access_key_id='', aws_secret_access_key='')
-        
         ca_certs_file = conn.ca_certificates_file
         conn = None
         ca_certs_file = self.request.registry.settings.get('connection.ssl.certfile', ca_certs_file)
-        auth = EucaAuthenticator(host, port, validate_certs=validate_certs, ca_certs=ca_certs_file)
+        dns_enabled = self.request.session.get('dns_enabled', True)
+        auth = EucaAuthenticator(host, port, dns_enabled, validate_certs=validate_certs, ca_certs=ca_certs_file)
         return auth
 
     def get_account_attributes(self, attribute_names=None):
@@ -286,6 +278,18 @@ class BaseView(object):
             with boto_error_handler(self.request):
                 attributes = conn.describe_account_attributes(attribute_names=attribute_names)
                 return attributes[0].attribute_values
+
+    def _get_ufs_host_setting_(self):
+        host = self.request.registry.settings.get('ufshost')
+        if not host:
+            host = self.request.registry.settings.get('clchost', 'localhost')
+        return host
+
+    def _get_ufs_port_setting_(self):
+        port = self.request.registry.settings.get('ufsport')
+        if not port:
+            port = self.request.registry.settings.get('clcport', 8773)
+        return int(port)
 
     @staticmethod
     def is_vpc_supported(request):
@@ -349,9 +353,9 @@ class BaseView(object):
         if err.error_message is not None:
             message = err.error_message
             if 'because of:' in message:
-                message = message[message.index("because of:")+11:]
+                message = message[message.index("because of:") + 11:]
             if 'RelatesTo Error:' in message:
-                message = message[message.index("RelatesTo Error:")+16:]
+                message = message[message.index("RelatesTo Error:") + 16:]
             # do we need this logic in the common code?? msg = err.message.split('remoteDevice')[0]
             # this logic found in volumes.js
         BaseView.log_message(request, message, level='error')
@@ -359,11 +363,11 @@ class BaseView(object):
                          u'operation. Please retry the operation, and contact your cloud '
                          u'administrator to request an updated access policy if the problem persists.')
         if request.is_xhr:
-            if 'AccessDenied' == err.code:
+            if err.code in ['AccessDenied', 'UnauthorizedOperation']:
                 message = perms_notice
             raise JSONError(message=message, status=status or 403)
         if status == 403 or 'token has expired' in message:  # S3 token expiration responses return a 400 status
-            if 'Access Denied' in message and location is not None:
+            if err.code in ['AccessDenied', 'UnauthorizedOperation'] and location is not None:
                 request.session.flash(perms_notice, queue=Notification.ERROR)
                 raise HTTPFound(location=location)
 
@@ -405,7 +409,6 @@ class BaseView(object):
                       ['starts-with', '$key', prefix]]
         if token is not None:
             conditions.append({'x-amz-security-token': token})
-                      
         policy = {'conditions': conditions,
                   'expiration': time.strftime('%Y-%m-%dT%H:%M:%SZ',
                                               expire_time.timetuple())}
@@ -423,6 +426,11 @@ class BaseView(object):
     @staticmethod
     def has_role_access(request):
         return request.session['cloud_type'] == 'euca' and request.session['role_access']
+
+    @staticmethod
+    def generate_random_string(length=16):
+        chars = string.letters + string.digits
+        return ''.join(choice(chars) for i in range(length))
 
     @staticmethod
     def encode_unicode_dict(unicode_dict):
@@ -443,8 +451,8 @@ class BaseView(object):
 class TaggedItemView(BaseView):
     """Common view for items that have tags (e.g. security group)"""
 
-    def __init__(self, request):
-        super(TaggedItemView, self).__init__(request)
+    def __init__(self, request, **kwargs):
+        super(TaggedItemView, self).__init__(request, **kwargs)
         self.tagged_obj = None
         self.conn = None
 
@@ -595,9 +603,8 @@ class LandingPageView(BaseView):
         For example, prefix = '/instances' for Instances
 
     """
-    def __init__(self, request):
-        super(LandingPageView, self).__init__(request)
-        self.filter_fields = []
+    def __init__(self, request, **kwargs):
+        super(LandingPageView, self).__init__(request, **kwargs)
         self.filter_keys = []
         self.sort_keys = []
         self.initial_sort_key = ''

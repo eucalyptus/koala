@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -87,10 +87,15 @@ def check_config(settings):
             logging.error(" Please correct this and restart eucaconsole.")
             logging.error("*****************************************************************")
             sys.exit(1)
+    if not settings.get('ufshost'):
+        logging.warn(
+            "'clchost' and 'clcport' are deprecated in Eucalyptus version 4.2.0 and "
+            "will be removed in version 4.3.0. Use 'ufshost' and 'ufsport' instead."
+        )
 
 
 def get_configurator(settings, enable_auth=True):
-    check_config(settings);
+    check_config(settings)
     connection_debug = asbool(settings.get('connection.debug'))
     boto.set_stream_logger('boto', level=(logging.DEBUG if connection_debug else logging.CRITICAL))
     ensure_session_keys(settings)
@@ -116,7 +121,7 @@ def get_configurator(settings, enable_auth=True):
     config.set_locale_negotiator(custom_locale_negotiator)
     for route in urls:
         config.add_route(route.name, route.pattern)
-    setup_tweens(config)
+    setup_tweens(config, settings)
     config.scan()
     if not boto.config.has_section('Boto'):
         boto.config.add_section('Boto')
@@ -174,6 +179,17 @@ def get_configurator(settings, enable_auth=True):
             'password': password
         },
     )
+    if not asbool(settings.get('connection.ssl.validation', False)):
+        """See https://www.python.org/dev/peps/pep-0476/#opting-out"""
+        import ssl
+        try:
+            _create_unverified_https_context = ssl._create_unverified_context
+        except AttributeError:
+            # Legacy Python that doesn't verify HTTPS certificates by default
+            pass
+        else:
+            # Handle target environment that doesn't support HTTPS verification
+            ssl._create_default_https_context = _create_unverified_https_context
     return config
 
 

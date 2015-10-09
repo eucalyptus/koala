@@ -5,23 +5,31 @@
  */
 
 angular.module('InstancesPage', ['LandingPage', 'EucaConsoleUtils'])
-    .controller('InstancesCtrl', function ($scope, $http, eucaHandleError) {
+    .controller('InstancesCtrl', function ($scope, $timeout, $http, eucaUnescapeJson, eucaHandleError) {
         $scope.instanceID = '';
         $scope.fileName = '';
+        $scope.ipAddresses = [];
+        $scope.ipAddressList = {};
         $scope.batchTerminateModal = $('#batch-terminate-modal');
         $scope.associateIPModal = $('#associate-ip-to-instance-modal');
+        $scope.addressesEndpoint = '';
         $scope.initChosenSelectors = function () {
-            $scope.batchTerminateModal.on('open', function () {
+            $scope.batchTerminateModal.on('open.fndtn.reveal', function () {
                 var instanceIdsSelect = $scope.batchTerminateModal.find('select');
                 instanceIdsSelect.chosen({'width': '100%', 'search_contains': true});
                 instanceIdsSelect.trigger('chosen:updated');
             });
-            $scope.associateIPModal.on('open', function () {
+            $scope.associateIPModal.on('open.fndtn.reveal', function () {
                 $('#ip_address').chosen({'width': '80%'});
                 $('#ip_address').trigger('chosen:updated');
             });
         };
-        $scope.initController = function () {
+        $scope.initController = function (optionsJson) {
+            var options = JSON.parse(eucaUnescapeJson(optionsJson));
+            if (options.hasOwnProperty('addresses_json_items_endpoint')) {
+                $scope.addressesEndpoint = options.addresses_json_items_endpoint;
+            } 
+            $scope.getIPAddresses(); 
             $scope.initChosenSelectors();
             $('#file').on('change', $scope.getPassword);
         };
@@ -37,25 +45,32 @@ angular.module('InstancesPage', ['LandingPage', 'EucaConsoleUtils'])
         };
         $scope.revealModal = function (action, instance) {
             var modal = $('#' + action + '-instance-modal'),
-                securityGroups = instance['security_groups'],
+                securityGroups = instance.security_groups,
                 securityGroupName = 'default';
             if (securityGroups && securityGroups.length) {
-                securityGroupName = securityGroups[0].name || instance['security_groups'][0]['id'];
+                securityGroupName = securityGroups[0].name || instance.security_groups[0].id;
             }
-            $scope.instanceID = instance['id'];
-            $scope.instanceName = instance['name'];
-            $scope.instancePublicIP = instance['ip_address'];
-            $scope.rootDevice = instance['root_device'];
+            $scope.instanceID = instance.id;
+            $scope.instanceName = instance.name;
+            $scope.instancePublicIP = instance.ip_address;
+            $scope.rootDevice = instance.root_device;
             $scope.groupName = securityGroupName;
             $scope.securityGroups = securityGroups;
-            $scope.keyName = instance['key_name'];
-            $scope.publicDNS = instance['public_dns_name'];
-            $scope.platform = instance['platform'];
-            $scope.ipAddress = instance['ip_address'];
+            $scope.keyName = instance.key_name;
+            $scope.publicDNS = instance.public_dns_name;
+            $scope.platform = instance.platform;
+            $scope.ipAddress = instance.ip_address;
+            if (action === 'associate-ip-to') {
+                $scope.adjustIPAddressOptions(instance);
+                // timeout is needed for ipAddressList to be updated
+                $timeout(function () {
+                    $('#ip_address').trigger('chosen:updated');
+                });
+            }
             modal.foundation('reveal', 'open');
         };
         $scope.removeFromView = function(instance, url) {
-            var url = url.replace("_id_", instance.id);
+            url = url.replace("_id_", instance.id);
             var data = "csrf_token=" + $('#csrf_token').val() + "&instance_id=" + instance.id;
             $http({method:'POST', url:url, data:data,
                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}}).
@@ -68,7 +83,7 @@ angular.module('InstancesPage', ['LandingPage', 'EucaConsoleUtils'])
                 if (status == 403) {
                     $('#timed-out-modal').foundation('reveal', 'open');
                 }
-                var errorMsg = oData['message'] || '';
+                var errorMsg = oData.message || '';
                 Notify.failure(errorMsg);
               });
         };
@@ -100,17 +115,17 @@ angular.module('InstancesPage', ['LandingPage', 'EucaConsoleUtils'])
                         if (status == 403) {
                             $('#timed-out-modal').foundation('reveal', 'open');
                         }
-                        var errorMsg = oData['message'] || '';
+                        var errorMsg = oData.message || '';
                         Notify.failure(errorMsg);
                       });
                 }
-            }
+            };
             reader.readAsText(file);
         };
         $scope.revealConsoleOutputModal = function(instance) {
             $(document).trigger('click');
-            $scope.instanceName = instance['name'];
-            var consoleOutputEndpoint = "/instances/" + instance['id'] + "/consoleoutput/json";
+            $scope.instanceName = instance.name;
+            var consoleOutputEndpoint = "/instances/" + instance.id + "/consoleoutput/json";
             $scope.consoleOutput = '';
             $http.get(consoleOutputEndpoint).success(function(oData) {
                 var results = oData ? oData.results : '';
@@ -137,6 +152,38 @@ angular.module('InstancesPage', ['LandingPage', 'EucaConsoleUtils'])
                 "&amp;preset=true";
             return launchConfigPath;
         };
+        $scope.getIPAddresses = function () {
+            var csrf_token = $('#csrf_token').val();
+            var data = "csrf_token=" + csrf_token;
+            $http({
+                method:'POST', url:$scope.addressesEndpoint, data:data,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            }).success(function(oData) {
+                var results = oData ? oData.results : [];
+                $scope.ipAddresses = results;
+            }).error(function (oData) {
+                eucaHandleError(oData, status);
+            });
+        };
+        $scope.adjustIPAddressOptions = function (instance) {
+            $scope.ipAddressList = {};
+            if (instance.vpc_name === '') {
+                angular.forEach($scope.ipAddresses, function(ip){
+                    if (ip.domain === 'standard') {
+                        if (ip.instance_id === '' || ip.instance_id === null) {
+                            $scope.ipAddressList[ip.public_ip] = ip.public_ip;
+                        }
+                    }
+                }); 
+            } else {
+                angular.forEach($scope.ipAddresses, function(ip){
+                    if (ip.domain === 'vpc') {
+                        if (ip.instance_id === '' || ip.instance_id === null) {
+                            $scope.ipAddressList[ip.public_ip] = ip.public_ip;
+                        }
+                    }
+                }); 
+            }
+        };
     })
 ;
-

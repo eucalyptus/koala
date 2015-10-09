@@ -4,7 +4,7 @@
  *
  */
 angular.module('PolicyList', ['EucaConsoleUtils'])
-    .controller('PolicyListCtrl', function ($scope, $http, $rootScope, eucaHandleErrorNoNotify) {
+    .controller('PolicyListCtrl', function ($scope, $http, $rootScope, eucaHandleError, eucaHandleErrorNoNotify) {
         $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $scope.policyList = $('#policy-list');
         $scope.itemsLoading = true;
@@ -49,6 +49,7 @@ angular.module('PolicyList', ['EucaConsoleUtils'])
                 $scope.syncPolicies();
               }
             ).error(function (oData, status) {
+                $scope.itemsLoading = false;
                 eucaHandleErrorNoNotify(oData, status);
             });
         };
@@ -83,7 +84,7 @@ angular.module('PolicyList', ['EucaConsoleUtils'])
                 $scope.syncPolicies();
                 Notify.success(oData.message);
             }).error(function (oData) {
-                var errorMsg = oData['message'] || '';
+                var errorMsg = oData.message || '';
                 Notify.failure(errorMsg);
             });
             $('#delete-modal').foundation('reveal', 'close');
@@ -96,7 +97,7 @@ angular.module('PolicyList', ['EucaConsoleUtils'])
             $event.preventDefault();
             $scope.clearCodeEditor();
             $scope.editPolicyModal.foundation('reveal', 'open');
-            $scope.editPolicyModal.on('close', function() {
+            $scope.editPolicyModal.on('close.fndtn.reveal', function() {
                 $scope.clearCodeEditor();
             });
             $scope.policyJson = ''; // clear any previous policy
@@ -108,10 +109,7 @@ angular.module('PolicyList', ['EucaConsoleUtils'])
                 $scope.codeEditor.setValue(results);
                 $scope.codeEditor.focus();
             }).error(function (oData, status) {
-                var errorMsg = oData['message'] || '';
-                if (errorMsg && status === 403) {
-                    $('#timed-out-modal').foundation('reveal', 'open');
-                }
+                eucaHandleError(oData, status);
             });
         };
         $scope.savePolicy = function($event) {
@@ -131,7 +129,7 @@ angular.module('PolicyList', ['EucaConsoleUtils'])
                 ).success(function(oData) {
                     Notify.success(oData.message);
                 }).error(function (oData) {
-                    var errorMsg = oData['message'] || '';
+                    var errorMsg = oData.message || '';
                     Notify.failure(errorMsg);
                 });
             } catch (e) {

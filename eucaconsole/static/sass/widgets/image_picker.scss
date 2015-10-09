@@ -5,13 +5,6 @@
 @import "../includes/eucavariables";
 
 #image-picker {
-    .search-filter {
-        position: relative;
-        .search-icon {
-            position: absolute;
-            top: 10px; right: 10px;
-        }
-    }
     .table {
         width: 100% !important;
         border: 1px solid $euca-lightgrey;
@@ -23,7 +16,7 @@
                 display: block;
                 border-bottom: 1px solid $euca-lightgrey;
                 &.selected {
-                    background-color: $euca-extralightgreen;
+                    background-color: lighten($hp-accessible-blue, 60%)
                 }
                 &.selected:hover {
                     cursor: inherit;
@@ -82,5 +75,13 @@
     label {
         margin-top: 8px;
         margin-bottom: 2px;
+    }
+}
+
+.search-entry {
+    .search-input {
+        // Adjustments for magic search bar
+        height: 1.5rem !important;
+        line-height: 1.5rem !important;
     }
 }

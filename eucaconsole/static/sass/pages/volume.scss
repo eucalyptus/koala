@@ -9,9 +9,9 @@
 
 // Status colors
 $volume-status-color-creating: lighten($euca-olive, 10%);
-$volume-status-color-available: $euca-olive;
-$volume-status-color-detached: $euca-olive;
-$volume-status-color-detaching: lighten($euca-olive, 20%);
+$volume-status-color-available: $hp-purple;
+$volume-status-color-detached: $hp-purple;
+$volume-status-color-detaching: lighten($hp-purple, 20%);
 $volume-status-color-deleting: $euca-lightgrey;
 $volume-status-color-deleted: $euca-grey;
 $volume-status-color-error: darkred;
@@ -24,14 +24,19 @@ $volume-status-color-attaching: lighten($euca-darkblue, 20%);
 
 // ***********
 // Volume page
+input#size { width: 4rem; }
+input#name { width: 50%; }
+select#zone { width: 50%; }
+
 
 // Volume status
-.status { background-color: transparent; text-transform: capitalize; }
+.status { background-color: $hp-gray-40; text-transform: capitalize; }
 .status.creating { background-color: $volume-status-color-creating; }
 .status.available { background-color: $volume-status-color-available; }
 .status.in-use { background-color: $volume-status-color-attached; }
 .status.deleting { background-color: $volume-status-color-deleting; }
 .status.deleted { background-color: $volume-status-color-deleted; }
+.status.failed { background-color: $volume-status-color-error; }
 
 // Volume attach_data status styles
 .status.attaching { background-color: $volume-status-color-attaching; }

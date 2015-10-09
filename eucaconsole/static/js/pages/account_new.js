@@ -4,9 +4,38 @@
  *
  */
 
+var validateAccountAlias = (function () {
+    var aliasPattern = /^[a-z0-9][a-z0-9\.@\-]{1,61}[a-z0-9]$/;
+    var iamAcctAntiPattern = /^[0-9]{12}$/;
+
+    return function (alias) {
+        // Fail on match of iam account number
+        if(iamAcctAntiPattern.test(alias)) {
+            return false;
+        }
+
+        // Pass on match of alias pattern
+        if(aliasPattern.test(alias)) {
+            return true;
+        }
+
+        return false;
+    };
+})();
+
+$(document).foundation({
+    abide: {
+        validators: {
+            accountAlias: function (el) {
+                return validateAccountAlias(el.value);
+            }
+        }
+    }
+});
+
 // New user page includes the User Editor editor
-angular.module('AccountPage', ['UserEditor', 'Quotas', 'EucaConsoleUtils'])
-    .controller('AccountPageCtrl', function ($scope, $http, $timeout, eucaHandleError) {
+angular.module('CreateAccountPage', ['UserEditor', 'Quotas', 'EucaConsoleUtils'])
+    .controller('CreateAccountPageCtrl', function ($scope, $http, $timeout, eucaHandleError) {
         $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $scope.submitEndpoint = '';
         $scope.accountRedirect = '';
@@ -30,7 +59,6 @@ angular.module('AccountPage', ['UserEditor', 'Quotas', 'EucaConsoleUtils'])
                 $('#quota-error').css('display', 'block');
                 return false;
             }
-            var form = $($event.target);
             var csrf_token = form.find('input[name="csrf_token"]').val();
             var data = $($event.target).serialize();
             //$scope.accountName = form.find('input[name="account-name"]').val();
@@ -65,6 +93,17 @@ angular.module('AccountPage', ['UserEditor', 'Quotas', 'EucaConsoleUtils'])
                     $scope.isNotValid = false;
                 }
             });
+        };
+    })
+    .directive('accountAlias', function () {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function (scope, elem, attrs, ctrl) {
+                ctrl.$validators.accountAlias = function (modelVal, viewVal) {
+                    return validateAccountAlias(viewVal);
+                };
+            }
         };
     })
 ;

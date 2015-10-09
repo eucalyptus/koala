@@ -24,7 +24,7 @@ describe("VolumesPage", function() {
         var template = window.__html__['templates/volumes/volumes.pt'];
         // remove <script src> and <link> tags to avoid phantomJS error
         template = template.replace(/script src/g, "script ignore_src"); 
-        template = template.replace(/\<link/g, "\<ignore_link"); 
+        template = template.replace(/<link/g, "<ignore_link"); 
         setFixtures(template);
     });
 
@@ -54,8 +54,8 @@ describe("VolumesPage", function() {
     describe("Function initPage() Test", function() {
 
         it("Should set instanceByZone when initPage() is called", function() {
-            scope.initPage('zone');
-            expect(scope.instancesByZone).toEqual('zone');
+            scope.initPage('{"zone": "zone"}');
+            expect(scope.instancesByZone.zone).toEqual('zone');
         });
     });
 

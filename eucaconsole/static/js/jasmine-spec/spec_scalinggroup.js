@@ -26,7 +26,7 @@ describe("ScalingGroupPage", function() {
         var template = window.__html__['templates/scalinggroups/scalinggroup_view.pt'];
         // remove <script src> and <link> tags to avoid phantomJS error
         template = template.replace(/script src/g, "script ignore_src"); 
-        template = template.replace(/\<link/g, "\<ignore_link"); 
+        template = template.replace(/<link/g, "<ignore_link"); 
         setFixtures(template);
     });
 
@@ -94,11 +94,7 @@ describe("ScalingGroupPage", function() {
     describe("Function rearrangeTerminationPoliciesOptions Test", function() {
 
         beforeEach(function() {
-            setFixtures('<select id="termination_policies">\
-                <option value="option1">1</option>\
-                <option value="option2">2</option>\
-                <option value="option3">3</option>\
-                </select>');
+            setFixtures('<select id="termination_policies"><option value="option1">1</option><option value="option2">2</option><option value="option3">3</option></select>');
         });
 
         it("Should update the order of options when rearrangeTerminationPoliciesOptions is called", function() {

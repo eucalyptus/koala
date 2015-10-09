@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="${request.static_path('eucaconsole:static/css/pages/volumes.css')}" />
 </head>
 
-<div metal:fill-slot="main_content" ng-app="VolumesPage" ng-controller="VolumesCtrl" ng-init="initPage(${instances_by_zone})">
+<div metal:fill-slot="main_content" ng-app="VolumesPage" ng-controller="VolumesCtrl" ng-init="initPage('${instances_by_zone}')">
     <div class="row" id="contentwrap" ng-controller="ItemsCtrl"
              ng-init="initController('volumes', '${initial_sort_key}', '${json_items_endpoint}')">
         <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
@@ -14,32 +14,29 @@
         </metal:breadcrumbs>
         <!-- Notifications -->
         <metal:block metal:use-macro="layout.global_macros['notifications']" />
-        <div class="large-2 columns" id="landing-page-filters">
-            <h3 id="pagetitle" class="landingpage" i18n:translate="">Volumes</h3>
-            ${panel('landingpage_filters', filters_form=filters_form)}
-        </div>
+        <h3 id="pagetitle"><strong i18n:translate="">Volumes</strong></h3>
         <div metal:use-macro="layout.global_macros['landing_page_datagrid']">
             <div metal:fill-slot="new_button">
                 <a class="button" i18n:translate="" id="create-volume-btn"
                    href="${request.route_path('volume_view', id='new')}">Create New Volume</a>
             </div>
             <div metal:fill-slot="tile_dropdown_button" tal:omit-tag="">
-                <a id="tile-item-dropdown_{{ item.id }}" class="tiny secondary button dropdown right" data-dropdown="item-dropdown_{{ item.id }}"><i class="fi-widget"></i></a>
-                <ul id="item-dropdown_{{ item.id }}" class="f-dropdown" data-dropdown-content="">
-                    <li ng-show="item.status !== 'deleted'">
+                <a id="tile-item-dropdown_{{ item.id }}" class="tiny secondary button dropdown right" data-dropdown="item-dropdown_{{ item.id }}"><i class="grid-action"></i></a>
+                <ul id="item-dropdown_{{ item.id }}" class="f-dropdown" data-dropdown-content="" ng-show="item.status !== 'deleting'">
+                    <li ng-show="item.status !== 'deleting'">
                         <a i18n:translate="" ng-href="${prefix}/{{ item.id }}">View details</a>
                     </li>
-                    <li>
+                    <li ng-show="item.status !== 'deleting'">
                         <a ng-href="${prefix}/{{ item.id }}/snapshots" i18n:translate="">Manage snapshots</a>
                     </li>
                     <li ng-show="item.status === 'available'">
                         <a i18n:translate="" ng-click="revealModal('attach', item)">Attach to instance</a>
                     </li>
-                    <li ng-show="item.status === 'in-use' &amp;&amp; item.attach_status !== 'detaching'">
+                    <li ng-show="item.attach_status === 'attached' &amp;&amp; item.attach_status !== 'detaching'">
                         <a ng-click="detachModal(item, '${request.route_path('instance_json', id='_id_')}')"
                                id="detach-volume-action" i18n:translate="">Detach from instance</a>
                     </li>
-                    <li ng-show="item.status === 'available'">
+                    <li ng-show="item.status === 'available' || item.status === 'failed'">
                         <a i18n:translate="" ng-click="revealModal('delete', item)">Delete volume</a>
                     </li>
                 </ul>
@@ -53,7 +50,7 @@
                     <span class="label" title="Size" i18n:attributes="title" data-tooltip="">GB</span>
                     {{ item.size }} GB
                 </div>
-                <div>
+                <div ng-show="item.status !== 'deleting'">
                     <span class="label" title="Snapshots" i18n:attributes="title" data-tooltip="">SS</span>
                     <a ng-href="${prefix}/{{ item.id }}/snapshots">{{ item.snapshots }} snapshot<span ng-show="item.snapshots != 1">s</span></a>
                 </div>
@@ -78,7 +75,7 @@
                 <div ng-show="item.status || item.attach_status"
                      class="footer status {{ item.attach_status || item.status }}">
                     {{ item.attach_status || item.status }}
-                    <span class="dots" ng-show="item.transitional">&nbsp;</span>
+                    <span class="busy" ng-show="item.transitional"></span>
                 </div>
             </metal:block>
             <metal:block metal:fill-slot="tableview_headers">
@@ -90,15 +87,18 @@
                 <th i18n:translate="">Avail Zone</th>
                 <th i18n:translate="">Tags</th>
                 <th i18n:translate="">Creation Time</th>
-                <th i18n:translate="">Actions</th>
+                <th class="actions" i18n:translate="">Actions</th>
             </metal:block>
             <metal:block metal:fill-slot="tableview_columns">
-                <td class="breakword"><a ng-href="${prefix}/{{ item.id }}">{{ item.name || item.id | ellipsis: 30 }}</a></td>
+                <td class="breakword" id="table-id-column-{{item.id}}">
+                    <span ng-show="item.status === 'deleting'">{{ item.name || item.id | ellipsis: 30 }}</span>
+                    <a ng-show="item.status !== 'deleting'" ng-href="${prefix}/{{ item.id }}">{{ item.name || item.id | ellipsis: 30 }}</a>
+                </td>
                 <td class="status">
                     <span class="label radius item status {{ item.attach_status || item.status }}">
                         {{ item.attach_status || item.status }}
                     </span>
-                    <span class="dots" ng-show="item.transitional">&nbsp;</span>
+                    <span class="busy" ng-show="item.transitional"></span>
                 </td>
                 <td>{{ item.size }}&nbsp;GB</td>
                 <td class="breakword">
@@ -107,29 +107,31 @@
                     </a>
                 </td>
                 <td class="count">
-                    <a ng-href="${prefix}/{{ item.id }}/snapshots">{{ item.snapshots }}</a>
+                    <a ng-href="${prefix}/{{ item.id }}/snapshots" ng-show="item.status !== 'deleting'">
+                        {{ item.snapshots }}
+                    </a>
                 </td>
                 <td>{{ item.zone }}</td>
                 <td class="tags breakword">{{ item.tags | ellipsis: 60 }}</td>
                 <td>{{ item.create_time | date:'${layout.angular_date_format}' }}</td>
                 <td>
-                    <span class="actions">
-                        <a id="table-item-dropdown_{{ item.id }}" class="tiny secondary button dropdown right round" data-dropdown="item-dropdown_{{ item.id }}"><i class="fi-widget"></i></a>
+                    <span class="actions" ng-show="item.status !== 'deleting'">
+                        <a id="table-item-dropdown_{{ item.id }}" class="tiny secondary button dropdown right round" data-dropdown="item-dropdown_{{ item.id }}"><i class="grid-action"></i></a>
                         <ul id="item-dropdown_{{ item.id }}" class="f-dropdown" data-dropdown-content="">
-                            <li ng-show="item.status !== 'deleted'">
+                            <li ng-show="item.status !== 'deleting'">
                                 <a i18n:translate="" ng-href="${prefix}/{{ item.id }}">View details</a>
                             </li>
-                            <li>
+                            <li ng-show="item.status !== 'deleting'">
                                 <a ng-href="${prefix}/{{ item.id }}/snapshots" i18n:translate="">Manage snapshots</a>
                             </li>
                             <li ng-show="item.status === 'available'">
                                 <a i18n:translate="" ng-click="revealModal('attach', item)">Attach to instance</a>
                             </li>
-                            <li ng-show="item.status === 'in-use' &amp;&amp; item.attach_status !== 'detaching'">
+                            <li ng-show="item.attach_status === 'attached' &amp;&amp; item.attach_status !== 'detaching'">
                                 <a ng-click="detachModal(item, '${request.route_path('instance_json', id='_id_')}')"
                                    id="detach-volume-action" i18n:translate="">Detach from instance</a>
                             </li>
-                            <li ng-show="item.status === 'available'">
+                            <li ng-show="item.status === 'available' || item.status === 'failed'">
                                 <a i18n:translate="" ng-click="revealModal('delete', item)">Delete volume</a>
                             </li>
                         </ul>
@@ -150,7 +152,6 @@
 
 <div metal:fill-slot="tail_js">
     <script src="${request.static_path('eucaconsole:static/js/thirdparty/jquery/chosen.jquery.min.js')}"></script>
-    <script src="${request.static_path('eucaconsole:static/js/pages/custom_filters.js')}"></script>
     <script src="${request.static_path('eucaconsole:static/js/pages/landingpage.js')}"></script>
     <script src="${request.static_path('eucaconsole:static/js/pages/volumes.js')}"></script>
 </div>

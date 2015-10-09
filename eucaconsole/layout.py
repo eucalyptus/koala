@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -55,7 +55,6 @@ class MasterLayout(object):
         self.context = context
         self.request = request
         self.version = __version__
-        self.home_url = request.application_url
         self.help_url = request.registry.settings.get('help.url')
         self.support_url = request.registry.settings.get('support.url') or "http://support.eucalyptus.com"
         self.aws_enabled = asbool(request.registry.settings.get('aws.enabled'))
@@ -77,7 +76,7 @@ class MasterLayout(object):
         self.euca_logout_form = EucaLogoutForm(request=self.request)
         self.date_format = _(u'%I:%M:%S %p %b %d %Y')
         self.angular_date_format = _(u'hh:mm:ss a MMM d yyyy')
-        self.tag_pattern_key = '^(?!aws:).{0,128}$'
+        self.tag_pattern_key = '^(?!aws:)(?!euca:).{0,128}$'
         self.tag_pattern_value = '^(?!aws:).{0,256}$'
         self.integer_gt_zero_pattern = '^[1-9]\d*$'
         self.non_negative_pattern = '^[0-9]\d*$'
@@ -86,11 +85,18 @@ class MasterLayout(object):
             '(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(\/\d+)$'
         )
         self.ascii_without_slashes_pattern = r'^((?![\x2F\x5c])[\x20-\x7F]){1,255}$'
-        self.port_range_pattern = '^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
+        self.name_without_spaces_pattern = r'^[a-zA-Z0-9\-]{1,255}$'
+        self.port_range_pattern = u'{0}'.format(
+            '^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$')
         self.querystring = self.get_query_string()
         self.help_html_dir = 'eucaconsole:static/html/help/'
         self.escape_braces = BaseView.escape_braces
         self.file_uploads_enabled = asbool(self.request.registry.settings.get('file.uploads.enabled', True))
+        self.searchtext_remove = _(u'Remove facet')
+        self.searchtext_cancel = _(u'Clear search')
+        self.searchtext_prompt = _(u'Select facets for filter, or enter text to search')
+        self.searchtext_prompt2 = _(u'Enter text to search')
+        self.searchtext_text_facet = _(u'Text')
 
     def get_notifications(self):
         """Get notifications, categorized by message type ('info', 'success', 'warning', or 'error')

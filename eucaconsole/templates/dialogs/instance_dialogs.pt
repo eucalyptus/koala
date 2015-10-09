@@ -21,7 +21,7 @@
                     <button type="submit" id="reboot_instance_submit_button" class="button expand" i18n:translate="">Yes, Reboot</button>
                 </div>
                 <div class="dialog-progress-display hide">
-                    <span i18n:translate="">Sending request </span>&nbsp;<em><span class="dots">&nbsp;</span></em>
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
                 </div>
             </form>
             <a href="#" id="reboot_instance_close_link" class="close-reveal-modal">&#215;</a>
@@ -45,7 +45,7 @@
                     <button type="submit" id="start_instance_submit_button" class="button expand" i18n:translate="">Yes, Start Instance</button>
                 </div>
                 <div class="dialog-progress-display hide">
-                    <span i18n:translate="">Sending request </span>&nbsp;<em><span class="dots">&nbsp;</span></em>
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
                 </div>
             </form>
             <a href="#" id="start_instance_close_link" class="close-reveal-modal">&#215;</a>
@@ -69,7 +69,7 @@
                     <button type="submit" id="stop_instance_submit_button" class="button expand" i18n:translate="">Yes, Stop Instance</button>
                 </div>
                 <div class="dialog-progress-display hide">
-                    <span i18n:translate="">Sending request </span>&nbsp;<em><span class="dots">&nbsp;</span></em>
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
                 </div>
             </form>
             <a href="#" class="close-reveal-modal">&#215;</a>
@@ -103,7 +103,7 @@
                     <button type="submit" id="terminate_instance_submit_button" class="button expand" i18n:translate="">Yes, Terminate</button>
                 </div>
                 <div class="dialog-progress-display hide">
-                    <span i18n:translate="">Sending request </span>&nbsp;<em><span class="dots">&nbsp;</span></em>
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
                 </div>
             </form>
             <a href="#" id="terminate_instance_close_link" class="close-reveal-modal">&#215;</a>
@@ -124,35 +124,43 @@
                 <em tal:condition="landingpage">{{ instanceName }}</em>
             </h3>
             <div ng-show="!(platform == 'windows')">
-                <p>
-                    <span i18n:translate="">To connect to your instance, be sure</span>
-                    <span ng-if="securityGroups.length == 1" i18n:translate="">security group</span>
-                    <span ng-if="securityGroups.length &gt; 1" i18n:translate="">at least one of the security groups</span>
-                    <strong ng-repeat="secgroup in securityGroups">
-                        {{ secgroup.name }}<span ng-if="!$last">, </span>
-                    </strong>
-                    <span i18n:translate="">
-                        has TCP port 22 open to inbound traffic and then perform the following steps
-                        (these instructions do not apply if you did not select a key pair when you launched this instance):
-                    </span>
-                </p>
-                <ol>
-                    <li i18n:translate="">Open an SSH terminal window.</li>
-                    <li>
+                <div ng-show="keyName">
+                    <p>
+                        <span i18n:translate="">To connect to your instance, be sure</span>
+                        <span ng-if="securityGroups.length == 1" i18n:translate="">security group</span>
+                        <span ng-if="securityGroups.length &gt; 1" i18n:translate="">at least one of the security groups</span>
+                        <strong ng-repeat="secgroup in securityGroups">
+                            {{ secgroup.name }}<span ng-if="!$last">, </span>
+                        </strong>
                         <span i18n:translate="">
-                            Change your directory to the one where you stored your key file
+                            has TCP port 22 open to inbound traffic and then perform the following steps
+                            (these instructions do not apply if you did not select a key pair when you launched this instance):
                         </span>
-                        <strong>{{ keyName }}.pem</strong>
-                    </li>
-                    <li>
-                        <span i18n:translate="">Run the following command to set the correct permissions for your key file:</span><br/>
-                        <strong>chmod 400 {{ keyName }}.pem</strong>
-                    </li>
-                    <li>
-                        <span i18n:translate="">Connect to your instance via its public IP address by running the following command:</span><br/>
-                        <strong>ssh -i {{ keyName }}.pem root@{{ instancePublicIP }}</strong>
-                    </li>
-                </ol>
+                    </p>
+                    <ol>
+                        <li i18n:translate="">Open an SSH terminal window.</li>
+                        <li>
+                            <span i18n:translate="">
+                                Change your directory to the one where you stored your key file
+                            </span>
+                            <strong>{{ keyName }}.pem</strong>
+                        </li>
+                        <li>
+                            <span i18n:translate="">Run the following command to set the correct permissions for your key file:</span><br/>
+                            <strong>chmod 400 {{ keyName }}.pem</strong>
+                        </li>
+                        <li>
+                            <span i18n:translate="">Connect to your instance via its public IP address by running the following command:</span><br/>
+                            <strong>ssh -i {{ keyName }}.pem root@{{ instancePublicIP }}</strong>
+                        </li>
+                    </ol>
+                </div>
+                <div ng-show="!keyName">
+                    <p i18n:translate="">
+                        You cannot connect to this instance using Secure Shell (SSH) because it does not have
+                        a key pair.  Key pairs are assigned at instance launch.
+                    </p>
+                </div>
             </div>
             <div ng-show="platform == 'windows'">
                 <p>
@@ -209,7 +217,12 @@
                 <div tal:condition="landingpage" tal:omit-tag="">
                     <input type="hidden" name="instance_id" value="{{ instanceID }}" />
                 </div>
-                ${panel('form_field', field=associate_ip_form.ip_address, **html_attrs)}
+                <div tal:condition="instance">
+                    ${panel('form_field', field=associate_ip_form.ip_address, **html_attrs)}
+                </div>
+                <div tal:condition="not instance">
+                    ${panel('form_field', field=associate_ip_form.ip_address, ng_attrs={'model': 'associateIP', 'options': 'k as v for (k, v) in ipAddressList'}, **html_attrs)}
+                </div>
                 <div>
                     <label>
                         <span class="req">*</span>
@@ -220,7 +233,7 @@
                     <button type="submit" id="associate_ip_to_instance_submit_button" class="button expand" i18n:translate="">Associate Address with Instance</button>
                 </div>
                 <div class="dialog-progress-display hide">
-                    <span i18n:translate="">Sending request</span>&nbsp;&nbsp;<em><span class="dots">&nbsp;</span></em>
+                    <span i18n:translate="">Sending request</span>&nbsp;<i class="busy"></i>
                 </div>
             </form>
             <div tal:condition="not ip_addresses_available">
@@ -271,7 +284,7 @@
                     <button type="submit" id="disassociate_ip_to_instance_submit_button" class="button expand" i18n:translate="">Yes, Disassociate Address from Instance</button>
                 </div>
                 <div class="dialog-progress-display hide">
-                    <span i18n:translate="">Sending request </span>&nbsp;<em><span class="dots">&nbsp;</span></em>
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
                 </div>
             </form>
             <a href="#" id="disassociate_ip_to_instance_close_link" class="close-reveal-modal">&#215;</a>

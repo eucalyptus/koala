@@ -9,7 +9,7 @@ angular.module('ElasticIPPage', [])
         $scope.publicIP = '';
         $scope.allocationID = '';
         $scope.initController = function (publicIP, allocationID) {
-            $scope.publicIP = publicIP,
+            $scope.publicIP = publicIP;
             $scope.allocationID = allocationID;
             $scope.activateWidget();
             $scope.setWatch();
@@ -28,7 +28,7 @@ angular.module('ElasticIPPage', [])
             $(document).on('ready', function(){
                 $('.actions-menu').find('a').get(0).focus();
             });
-            $(document).on('opened', '[data-reveal]', function () {
+            $(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
                 var modal = $(this);
                 var modalID = $(this).attr('id');
                 if( modalID.match(/terminate/)  || modalID.match(/delete/) || modalID.match(/release/) ){

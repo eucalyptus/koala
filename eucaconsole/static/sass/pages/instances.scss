@@ -5,7 +5,7 @@
 
 
 // Status colors
-$instance-status-color-running: $euca-darkblue;
+$instance-status-color-running: $hp-green;
 $instance-status-color-pending: lighten($euca-darkblue, 20%);
 $instance-status-color-stopped: darken(red, 20%);
 $instance-status-color-stopping: lighten(red, 20%);
@@ -44,10 +44,12 @@ $instance-tile-height-adjustment: 24px;
 
 #terminate-instances-btn {
     margin-left: 1rem;
-    border: none;
 }
 
 .connect-center {
     text-align: center;
 }
 
+#maincontent {
+    padding-bottom: 9.0rem;
+}

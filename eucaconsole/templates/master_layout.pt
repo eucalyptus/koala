@@ -16,6 +16,8 @@
     <link rel="stylesheet" type="text/css" href="${request.static_path('eucaconsole:static/css/thirdparty/chosen.min.css')}" />
     <link rel="stylesheet" href="${request.static_path('eucaconsole:static/css/eucaconsole.css')}"
           type="text/css" media="screen" charset="utf-8" />
+    <link rel="stylesheet" href="${request.static_path('eucaconsole:static/css/euca-font-awesome.css')}"
+          type="text/css" media="screen" charset="utf-8" />
     <metal:block metal:define-slot="head_css" />
     <script src="${request.static_path('eucaconsole:static/js/thirdparty/modernizr/custom.modernizr.js')}"></script>
     <script src="${request.static_path('eucaconsole:static/js/thirdparty/jquery/jquery.min.js')}"></script>
@@ -23,18 +25,28 @@
     <script src="${request.static_path('eucaconsole:static/js/thirdparty/angular/angular-sanitize.min.js')}"></script>
     <script src="${request.static_path('eucaconsole:static/js/thirdparty/jquery/jquery.generateFile.js')}"></script>
     <script src="${request.static_path('eucaconsole:static/js/widgets/notify.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/pages/custom_filters.js')}"></script>
     <script src="${request.static_path('eucaconsole:static/js/pages/eucaconsole_utils.js')}"></script>
     <metal:block metal:define-slot="head_js" />
 </head>
 
 <body>
-<div class="off-canvas-wrap">
+<div class="off-canvas-wrap" data-offcanvas="">
+<div class="left-nav nav-collapsed">
+    <i id="hp-logo"></i>
+    ${panel('top_nav', off_canvas=False)}
+</div>
 <div id="canvaswrap" class="inner-wrap">
     <div id="logobar-wrapper">
         <nav id="logobar" class="row" metal:define-slot="logobar">
             <a class="left-off-canvas-toggle" id="offcanvas-icon"
-               tal:condition="request.user.is_authenticated()"><i class="fi-list"></i></a>
-            <a id="logo" href="${layout.home_url}" title="${layout.site_title}"></a>
+               tal:condition="request.user.is_authenticated()">
+               <i class="fi-list"></i>
+               <span id="hp-logo"></span>
+            </a>
+            <a href="/" title="${layout.site_title}" metal:define-slot="logo">
+                <span class="product-name">Eucalyptus</span>
+            </a>
             <section tal:condition="request.user.is_authenticated()" id="user-dropdown-section">
                 <a href="#" data-dropdown="user-dropdown" class="small secondary dropdown">
                     <span class="${layout.cloud_type} username-label">${layout.username_label}</span>
@@ -68,26 +80,9 @@
         </nav>
     </div>
 
-    <!-- Top nav bar -->
-    <div id="navbar" tal:condition="request.user.is_authenticated()">
-        <nav class="row top-bar" data-topbar="" data-options="is_hover:false">
-            <ul class="title-area">
-                <li class="name"></li>
-                <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
-            </ul>
-            <section class="top-bar-section">
-                ${panel('top_nav')}
-            </section>
-        </nav>
-    </div>
     <!-- Off Canvas Menu: Left -->
     <div class="left-off-canvas-menu">
         ${panel('top_nav', off_canvas=True)}
-    </div>
-
-    <!-- Off Canvas Menu: Right-->
-    <div class="right-off-canvas-menu">
-        <metal:block metal:define-slot="offcanvas_right" />
     </div>
 
     <!-- Main Content -->
@@ -100,7 +95,7 @@
     <footer>
         <div class="row">
            <div class="copyright subheader">
-               © 2015 Eucalyptus Systems, Inc.
+               © 2015 Hewlett-Packard Development Company, L.P.
            </div>
         </div>
         <form id="euca-logout-form" method="post" action="${request.route_path('logout')}">

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -212,13 +212,20 @@ class VolumesFiltersForm(BaseSecureForm):
         region = request.session.get('region')
         self.zone.choices = self.get_availability_zone_choices(region)
         self.status.choices = self.get_status_choices()
+        self.facets = [
+            {'name': 'zone', 'label': self.zone.label.text, 'options': self.get_availability_zone_choices(region)},
+            {'name': 'status', 'label': self.status.label.text, 'options': self.get_status_choices()},
+        ]
 
     def get_availability_zone_choices(self, region):
-        return self.choices_manager.availability_zones(region, add_blank=False)
+        return self.get_options_from_choices(self.choices_manager.availability_zones(region, add_blank=False))
 
     @staticmethod
     def get_status_choices():
-        return (
-            ('available', 'Available'),
-            ('in-use', 'In use'),
-        )
+        return [
+            {'key': 'creating', 'label': _(u'Creating')},
+            {'key': 'available', 'label': _(u'Available')},
+            {'key': 'attached', 'label': _(u'Attached')},
+            {'key': 'attaching', 'label': _(u'Attaching')},
+            {'key': 'detaching', 'label': _(u'Detaching')}
+        ]

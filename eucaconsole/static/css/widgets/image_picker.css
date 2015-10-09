@@ -1,15 +1,12 @@
-@charset "UTF-8";
 /* @fileOverview Image picker widget Sass CSS styles */
 /* Dropdown elements */
 /* Set the link colors and styles for top-level nav */
 /* ----------------------------------------- Item list
 ----------------------------------------- */
-#image-picker .search-filter { position: relative; }
-#image-picker .search-filter .search-icon { position: absolute; top: 10px; right: 10px; }
-#image-picker .table { width: 100% !important; border: 1px solid #cccccc; }
+#image-picker .table { width: 100% !important; border: 1px solid #ccc; }
 #image-picker .table tbody { display: block; overflow-y: scroll; height: 22rem; }
-#image-picker .table tbody tr { display: block; border-bottom: 1px solid #cccccc; }
-#image-picker .table tbody tr.selected { background-color: #eef7e3; }
+#image-picker .table tbody tr { display: block; border-bottom: 1px solid #ccc; }
+#image-picker .table tbody tr.selected { background-color: #edf9ff; }
 #image-picker .table tbody tr.selected:hover { cursor: inherit; }
 #image-picker .table tbody td { word-break: break-all; }
 #image-picker .table tbody td.desc { width: 100%; text-align: left; }
@@ -33,3 +30,5 @@
 #image-picker .cancel-link { margin-left: 1.5rem; }
 
 #filters label { margin-top: 8px; margin-bottom: 2px; }
+
+.search-entry .search-input { height: 1.5rem !important; line-height: 1.5rem !important; }

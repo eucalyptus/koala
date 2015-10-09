@@ -5,8 +5,8 @@
  */
 
 // Add Scaling Group Policy page includes the Create Alarm dialog, so pull in that module
-angular.module('ScalingGroupPolicy', ['CreateAlarm'])
-    .controller('ScalingGroupPolicyCtrl', function ($rootScope, $scope) {
+angular.module('ScalingGroupPolicy', ['CreateAlarm', 'EucaConsoleUtils'])
+    .controller('ScalingGroupPolicyCtrl', function ($rootScope, $scope, eucaNumbersOnly) {
         $scope.alarmModal = $('#create-alarm-modal');
         $scope.policyForm = $('#add-policy-form');
         $rootScope.alarmChoices = {};
@@ -44,7 +44,13 @@ angular.module('ScalingGroupPolicy', ['CreateAlarm'])
             $scope.$watch('adjustmentAmount', function () {
                 $scope.checkRequiredInput();
             });
-            $scope.$watch('coolDown', function () {
+            $scope.$watch('coolDown', function (newVal, oldVal) {
+                if(newVal) {
+                    $scope.coolDown = eucaNumbersOnly(newVal);
+                    $scope.isNotValid = false;
+                } else {
+                    $scope.isNotValid = true;
+                }
                 $scope.checkRequiredInput();
             });
             $scope.$watch('alarm', function () {
@@ -53,7 +59,7 @@ angular.module('ScalingGroupPolicy', ['CreateAlarm'])
         };
         $scope.setFocus = function () {
             $scope.policyForm.find('input#name').focus();
-            $(document).on('opened', '[data-reveal]', function () {
+            $(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
                 var modal = $(this);
                 var inputElement = modal.find('input[type!=hidden]').get(0);
                 var modalButton = modal.find('button').get(0);
@@ -63,10 +69,10 @@ angular.module('ScalingGroupPolicy', ['CreateAlarm'])
                     modalButton.focus();
                 }
             });
-            $(document).on('close', '[data-reveal]', function () {
+            $(document).on('close.fndtn.reveal', '[data-reveal]', function () {
                 document.getElementById('create-alarm-form').reset();
             });
-            $(document).on('closed', '[data-reveal]', function () {
+            $(document).on('closed.fndtn.reveal', '[data-reveal]', function () {
                 $('input#name').focus();
             });
         };

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -28,6 +28,8 @@
 Common constants for CloudWatch
 
 """
+from ..i18n import _
+
 
 METRIC_TYPES = [
     {'namespace': 'AWS/AutoScaling', 'name': 'GroupDesiredCapacity', 'unit': 'None'},
@@ -86,3 +88,78 @@ METRIC_DIMENSION_INPUTS = {
     'volume': 'volume_id',
 }
 
+# Maps metric names to friendly titles, primarily for CloudWatch charts
+METRIC_TITLE_MAPPING = {
+    # EC2 Metrics
+    'CPUUtilization': _(u'CPU utilization %'),
+    'DiskReadBytes': _(u'Disk read data'),
+    'DiskReadOps': _(u'Disk read operations'),
+    'DiskWriteBytes': _(u'Disk write data'),
+    'DiskWriteOps': _(u'Disk write operations'),
+    'NetworkIn': _(u'Network in'),
+    'NetworkOut': _(u'Network out'),
+    # ELB Metrics
+    'RequestCount': _(u'Sum request count'),
+    'Latency': _(u'Avg latency (ms)'),
+    'UnHealthyHostCount': _(u'Unhealthy hosts'),
+    'HealthyHostCount': _(u'Healthy hosts'),
+    'HTTPCode_ELB_4XX': _(u'Sum ELB 4xxs'),
+    'HTTPCode_ELB_5XX': _(u'Sum ELB 5xxs'),
+    'HTTPCode_Backend_2XX': _(u'Sum HTTP 2xxs'),
+    'HTTPCode_Backend_3XX': _(u'Sum HTTP 3xxs'),
+    'HTTPCode_Backend_4XX': _(u'Sum HTTP 4xxs'),
+    'HTTPCode_Backend_5XX': _(u'Sum HTTP 5xxs'),
+}
+
+# Statistic choices for CloudWatch charts
+STATISTIC_CHOICES = [
+    ('Average', _(u'Average')),
+    ('Minimum', _(u'Minimum')),
+    ('Maximum', _(u'Maximum')),
+    ('Sum', _(u'Sum')),
+    ('SampleCount', _(u'Sample Count')),
+]
+
+# Durations for CloudWatch charts (e.g. on Instance monitoring page)
+MIN = 60  # seconds
+FIVE_MIN = MIN * 5
+FIFTEEN_MIN = MIN * 15
+HOUR = 3600
+DAY = HOUR * 24
+THREE_HOURS = HOUR * 3
+SIX_HOURS = HOUR * 6
+TWELVE_HOURS = HOUR * 12
+THREE_DAYS = DAY * 3
+SEVEN_DAYS = DAY * 7
+FOURTEEN_DAYS = DAY * 14
+
+MONITORING_DURATION_CHOICES = [
+    (HOUR, _(u'Last hour')),
+    (THREE_HOURS, _(u'Last 3 hours')),
+    (SIX_HOURS, _(u'Last 6 hours')),
+    (TWELVE_HOURS, _(u'Last 12 hours')),
+    (DAY, _(u'Last day')),
+    (THREE_DAYS, _(u'Last 3 days')),
+    (SEVEN_DAYS, _(u'Last 1 week')),
+    (FOURTEEN_DAYS, _(u'Last 2 weeks')),
+]
+
+GRANULARITY_CHOICES = [
+    (FIVE_MIN, _(U'5 minutes')),
+    (FIFTEEN_MIN, _(U'15 minutes')),
+    (HOUR, _(u'1 hour')),
+    (SIX_HOURS, _(u'6 hours')),
+    (DAY, _(u'1 day')),
+]
+
+# Trim granularity choices when longer durations are selected to avoid exceeding 1,440 data points limit in API
+DURATION_GRANULARITY_CHOICES_MAPPING = {
+    HOUR: GRANULARITY_CHOICES[:2],
+    THREE_HOURS: GRANULARITY_CHOICES[:3],
+    SIX_HOURS: GRANULARITY_CHOICES[:3],
+    TWELVE_HOURS: GRANULARITY_CHOICES[1:4],
+    DAY: GRANULARITY_CHOICES[1:4],
+    THREE_DAYS: GRANULARITY_CHOICES[2:],
+    SEVEN_DAYS: GRANULARITY_CHOICES[2:],
+    FOURTEEN_DAYS: GRANULARITY_CHOICES[2:],
+}

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -71,8 +71,8 @@ class AccountsView(LandingPageView):
         ]
 
         return dict(
-            filter_fields=False,
             filter_keys=self.filter_keys,
+            search_facets=BaseView.escape_json(json.dumps([])),
             sort_keys=self.sort_keys,
             prefix=self.prefix,
             initial_sort_key=self.initial_sort_key,
@@ -161,7 +161,11 @@ class AccountView(BaseView):
         self.delete_form = DeleteAccountForm(self.request, formdata=self.request.params)
         self.quotas_form = QuotasForm(self.request, account=self.account, conn=self.conn)
         self.account_name_validation_error_msg = _(
-            u"Account names must be between 3 and 63 characters long, and may contain lower case letters, numbers, \'.\'. \'@\' and \'-\', and cannot contain spaces.")
+            u'''
+            Account names must be between 3 and 63 characters long, and may contain lower case
+            letters, numbers, '.', '@' and '-', and cannot contain spaces. Account names must not
+            consist of exactly 12 digits.
+            ''')
         self.render_dict = dict(
             account=self.account,
             account_route_id=self.account_route_id,

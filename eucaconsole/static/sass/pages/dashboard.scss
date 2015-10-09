@@ -10,7 +10,6 @@ $dashboard-panel-icon-size: 100px;
 
 #maincontent {
     padding-top: 1rem;
-    background: #eef7e3;
     #pagetitle {
         margin-bottom: 0.5rem;
         margin-left: 0;
@@ -44,6 +43,7 @@ $tile-row-height: 24px;
     font-size: 0.825rem;
     .tile {
         background-color: white;
+        border: 1px solid $hp-gray-20;
         position: relative;
         height: $dashboard-panel-tile-height;
         padding: 4px 8px;
@@ -67,8 +67,14 @@ $tile-row-height: 24px;
                 position: absolute;
                 bottom: -40%; left: 0; right: 0;
                 text-align: center;
-                color: black;
+                color: $hp-accessible-blue;
                 font-style: normal;
+                &:hover {
+                    text-decoration: underline;
+                }
+                i { // busy
+                    color: black;
+                }
             }
         }
         .footer {
@@ -91,32 +97,21 @@ $tile-row-height: 24px;
             }
         }
         .dropdown.button.tiny {
-            z-index: 99999;
+            z-index: 99998;
             background: none;
             box-shadow: none;
             position: absolute;
             width: 30px; height: $tile-row-height;
             top: 0; right: 0;
-            color: $euca-green;
+            color: $hp-gray-65;
             font-size: 1.1rem;
             padding: 0 0 0 0;
-            border-top: none;
-            border-right: none;
+            border: none;
             &:hover {
-                color: $euca-green;
+                color: $hp-hover-blue;
             }
-            &::before {
+            &::before, &::after {
                 border: none;
-            }
-            .fi-widget {
-                position: relative;
-                top: 4px;
-                background-image: url(../../img/svg/gear.svg);
-                display: inline-block;
-                width: 20px; height: 20px;
-                &::before {
-                    content: " "
-                }
             }
         }
         .f-dropdown {
@@ -136,7 +131,7 @@ $tile-row-height: 24px;
                 position: absolute;
                 top: 0; bottom: 0; left: 0; right: 0;
                 &:hover {
-                    background-color: lighten($euca-lightgreen, 30%);
+                    background-color: lighten($hp-accessible-blue, 50%);
                 }
             }
             .plus {
@@ -151,12 +146,14 @@ $tile-row-height: 24px;
 #instances-running .icon { background-image: url(../../img/svg/icon_running_instances.svg); }
 #instances-stopped .icon { background-image: url(../../img/svg/icon_stopped_instances.svg); }
 #scaling-groups .icon { background-image: url(../../img/svg/icon_instances_scaling_groups.svg); }
+#stacks .icon { background-image: url(../../img/svg/icon_cloud_formation.svg); }
 #elastic-ips .icon { background-image: url(../../img/svg/icon_elastic_IP.svg); }
 #volumes .icon { background-image: url(../../img/svg/icon_volumes.svg); }
 #snapshots .icon { background-image: url(../../img/svg/icon_snapshot.svg); }
 #buckets .icon { background-image: url(../../img/svg/icon_buckets.svg); }
 #security-groups .icon { background-image: url(../../img/svg/icon_security_groups.svg); }
 #key-pairs .icon { background-image: url(../../img/svg/icon_key-pair.svg); }
+#load-balancers .icon { background-image: url(../../img/svg/icon_load_balancing.svg); }
 #accounts .icon { background-image: url(../../img/svg/icon_IAM_accounts.svg); }
 #users .icon { background-image: url(../../img/svg/icon_IAM_users.svg); }
 #groups .icon { background-image: url(../../img/svg/IAM_group.svg); }
@@ -171,17 +168,17 @@ $tile-row-height: 24px;
 // Health status tile
 #health {
     .statusrow {
-        font-size: 11pt;
+        font-size: 10pt;
         text-align: left;
         color: $euca-grey;
         margin-top: 10px;
-        line-height: 1.4rem;
+        line-height: 1.2rem;
         .status {
             position: relative;
             left: 8px;
         }
         i.service-up {
-            color: $euca-darkblue;
+            color: $hp-green;
             font-size: 16pt;
             text-align: left;
         }

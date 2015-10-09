@@ -5,11 +5,12 @@
  */
 
 
-angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
+angular.module('LandingPage', ['CustomFilters', 'ngSanitize', 'MagicSearch'])
     .controller('ItemsCtrl', function ($scope, $http, $timeout, $sanitize) {
         $http.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $scope.items = [];
         $scope.itemsLoading = true;
+        $scope.runningSmartRefresh = false;
         $scope.unfilteredItems = [];
         $scope.filterKeys = [];
         $scope.sortBy = '';
@@ -32,14 +33,15 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
             $scope.getItems();
             $scope.setWatch();
             $scope.setFocus();
-            $scope.setDropdownMenusListener();
             $scope.enableInfiniteScroll();
             $scope.storeAWSRegion();
         };
         $scope.initChosenFilters = function () {
-            !!$(document).chosen && $('#filters').find('select').chosen({
-                'width': '100%', 'search_contains': true, 'placeholder_text_multiple': 'select...'
-            });
+            if ($(document).chosen) {
+                $('#filters').find('select').chosen({
+                    'width': '100%', 'search_contains': true, 'placeholder_text_multiple': 'select...'
+                });
+            }
         };
         $scope.initLocalStorageKeys = function (pageResource){
             $scope.pageResource = pageResource;
@@ -61,7 +63,9 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
                     sortingDropdown.removeAttr('style');
                 }
                 // Set sortBy in sessionStorage
-                Modernizr.sessionstorage && sessionStorage.setItem($scope.sortByKey, $scope.sortBy);
+                if (Modernizr.sessionstorage) {
+                    sessionStorage.setItem($scope.sortByKey, $scope.sortBy);
+                }
             });
             // Landing page display preference (table/tile view) watcher
             $scope.$watch('landingPageView', function () {
@@ -75,7 +79,9 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
                    gridviewBtn.removeClass("selected");
                }
                // Set landingPageView in localStorage
-               Modernizr.localstorage && localStorage.setItem($scope.landingPageViewKey, $scope.landingPageView);
+               if (Modernizr.localstorage) {
+                   localStorage.setItem($scope.landingPageViewKey, $scope.landingPageView);
+               }
             });
             // When unfilteredItems[] is updated, run it through the filter and build items[]
             $scope.$watch('unfilteredItems', function() {
@@ -85,7 +91,7 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
         };
         $scope.setFocus = function () {
             $('#search-filter').focus();
-            $(document).on('opened', '[data-reveal]', function () {
+            $(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
                 var modal = $(this);
                 var modalID = $(this).attr('id');
                 if( modalID.match(/terminate/)  || modalID.match(/delete/) || 
@@ -104,7 +110,7 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
                     }
                }
             });
-            $(document).on('close', '[data-reveal]', function () {
+            $(document).on('close.fndtn.reveal', '[data-reveal]', function () {
                 var modal = $(this);
                 modal.find('input[type="text"]').val('');
                 modal.find('input[type="number"]').val('');
@@ -112,26 +118,17 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
                 modal.find('textarea').val('');
                 modal.find('div.error').removeClass('error');
                 var chosenSelect = modal.find('select');
-                if (chosenSelect.length > 0 && chosenSelect.attr('multiple') == undefined) {
+                if (chosenSelect.length > 0 && chosenSelect.attr('multiple') === undefined) {
                     chosenSelect.prop('selectedIndex', 0);
                     chosenSelect.trigger("chosen:updated");
                 }
             });
-            $(document).on('closed', '[data-reveal]', function () {
+            $(document).on('closed.fndtn.reveal', '[data-reveal]', function () {
                 $('#search-filter').focus();
             });
             $(document).on('submit', '[data-reveal] form', function () {
                 $(this).find('.dialog-submit-button').css('display', 'none');                
                 $(this).find('.dialog-progress-display').css('display', 'block');                
-            });
-        };
-        $scope.setDropdownMenusListener = function () {
-            var modals = $('[data-reveal]');
-            modals.on('open', function () {
-                $('.gridwrapper').find('.f-dropdown').filter('.open').css('display', 'none');
-            });
-            modals.on('close', function () {
-                $('.gridwrapper').find('.f-dropdown').filter('.open').css('display', 'block');
             });
         };
         $scope.storeAWSRegion = function () {
@@ -140,7 +137,7 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
                     'aws-region', $('#region-dropdown').children('li[data-selected="True"]').children('a').attr('id'));
             }
         };
-        $scope.getItems = function () {
+        $scope.getItems = function (okToRefresh) {
             var csrf_token = $('#csrf_token').val();
             var data = "csrf_token="+csrf_token;
             $http({method:'POST', url:$scope.jsonEndpoint, data:data,
@@ -151,13 +148,19 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
                 $scope.itemsLoading = false;
                 $scope.unfilteredItems = results;
                 $scope.unfilteredItems.forEach(function (item) {
-                    if (!!item['transitional']) {
+                    if (!!item.transitional) {
                         transitionalCount += 1;
                     }
                 });
                 // Auto-refresh items if any are in a transitional state
                 if ($scope.transitionalRefresh && transitionalCount > 0) {
-                    $timeout(function() { $scope.getItems(); }, 5000);  // Poll every 5 seconds
+                    if (!$scope.runningSmartRefresh || okToRefresh !== undefined) {
+                        $scope.runningSmartRefresh = true;
+                        $timeout(function() { $scope.getItems(true); }, 5000);  // Poll every 5 seconds
+                    }
+                }
+                else {
+                    $scope.runningSmartRefresh = false;
                 }
                 // Emit 'itemsLoaded' signal when items[] is updated
                 $timeout(function() {
@@ -166,7 +169,10 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
                     $scope.clickOpenDropdown();
                 });
             }).error(function (oData, status) {
-                var errorMsg = oData['message'] || null;
+                if (oData === undefined && status === 0) {  // likely interrupted request
+                    return;
+                }
+                var errorMsg = oData.message || null;
                 if (errorMsg) {
                     if (errorMsg.indexOf('permissions') > -1) {
                         Notify.failure(errorMsg);
@@ -185,11 +191,11 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
          */
         $scope.searchFilterItems = function(filterProps) {
             var filterText = ($scope.searchFilter || '').toLowerCase();
-            if (filterProps != '' && filterProps != undefined){
+            if (filterProps !== '' && filterProps !== undefined){
                 // Store the filterProps input for later use as well
                 $scope.filterKeys = filterProps;
             }
-            if (filterText == '') {
+            if (filterText === '') {
                 // If the search filter is empty, skip the filtering
                 $scope.items = $scope.unfilteredItems;
                 return;
@@ -204,12 +210,7 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
                         return item;
                     } else if (itemProp && typeof itemProp === "object") {
                         // In case of mutiple values, create a flat string and perform search
-                        var flatString = '';
-                        angular.forEach(itemProp, function(x) {
-                            if (x.hasOwnProperty('name')) {
-                                flatString += x.name + ' ';
-                            }
-                        });
+                        var flatString = $scope.getItemNamesInFlatString(itemProp);
                         if (flatString.toLowerCase().indexOf(filterText) !== -1) {
                             return item;
                         }
@@ -218,6 +219,15 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
             });
             // Update the items[] with the filtered items
             $scope.items = filteredItems;
+        };
+        $scope.getItemNamesInFlatString = function(items) {
+            var flatString = '';
+            angular.forEach(items, function(x) {
+                if (x.hasOwnProperty('name')) {
+                    flatString += x.name + ' ';
+                }
+            });
+            return flatString;
         };
         $scope.switchView = function(view){
             $scope.landingPageView = view;
@@ -243,7 +253,7 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
             $scope.getItems();
         });
         $scope.clickOpenDropdown = function () {
-            if ($scope.openDropdownID != '') {
+            if ($scope.openDropdownID !== '') {
                $('#' + $scope.openDropdownID).click();
             }
         };
@@ -256,5 +266,33 @@ angular.module('LandingPage', ['CustomFilters', 'ngSanitize'])
             });
             
         };
+        $scope.$on('searchUpdated', function($event, query) {
+            // update url
+            var url = window.location.href;
+            if (url.indexOf("?") > -1) {
+                url = url.split("?")[0];
+            }
+            if (query.length > 0) {
+                url = url + "?" + query;
+            }
+            window.history.pushState(query, "", url);
+            // update json endpont and refresh table
+            url = $scope.jsonEndpoint;
+            if (url.indexOf("?") > -1) {
+                url = url.split("?")[0];
+            }
+            if (query.length > 0) {
+                url = url + "?" + query;
+            }
+            $scope.jsonEndpoint = url;
+            $scope.itemsLoading=true;
+            $scope.getItems();
+        });
+        $scope.$on('textSearch', function($event, text, filter_keys) {
+            $scope.searchFilter = text;
+            $timeout(function() {
+                $scope.searchFilterItems(filter_keys);
+            });
+        });
     })
 ;

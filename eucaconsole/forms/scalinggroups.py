@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013-2014 Eucalyptus Systems, Inc.
+# Copyright 2013-2015 Hewlett Packard Enterprise Development LP
 #
 # Redistribution and use of this software in source and binary forms,
 # with or without modification, are permitted provided that the following
@@ -33,6 +33,7 @@ import wtforms
 from wtforms import validators
 
 from ..i18n import _
+from ..views import BaseView
 from . import BaseSecureForm, ChoicesManager, TextEscapedField, NgNonBindableOptionSelect
 
 
@@ -66,34 +67,24 @@ class BaseScalingGroupForm(BaseSecureForm):
         label=_(u'Load balancer(s)'),
     )
     desired_capacity_error_msg = _(u'Field is required')
-    desired_capacity = wtforms.IntegerField(
+    desired_capacity = wtforms.TextField(
         label=_(u'Desired'),
         validators=[
             validators.InputRequired(message=desired_capacity_error_msg),
-            validators.NumberRange(min=0, max=99),
         ],
     )
     max_size_error_msg = _(u'Max is required')
-    max_size = wtforms.IntegerField(
+    max_size = wtforms.TextField(
         label=_(u'Max'),
         validators=[
             validators.InputRequired(message=max_size_error_msg),
-            validators.NumberRange(min=0, max=99),
         ],
     )
     min_size_error_msg = _(u'Min is required')
-    min_size = wtforms.IntegerField(
+    min_size = wtforms.TextField(
         label=_(u'Min'),
         validators=[
             validators.InputRequired(message=min_size_error_msg),
-            validators.NumberRange(min=0, max=99),
-        ],
-    )
-    health_check_type_error_msg = _(u'Health check type is required')
-    health_check_type = wtforms.SelectField(
-        label=_(u'Type'),
-        validators=[
-            validators.InputRequired(message=health_check_type_error_msg),
         ],
     )
     health_check_period_error_msg = _(u'Health check grace period is required')
@@ -101,8 +92,8 @@ class BaseScalingGroupForm(BaseSecureForm):
         u'Length of time in seconds after a new EC2 instance comes into service that '
         u'Auto Scaling starts checking its health'
     )
-    health_check_period = wtforms.IntegerField(
-        label=_(u'Grace period (seconds)'),
+    health_check_period = wtforms.TextField(
+        label=_(u'Health check grace period (secs)'),
         validators=[
             validators.InputRequired(message=health_check_period_error_msg),
         ],
@@ -124,7 +115,6 @@ class BaseScalingGroupForm(BaseSecureForm):
         self.elb_choices_manager = ChoicesManager(conn=elb_conn) if elb_conn else None
         region = request.session.get('region')
         cloud_type = request.session.get('cloud_type', 'euca')
-        from ..views import BaseView
         self.is_vpc_supported = BaseView.is_vpc_supported(request)
         self.launch_config.choices = self.get_launch_config_choices()
         if cloud_type == 'euca' and self.is_vpc_supported:
@@ -132,7 +122,6 @@ class BaseScalingGroupForm(BaseSecureForm):
         else:
             self.vpc_network.choices = self.vpc_choices_manager.vpc_networks()
         self.vpc_subnet.choices = self.get_vpc_subnet_choices()
-        self.health_check_type.choices = self.get_healthcheck_type_choices()
         self.availability_zones.choices = self.get_availability_zone_choices(region)
         self.load_balancers.choices = self.get_load_balancer_choices()
 
@@ -143,11 +132,10 @@ class BaseScalingGroupForm(BaseSecureForm):
         self.desired_capacity.error_msg = self.desired_capacity_error_msg
         self.max_size.error_msg = self.max_size_error_msg
         self.min_size.error_msg = self.min_size_error_msg
-        self.health_check_type.error_msg = self.health_check_type_error_msg
         self.health_check_period.error_msg = self.health_check_period_error_msg
 
         # Set help text
-        self.vpc_network.label_help_text = self.vpc_network_helptext
+        self.vpc_network.help_text = self.vpc_network_helptext
 
         if scaling_group is not None:
             self.launch_config.data = scaling_group.launch_config_name
@@ -159,7 +147,6 @@ class BaseScalingGroupForm(BaseSecureForm):
             self.desired_capacity.data = int(scaling_group.desired_capacity) if scaling_group else 1
             self.max_size.data = int(scaling_group.max_size) if scaling_group else 1
             self.min_size.data = int(scaling_group.min_size) if scaling_group else 1
-            self.health_check_type.data = scaling_group.health_check_type
             self.health_check_period.data = scaling_group.health_check_period
 
     def get_launch_config_choices(self, escapebraces=True):
@@ -195,7 +182,6 @@ class BaseScalingGroupForm(BaseSecureForm):
         return sorted(set(choices))
 
     def get_vpc_subnet_choices(self):
-        choices = []
         if self.scaling_group is not None and self.scaling_group.vpc_zone_identifier:
             # return VPC specific subnets only
             vpc_subnets = self.scaling_group.vpc_zone_identifier.split(',')
@@ -208,10 +194,6 @@ class BaseScalingGroupForm(BaseSecureForm):
             # return all VPC subnets
             choices = self.vpc_choices_manager.vpc_subnets(show_zone=True, add_blank=True)
         return choices
-
-    @staticmethod
-    def get_healthcheck_type_choices():
-        return [(u'EC2', u'EC2'), (u'ELB', _(u'Load balancer'))]
 
     @staticmethod
     def get_termination_policy_choices():
@@ -253,7 +235,7 @@ class ScalingGroupEditForm(BaseScalingGroupForm):
     default_cooldown_help_text = _(
         u'Number of seconds after a Scaling Activity completes before any further scaling activities can start')
     default_cooldown = wtforms.IntegerField(
-        label=_(u'Default cooldown period (seconds)'),
+        label=_(u'Default cooldown period (secs)'),
         validators=[
             validators.InputRequired(message=default_cooldown_error_msg),
         ],
@@ -287,7 +269,7 @@ class ScalingGroupEditForm(BaseScalingGroupForm):
 
         if scaling_group is not None:
             self.default_cooldown.data = scaling_group.default_cooldown
-            #self.termination_policies.data = scaling_group.termination_policies
+            # self.termination_policies.data = scaling_group.termination_policies
             # Need to set the proper launch config since the launch config choices may have braces escaped
             from ..views import BaseView
             self.launch_config.data = BaseView.escape_braces(scaling_group.launch_config_name)
@@ -334,7 +316,7 @@ class ScalingGroupPolicyCreateForm(BaseSecureForm):
     cooldown_help_text = _(
         u'Time (in seconds) before Alarm related Scaling Activities can start after the previous Scaling Activity ends.'
     )
-    cooldown = wtforms.IntegerField(
+    cooldown = wtforms.TextField(
         label=_(u'Cooldown period (seconds)'),
         validators=[
             validators.InputRequired(message=cooldown_error_msg),
@@ -437,3 +419,14 @@ class ScalingGroupsFiltersForm(BaseSecureForm):
         if self.cloud_type == 'aws':
             self.vpc_zone_identifier.choices.append(('None', _(u'No subnets')))
         self.vpc_zone_identifier.choices = sorted(self.vpc_zone_identifier.choices)
+        self.facets = [
+            {'name': 'launch_config_name', 'label': self.launch_config_name.label.text,
+                'options': self.get_options_from_choices(self.launch_config_name.choices)},
+            {'name': 'availability_zone', 'label': self.availability_zones.label.text,
+                'options': self.get_options_from_choices(self.availability_zones.choices)},
+        ]
+        if BaseView.is_vpc_supported(request):
+            self.facets.append(
+                {'name': 'vpc_zone', 'label': self.vpc_zone_identifier.label.text,
+                    'options': self.get_options_from_choices(self.vpc_zone_identifier.choices)}
+            )
