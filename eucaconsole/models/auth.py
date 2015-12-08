@@ -122,7 +122,8 @@ class RegionCache(object):
         def _get_regions_(self):
             regions = []
             if self.conn is not None:
-                regions = self.conn.get_all_regions()
+                #regions = self.conn.get_all_regions()
+                regions = []
             return regions
         try:
             return _get_regions_cache_(self, host)

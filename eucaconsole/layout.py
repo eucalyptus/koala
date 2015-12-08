@@ -74,21 +74,21 @@ class MasterLayout(object):
         else:
             if self.access_id:
                 host = self.request.registry.settings.get('ufshost')
-                #port = self.request.registry.settings.get('ufsport')
-                #secret_key = self.request.session.get('secret_key')
-                #session_token = self.request.session.get('session_token')
-                #conn = ConnectionManager.euca_connection(
-                #    host, port, 'euca', self.access_id, secret_key, session_token, 'ec2', True
-                #)
-                #try:
-                #    self.regions = RegionCache(conn).regions()
-                #    if len(self.regions) == 1:
-                #        self.has_regions = False
-                #    for region in self.regions:
-                #        if region['endpoints']['ec2'].find(host) > -1:
-                #            self.default_region = region['name']
-                #except BotoServerError:
-                #    self.has_regions = False
+                port = self.request.registry.settings.get('ufsport')
+                secret_key = self.request.session.get('secret_key')
+                session_token = self.request.session.get('session_token')
+                conn = ConnectionManager.euca_connection(
+                    host, port, 'euca', self.access_id, secret_key, session_token, 'ec2', True
+                )
+                try:
+                    self.regions = RegionCache(conn).regions()
+                    if len(self.regions) == 1:
+                        self.has_regions = False
+                    for region in self.regions:
+                        if region['endpoints']['ec2'].find(host) > -1:
+                            self.default_region = region['name']
+                except BotoServerError:
+                    self.has_regions = False
         if hasattr(self, 'regions'):
             self.selected_region = self.request.session.get('region', self.default_region)
             self.selected_region_label = self.get_selected_region_label(self.selected_region, self.regions)
