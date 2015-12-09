@@ -102,7 +102,7 @@
                                         <th i18n:translate="">VALUE</th>
                                     </tr></thead>
                                     <tbody>
-                                        <tr ng-repeat="item in outputs | orderBy: sortBy:sortReverse" ng-cloak="true">
+                                        <tr ng-repeat="item in outputs | orderBy: sortBy" ng-cloak="true">
                                             <td>{{ item.key }}</td>
                                             <td>{{ item.description }}</td>
                                             <td>{{ item.value }}</td>
@@ -129,7 +129,7 @@
                                         <th i18n:translate="">STATUS REASON</th>
                                     </tr></thead>
                                     <tbody>
-                                        <tr ng-repeat="item in resources | orderBy: sortBy:sortReverse" ng-cloak="true">
+                                        <tr ng-repeat="item in resources | orderBy: sortBy" ng-cloak="true">
                                             <td>{{ item.type }} ({{ item.logical_id }})</td>
                                             <td ng-hide="item.url" class="breakall">
                                                 {{ item.physical_id }}
@@ -220,7 +220,7 @@
                                         <th i18n:translate="">PHYSICAL ID</th>
                                     </tr></thead>
                                     <tbody>
-                                        <tr ng-repeat="item in events | orderBy: sortBy:sortReverse" ng-cloak="true">
+                                        <tr ng-repeat="item in events | orderBy: sortBy" ng-cloak="true">
                                             <td>{{ item.timestamp | date:'${layout.angular_date_format}' }}</td>
                                             <td><span class="label radius status {{ item.status }}">{{ item.status.replace('-', ' ').replace('-', ' ') }}</span></td>
                                             <td>
@@ -247,8 +247,14 @@
             <metal:block metal:use-macro="layout.global_macros['help_expando']" />
             <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
                 <!--! Help goes here -->
-                <div id="help-html-console_edit_launch_config"
+                <div id="help-html-console_stack_detail_general" ng-show="currentTab == 'general-tab'"
                     ng-include="'${layout.help_path('console_stack_detail_general.html')}'">
+                </div> 
+                <div id="help-html-console_stack_detail_template" ng-show="currentTab == 'template-tab'"
+                    ng-include="'${layout.help_path('console_stack_detail_template.html')}'">
+                </div> 
+                <div id="help-html-console_stack_detail_events" ng-show="currentTab == 'events-tab'"
+                    ng-include="'${layout.help_path('console_stack_detail_events.html')}'">
                 </div> 
             </div>
         </div>
