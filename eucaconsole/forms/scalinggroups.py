@@ -138,7 +138,8 @@ class BaseScalingGroupForm(BaseSecureForm):
 
         if scaling_group is not None:
             self.launch_config.data = scaling_group.launch_config_name
-            self.vpc_network.data = ''
+            if not self.is_vpc_supported:
+                self.vpc_network.data = ''
             if scaling_group.vpc_zone_identifier:
                 self.vpc_subnet.data = scaling_group.vpc_zone_identifier.split(',')
             self.availability_zones.data = scaling_group.availability_zones
