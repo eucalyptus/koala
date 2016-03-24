@@ -9,6 +9,7 @@
 ----------------------------------------- */
 /* @section Landing pages styles */
 .columns.datagrid { padding-left: 0; padding-right: 1rem; padding-bottom: 2rem; }
+.columns.datagrid.has-smart-table.tableview #sorting-controls { display: none; }
 
 .large-12.columns.datagrid { padding-left: 1rem; }
 
@@ -18,6 +19,13 @@
 #breadcrumbs .icon-block { display: none; }
 
 #primary-buttons .button { padding: 8px 1rem; }
+#primary-buttons .button.more-actions { margin-left: 1rem; padding-right: 3rem; }
+
+#more-actions-dropdown.f-dropdown { border-color: #cccccc; box-shadow: 2px 2px 5px #6a737b; }
+#more-actions-dropdown.f-dropdown li.disabled { cursor: default; }
+#more-actions-dropdown.f-dropdown li.disabled a { color: #cccccc; pointer-events: none; }
+#more-actions-dropdown.f-dropdown li.disabled:hover { background-color: #fff; }
+#more-actions-dropdown hr { margin-top: 0; margin-bottom: 0; }
 
 .gridwrapper { margin-top: 0.5rem; }
 
@@ -38,7 +46,9 @@
 .tile .header { position: relative; height: 24px; }
 .tile .header a { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block; padding: 6px 30px 4px 10px; color: #5a5a5a; font-weight: bold; }
 .tile .header a:hover { color: #007dba; }
+.tile .header a.has-checkbox { padding-left: 24px; }
 .tile .header strong { font-weight: normal; }
+.tile .header .item-checkbox { position: absolute; top: 10px; left: 7px; }
 .tile .header .f-dropdown a { color: #444; font-weight: normal; overflow: visible; white-space: normal; text-overflow: inherit; }
 .tile .content { padding: 8px; font-size: 0.9em; }
 .tile .content a { color: #007dba; }
@@ -47,6 +57,8 @@
 .tile .content .label { padding: 1px 3px; margin-left: -28px; background-color: #e6e7e8; color: #555; margin-right: 0.2rem; min-width: 22px; text-align: center; }
 .tile .content .label.ellipsis { margin-left: 0; }
 .tile .content .fi-alert { color: darkred; }
+.tile .content a.alarm-status { padding: 2px 6px; color: white; border-radius: 3px; }
+.tile .content a.alarm-status:hover { text-decoration: none; }
 .tile .link { color: #007dba; text-transform: uppercase; padding: 1px 3px; margin-bottom: 2px; font-size: 0.9em; }
 .tile .footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 5px; color: white; background-color: #6a737b; text-align: center; line-height: 1.4rem; text-transform: capitalize; }
 .tile .footer.has-progress { padding: 0 0 0 0; text-align: left; }
@@ -60,9 +72,11 @@
 .gridwrapper .table thead tr th { padding-top: 0.5rem; padding-bottom: 0.5rem; padding-left: 6px; padding-right: 6px; vertical-align: top; color: #444; text-transform: uppercase; }
 .gridwrapper .table thead tr th.actions { text-align: right; }
 .gridwrapper .table thead tr th.count { text-align: center; }
+.gridwrapper .table thead tr th.checkbox-header { width: 1.5rem; }
 .gridwrapper .table tr td.count { text-align: center; }
 .gridwrapper .table th { white-space: nowrap; }
 .gridwrapper .table tr { position: relative; width: 100%; }
+.gridwrapper .table tr input[type="checkbox"] { margin-bottom: 0; }
 .gridwrapper .table tr td { position: relative; padding: 8px 4px 8px 6px; vertical-align: top; }
 .gridwrapper .table tr td a { color: #007dba; }
 .gridwrapper .table tr td a:hover { text-decoration: underline; }
@@ -72,6 +86,8 @@
 .gridwrapper .table tr td .f-dropdown a { color: #444; }
 .gridwrapper .table tr td .f-dropdown a:hover { text-decoration: none; }
 .gridwrapper .table tr td .busy { font-size: 0.9rem; width: 0.9rem; height: 0.9rem; margin-left: 0.2rem; }
+.gridwrapper .table tr td a.alarm-status { color: white; }
+.gridwrapper .table tr td a.alarm-status:hover { text-decoration: none; }
 .gridwrapper .table .dropdown.button.tiny { z-index: 0; top: 8px; right: 20px; padding-left: 10px; padding-right: 24px; }
 .gridwrapper .table .dropdown.button.tiny i { font-size: 1.2rem; top: 0; }
 .gridwrapper .table .fi-alert { color: darkred; }
@@ -95,6 +111,8 @@
 .lp-search { -webkit-box-ordinal-group: 1; -webkit-order: 1; -ms-flex-order: 1; order: 1; -webkit-box-flex: 0.9; -webkit-flex: 0 0 90%; flex: 0 0 90%; }
 
 .lp-reload { -webkit-box-ordinal-group: 2; -webkit-order: 2; -ms-flex-order: 2; order: 2; -webkit-box-flex: 0.1; -webkit-flex: 0 0 10%; flex: 0 0 10%; }
+
+.select-all-wrapper { margin-left: 1rem; }
 
 .displayicons { font-size: 2rem; padding-left: 0; }
 .displayicons a { float: right; border-bottom: none; color: #5a5a5a; }
@@ -128,3 +146,37 @@
 @media screen and (max-width: 1024px) { #filters { margin-top: 1rem; } }
 /* Small screen */
 @media screen and (max-width: 1020px) { .columns.datagrid { padding-left: 1rem; } }
+/* expando stuff */
+.expando-tr-even { background: #f5f5f5 !important; }
+
+table.expando tr.even, table.expando tr.alt, table.expando tr:nth-of-type(even) { background: white; }
+
+.expando-tiles li { font-size: 0.875rem; }
+.expando-tiles li div:nth-of-type(1) { float: left; }
+.expando-tiles li div:nth-of-type(2) { clear: both; }
+
+#threshold { width: 100%; }
+
+#period, #evaluation_periods { display: inline-block; width: 4rem; }
+
+#unit { position: relative; left: -9999rem; }
+
+.unit-label { position: relative; top: 6px; }
+
+.gridwrapper .table tr th.alarm-actions { text-align: center; }
+.gridwrapper .table tr td.id { max-width: none; }
+.gridwrapper .table tr td.dimensions { font-size: 0.6875rem; }
+.gridwrapper .table tr td.dimensions dt { font-weight: bold; }
+.gridwrapper .table tr td.alarm-actions { text-align: center; }
+
+.tile.item dl { font-size: 0.9em; display: inline-block; vertical-align: top; margin-bottom: 0; }
+.tile .footer.ok, .tile .footer.alarm, .tile .footer.insufficient-data { text-transform: none; }
+.tile .footer.ok { background-color: #008424; }
+.tile .footer.alarm { background-color: #F04124; }
+
+#delete-alarm-modal p { margin: 0 0 7px; }
+#delete-alarm-modal .header { color: #444; text-transform: uppercase; font-size: 0.875rem; font-weight: bold; }
+#delete-alarm-modal .header .columns { padding: 0; }
+#delete-alarm-modal .alarm-dimensions { margin: 0 0 20px; }
+#delete-alarm-modal .alarm-dimensions .columns { padding: 0; }
+#delete-alarm-modal .row.control { margin: 0 0 15px; }

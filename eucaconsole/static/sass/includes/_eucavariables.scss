@@ -182,6 +182,11 @@ $tabs-navigation-hover-bg-color: lighten($tabs-navigation-bg-color, 5%);
 // Tooltips
 $tooltip-padding: rem-calc(5);
 
+// Alarm status colors
+$alarm-status-color-alarm: $hp-red;
+$alarm-status-color-insufficient-data: $hp-gray-65;
+$alarm-status-color-ok: $hp-green;
+
 // Mixins
 // Text overflow (e.g. for handling long resource names)
 @mixin ellipsis-overflow {
@@ -203,6 +208,17 @@ $tooltip-padding: rem-calc(5);
 
 @mixin button-shadow-mixin {
     box-shadow: 1px 1px 5px 0 lighten($euca-grey, 10%);
+}
+
+@mixin disabled-button-mixin {
+    background-color: white;
+    border-color: $hp-gray-40;
+        &:hover {
+            background-color: white;
+            border-color: $hp-gray-40;
+            color: $hp-gray-40;
+        }
+    color: $hp-gray-40;
 }
 
 @mixin dropdown-shadow-mixin {
@@ -246,6 +262,9 @@ $tooltip-padding: rem-calc(5);
             }
             &.count {
                 text-align: center;
+            }
+            &.checkbox-header {
+                width: 1.5rem;
             }
         }
     }

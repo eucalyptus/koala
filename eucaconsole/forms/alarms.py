@@ -40,6 +40,17 @@ from ..i18n import _
 from . import BaseSecureForm, ChoicesManager, BLANK_CHOICE
 
 
+class CloudWatchAlarmForm(BaseSecureForm):
+
+    desc_error_msg = _(u'Description is required')
+    description = wtforms.TextAreaField(
+        label=_(u'Description'),
+        validators=[
+            validators.Length(max=255, message=_(u'Description must be less than 255 characters'))
+        ],
+    )
+
+
 class CloudWatchAlarmCreateForm(BaseSecureForm):
     """Form for creating a CloudWatch alarm"""
     name_error_msg = _(u'Name is required')
@@ -122,8 +133,7 @@ class CloudWatchAlarmCreateForm(BaseSecureForm):
         self.elb_choices_manager = ChoicesManager(conn=elb_conn)
         self.set_initial_data()
         self.set_error_messages()
-        region = request.session.get('region')
-        self.set_choices(region)
+        self.set_choices(self.region)
         self.set_help_text()
 
     def set_initial_data(self):
@@ -194,7 +204,10 @@ class CloudWatchAlarmCreateForm(BaseSecureForm):
         return choices
 
 
-class CloudWatchAlarmDeleteForm(BaseSecureForm):
-    """CloudWatch Alarm deletion form"""
-    pass
+class CloudWatchAlarmUpdateForm(CloudWatchAlarmForm):
+    def __init__(self, request, **kwargs):
+        super(CloudWatchAlarmUpdateForm, self).__init__(request, **kwargs)
 
+
+class CloudWatchAlarmFilterForm(BaseSecureForm):
+    pass
