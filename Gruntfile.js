@@ -180,6 +180,22 @@ module.exports = function(grunt) {
               }
           }
       },
+      concat: {
+          options: {
+              sourceMap: true
+          },
+          createAlarmModal: {
+              src: [
+                  'eucaconsole/static/js/services/alarm-service.js',
+                  'eucaconsole/static/js/services/metric-service.js',
+                  'eucaconsole/static/js/services/scaling-groups-service.js',
+                  'eucaconsole/static/js/widgets/modal.js',
+                  'eucaconsole/static/js/widgets/alarm-actions-editor/alarm-actions-editor.js',
+                  'eucaconsole/static/js/widgets/create-alarm-modal/create-alarm.js'
+              ],
+              dest: 'eucaconsole/static/js/widgets/create-alarm-modal/dist.js'
+          }
+      },
       htmlmin: { 
           production: {
               options: {
@@ -254,7 +270,7 @@ module.exports = function(grunt) {
       watch: {
           scripts: {
               files: ['eucaconsole/static/js/**/*.js'],
-              tasks: ['karma:ci', 'jshint'],
+              tasks: ['karma:ci', 'jshint', 'concat'],
               options: {
                   spawn: false
               }
@@ -293,6 +309,7 @@ module.exports = function(grunt) {
   // Load the plugins
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
   grunt.loadNpmTasks('grunt-contrib-uglify');
