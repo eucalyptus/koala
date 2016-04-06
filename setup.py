@@ -118,7 +118,7 @@ class sdist_with_git_version(sdist):
         os.rename(new_ver_name, old_ver_name)
 
 requires = [
-    'beaker >= 1.5.4',
+    'beaker >= 1.7.0',
     'boto >= 2.38.0',
     'chameleon >= 2.5.3',
     'defusedxml >= 0.4',
@@ -130,6 +130,7 @@ requires = [
     'M2Crypto >= 0.20.2',
     'markupsafe >= 0.9.2',
     'pycrypto >= 2.0.1',
+    'pycryptopp >= 0.7.1',
     'Paste >= 1.7.4',
     'pyramid >= 1.4',
     'pyramid_beaker >= 0.8',
