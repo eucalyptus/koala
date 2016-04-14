@@ -121,7 +121,9 @@ angular.module('CreateAlarmModal', [
                 }
                 else {
                     // let's construct the metric object from data passed
-                    $scope.alarm.metric.name = defaults.metric;
+                    $scope.alarm.metric = {
+                        name: defaults.metric
+                    };
                     $scope.alarm.dimensions = $scope.dimensions;
                     $scope.alarm.metric.namespace = $scope.namespace;
                     $scope.alarm.metric.unit = attrs.unit;
