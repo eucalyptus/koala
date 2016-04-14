@@ -28,6 +28,7 @@ angular.module('CreateAlarmModal', [
         },
         controller: ['$scope', '$rootScope', 'AlarmService', 'ModalService', function ($scope, $rootScope, AlarmService, ModalService) {
             $scope.alarm = {};
+            $scope.alarm.metric = {};
             var csrf_token = $('#csrf_token').val();
 
             $scope.onNameChange = function () {
