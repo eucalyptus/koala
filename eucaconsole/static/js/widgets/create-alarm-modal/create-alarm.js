@@ -28,6 +28,7 @@ angular.module('CreateAlarmModal', [
         },
         controller: ['$scope', '$rootScope', 'AlarmService', 'ModalService', function ($scope, $rootScope, AlarmService, ModalService) {
             $scope.alarm = {};
+            $scope.alarm.metric = {};
             var csrf_token = $('#csrf_token').val();
 
             $scope.onNameChange = function () {
@@ -93,7 +94,7 @@ angular.module('CreateAlarmModal', [
                 $scope.namespace = attrs.namespace;
                 $scope.resourceType = attrs.resourceType;
                 $scope.resourceId = attrs.resourceId;
-                $scope.dimensions = attrs.dimensions?JSON.parse(attrs.dimensions):undefined;
+                $scope.dimensions = attrs.dimensions ? JSON.parse(attrs.dimensions) : undefined;
                 if ($scope.dimensions === undefined) {
                     $scope.dimensions = {};
                     $scope.dimensions[$scope.resourceType] = [$scope.resourceId];
@@ -110,7 +111,7 @@ angular.module('CreateAlarmModal', [
                                 return metric.name == defaults.metric;
                             });
                             $scope.alarm.metric.namespace = $scope.namespace;
-                            $scope.alarm.metric.dimensions = $scope.dimensions;
+                            $scope.alarm.dimensions = $scope.dimensions;
                             $scope.alarm.statistic = attrs.defaultStatistic;
                             $scope.alarm.comparison = '>=';
                             $scope.alarm.evaluation_periods = defaults.evaluation_periods;
@@ -122,9 +123,9 @@ angular.module('CreateAlarmModal', [
                 else {
                     // let's construct the metric object from data passed
                     $scope.alarm.metric = {
-                        name: defaults.metric,
-                        dimensions: $scope.dimensions,
+                        name: defaults.metric
                     };
+                    $scope.alarm.dimensions = $scope.dimensions;
                     $scope.alarm.metric.namespace = $scope.namespace;
                     $scope.alarm.metric.unit = attrs.unit;
                     $scope.alarm.statistic = attrs.defaultStatistic;
@@ -160,7 +161,7 @@ angular.module('CreateAlarmModal', [
                     evaluation_periods: alarm.evaluation_periods,
                     unit: alarm.unit,
                     description: alarm.description,
-                    dimensions: alarm.metric.dimensions,
+                    dimensions: alarm.dimensions,
                     alarm_actions: alarm.alarm_actions,
                     insufficient_data_actions: alarm.insufficient_data_actions,
                     ok_actions: alarm.ok_actions
