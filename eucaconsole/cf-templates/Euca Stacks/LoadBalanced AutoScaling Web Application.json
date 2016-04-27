@@ -69,13 +69,19 @@
             "# This config installs the eucalyptus and epel repos, then installs and\n",
             "# configures the eucaconsole package\n",
             "runcmd:\n",
-            " - [ yum, -y, install, http://downloads.eucalyptus.com/software/eucalyptus/4.1/centos/6/x86_64/eucalyptus-4.1.0-0.0.23044.8.el6.x86_64.rpm' ]\n",
+            " - [ yum, -y, install, 'http://downloads.eucalyptus.com/software/eucalyptus/4.2/centos/6/x86_64/eucalyptus-release-4.2-1.el6.noarch.rpm' ]\n",
             " - [ yum, -y, install, eucaconsole ]\n",
             " - [ sed, -i, 's/localhost/",
             { "Ref" : "CloudIP" },
             "/', /etc/eucaconsole/console.ini ]\n",
             " - [ sed, -i, 's/secure\\ =\\ false/secure\\ =\\ true/', /etc/eucaconsole/console.ini ]\n",
-            " - [ service, eucaconsole, restart ]\n"
+            " - [ service, eucaconsole, restart ]\n",
+            "write_files:\n",
+            "-   content: |\n",
+            "      [general]\n",
+            "      session.encrypt_key = E8LnF9b8nx5E2kXlmFmM4BjDuesWt4j\n",
+            "      session.validate_key = B0SFBpZ7DMvt4q0uW0hHZCRETGn8MT\n",
+            "    path: /etc/eucaconsole/session-keys.ini\n"
         ]]}}
       }
     },
@@ -87,12 +93,12 @@
         "CrossZone" : "true",
         "Listeners" : [ {
           "LoadBalancerPort" : "80",
-          "InstancePort" : "8888",
+          "InstancePort" : "443",
           "Protocol" : "HTTP",
-          "InstanceProtocol" : "HTTP"
+          "InstanceProtocol" : "HTTPS"
         } ],
         "HealthCheck" : {
-          "Target" : "HTTP:8888/",
+          "Target" : "HTTPS:443/",
           "HealthyThreshold" : "3",
           "UnhealthyThreshold" : "5",
           "Interval" : "30",
@@ -115,6 +121,13 @@
           "IpProtocol" : "tcp",
           "FromPort" : "8888",
           "ToPort" : "8888",
+          "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ConsoleELB", "SourceSecurityGroup.OwnerAlias"]},
+          "SourceSecurityGroupName" : {"Fn::GetAtt" : ["ConsoleELB", "SourceSecurityGroup.GroupName"]}
+        },
+        {
+          "IpProtocol" : "tcp",
+          "FromPort" : "443",
+          "ToPort" : "443",
           "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ConsoleELB", "SourceSecurityGroup.OwnerAlias"]},
           "SourceSecurityGroupName" : {"Fn::GetAtt" : ["ConsoleELB", "SourceSecurityGroup.GroupName"]}
         } ]
