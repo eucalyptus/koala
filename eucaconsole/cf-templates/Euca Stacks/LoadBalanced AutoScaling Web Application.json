@@ -46,7 +46,7 @@
         "AvailabilityZones" : { "Fn::GetAZs" : ""},
         "LaunchConfigurationName" : { "Ref" : "ConsoleLaunchConfig" },
         "MinSize" : "1",
-        "DesiredSize" : "1",
+        "DesiredCapacity" : "1",
         "MaxSize" : "3",
         "LoadBalancerNames" : [ { "Ref" : "ConsoleELB" } ]
       }

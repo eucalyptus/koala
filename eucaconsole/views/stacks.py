@@ -60,9 +60,11 @@ class StackMixin(object):
         if self.cloudformation_conn:
             try:
                 stack_param = self.request.matchdict.get('name')
-                if not(stack_param):
+                if not stack_param:
                     stack_param = self.request.params.get('stack-name')
-                stacks = self.cloudformation_conn.describe_stacks(stack_name_or_id=stack_param)
+                stacks = None
+                if stack_param:
+                    stacks = self.cloudformation_conn.describe_stacks(stack_name_or_id=stack_param)
                 return stacks[0] if stacks else None
             except BotoServerError:
                 pass
@@ -572,6 +574,7 @@ class StackWizardView(BaseView, StackMixin):
                     if self.stack:
                         # populate defaults with actual values from stack
                         for param in params:
+                            print param['name']
                             param['default'] = [p.value for p in self.stack.parameters if p.key == param['name']][0]
                 return dict(
                     results=dict(
