@@ -30,6 +30,7 @@ See http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/testing.html
 
 """
 import json
+from moto import mock_ec2
 
 import boto
 
@@ -63,6 +64,13 @@ class MockELBMixin(object):
     def make_cw_conn():
         return boto.connect_cloudwatch()
 
+    @staticmethod
+    def setup_session(request):
+        request.session['region'] = 'eucalytpus'
+        request.session['access_id'] = 'moto'
+        request.session['secret_key'] = 'moto'
+        request.session['session_token'] = 'moto'
+        request.session['cloud_type'] = 'euca'
 
 class ELBViewTests(BaseViewTestCase, MockELBMixin):
     """ELB detail page view - General tab"""
@@ -97,9 +105,11 @@ class ELBMonitoringViewTests(BaseViewTestCase, MockELBMixin):
 
 class ELBInstancesViewTests(BaseViewTestCase, MockELBMixin):
     """ELB detail page view - Instances tab"""
+    @mock_ec2
     def test_elb_instances_tab_view(self):
         elb_conn, elb = self.make_elb()
         request = self.create_request()
+        self.setup_session(request);
         elb_attrs = LbAttributes(connection=elb_conn)
         elb_attrs.cross_zone_load_balancing = CrossZoneLoadBalancingAttribute(connection=elb_conn)
         elb_attrs.cross_zone_load_balancing.enabled = True
