@@ -1,0 +1,71 @@
+/* @fileOverview Security Group Rules editor CSS */
+
+// Import common Foundation variables
+@import "../includes/eucavariables";
+
+
+form {
+    input.port {
+        width: 3.8rem;
+    }
+    .row.trafficfrom {
+        margin-top: 1rem;
+    }
+    .ip-label {
+        margin-right: 26px;
+    }
+    .ipaddress, .securitygroupname {
+        text-align: left !important;
+    }
+    .cidr-block {
+       display: inline-block;
+       vertical-align: top;
+       margin-bottom: 0.5rem;
+       .link {
+         margin-bottom: 0.5rem;
+       }
+    }
+    .cidr-ip {
+        display: inline; width: 100%;
+    }
+    .groupname {
+        display: inline; width: 50%;
+    }
+    label.protocol {
+        margin-bottom: 1.5rem;
+    }
+}
+
+#rules-editor {
+    @include item-list;
+    .add-label {
+        margin-bottom: 6px;
+        color: $hp-gray-65;
+    }
+    .tabs-content {
+        margin-top: 0.75rem;
+    }
+    .ipaddress {
+        a:hover {
+            color: $hpe-green;
+            border-bottom: 1px solid $hpe-green;
+        }
+    }
+}
+
+.duplicated-rule-error{
+    color: red;
+    padding: 10px 10px;
+}
+
+.add-button {
+    padding-top: 2rem;
+}
+
+div {
+    small.error-msg {
+        color: darkred;
+        font-weight: bold;
+        font-size: 0.75rem;
+    }
+}

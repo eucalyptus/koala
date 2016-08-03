@@ -1,0 +1,82 @@
+// Import common Foundation variables
+@import "../includes/eucavariables";
+
+// Import common wizard styles
+@import "../includes/wizard";
+
+
+/* @section Launch Config Wizard styles */
+
+#launch-config-form {
+    input.name {
+        width: 100px;
+        margin-right: 8px;
+        margin-bottom: 4px;
+        padding: 4px;
+    }
+    #instance_type {
+        option {
+            font-size: 0.825rem;
+        }
+    }
+    #image-id-input {
+        width: 10rem;
+        display: inline;
+    }
+    #controls_userdata_file {
+        position: relative;
+        top: -0.5rem;
+        #userdata_file {
+            width: 80%;
+            display: inline-block;
+        }
+    }
+    #create-keypair-link, #create-securitygroup-link {
+        position: relative;
+        top: -6px;
+        margin-bottom: 10px;
+    }
+    #create-securitygroup-link {
+        top: -2px;
+    }
+    .rules-display {
+        margin-left: 0.7rem;
+    }
+    .rules-title {
+        margin-bottom: 3px;
+    }
+}
+
+#create-keypair-modal {
+    #keypair-material {
+        height: 16rem;
+        color: white;
+        background-color: black;
+        font-weight: bold;
+        font-family: Courier, "courier New", monospace, sans-serif;
+    }
+}
+
+.userdatalabel {
+    right: 0 !important;
+}
+
+#userdata {
+    margin: 0 0 0;
+}
+
+#controls_monitoring_enabled {
+    @include helptext-icon-position-mixin;
+}
+
+// big hack to allow more space for this one label so it doesn't wrap the help bubble
+div#controls_associate_public_ip_address {
+    // fixes 'launch config like this'
+    .large-2.columns {
+        padding-left: 0.25rem;
+    }
+    // fixes 'launch config wizard'
+    .large-3.columns {
+        padding-left: 0.25rem;
+    }
+}

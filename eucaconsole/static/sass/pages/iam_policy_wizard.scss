@@ -1,0 +1,182 @@
+// @fileOverview IAM Policy Wizard styles
+
+// Import common Foundation variables
+@import "../includes/eucavariables";
+
+.tabs {
+    @include standard-tabs-mixin;
+}
+
+// Select/create policy choices
+.tabs-content {
+    background-color: white;
+    p {
+        line-height: 1.3rem;
+    }
+    .small-10.columns {
+        padding-left: 0;
+    }
+    .content {
+        margin-top: 8px;
+        .choice {
+            border-bottom: 1px solid $hpe-lightgray;
+            margin-bottom: 1rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
+            &:last-child {
+                border-bottom: none;
+            }
+            .expando {
+                i { margin-right: 8px; }
+                i.fi-minus { margin-right: 7px; }
+                a:hover { border-bottom: none; }
+            }
+            p.has-expando {
+                margin-left: 24px;
+            }
+            .fileupload {
+                margin-left: 2rem;
+            }
+            input[type=file] {
+                display: inline-block;
+                width: 90%;
+                margin-left: 8px;
+            }
+        }
+    }
+}
+
+
+// Policy preview
+#policy-preview {
+    background-color: white;
+    padding: 1rem;
+    margin-top: 40px;
+    input[type=text], textarea {
+        background-color: white;
+    }
+}
+
+// Policy generator styles
+#policy-generator {
+    border-color: $hpe-lightgray;
+    border-left: none;
+    border-right: none;
+    width: 100%;
+    tr {
+        &.namespace {
+            border-top: 1px solid $hpe-lightgray;
+            background-color: white;
+            td {
+                font-size: 1rem;
+            }
+        }
+    }
+    th {
+        &.allow, &.deny {
+            text-transform: uppercase;
+            font-size: $euca-l-font-size;
+            width: 40px;
+        }
+    }
+    td {
+        font-size: $euca-font-size;
+        line-height: 1rem;
+        &.allow, &.deny {
+            text-align: center
+        }
+        h6 {
+            margin-bottom: 4px;
+        }
+        .resource-wrapper {
+            vertical-align: top;
+            margin-bottom: 1rem;
+            input[type=text] {
+                display: inline-block;
+                width: 50%;
+                &.arn {
+                    width: 100%;
+                }
+                &.hide {
+                    display: none;
+                }
+            }
+        }
+        .conditions-wrapper {
+            margin-bottom: 1rem;
+            select {
+                margin-bottom: 4px;
+            }
+            input[type=text] {
+                width: 100%;
+            }
+            .button {
+                margin-top: 10px;
+            }
+        }
+        .button {
+            margin-bottom: 0;
+        }
+        input[type=text] {
+            display: inline-block;
+            width: 70%;
+            height: auto;
+            line-height: 1rem;
+            padding: 8px 8px;
+            margin-bottom: 8px;
+        }
+        .advanced-button {
+            float: right;
+        }
+        .advanced {
+            .remove {
+                position: relative;
+                top: 3px;
+                margin-right: 0.2rem;
+            }
+            select.resource-type {
+                display: inline-block;
+                width: 44%;
+                padding: 7px 2px 7px 4px;
+                position: relative;
+                top: 1px;
+            }
+            .chosen-container.chosen-container-single .chosen-choices {
+                line-height: 1rem;
+            }
+            .chosen-search input[type=text] {
+                width: 100%;
+            }
+        }
+        label {
+            margin-bottom: 2px;
+            margin-top: 6px;
+        }
+        i.tick {
+            color: $hpe-lightgray;
+            font-size: 1.2rem;
+            &.fi-check.selected {
+                color: $hpe-slate;
+            }
+            &.fi-x.selected {
+                color: darkred;
+            }
+        }
+    }
+}
+
+#create-iam-policy-btn {
+    margin-top: 1rem;
+}
+
+#hand-edited-warning {
+    color: darkred;
+    margin-top: -0.5rem;
+}
+
+
+// CodeMirror styles
+.CodeMirror {
+    border: 1px solid $hpe-lightgray;
+    min-height: 24rem;
+}

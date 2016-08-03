@@ -1,0 +1,89 @@
+<!--! Quotas panel for create/edit user pages -->
+<div tal:omit-tag="" i18n:domain="eucaconsole">
+    <style type="text/css">
+        #quotas-panel .expando { margin-bottom: 1rem; }
+        #quotas-panel .expando .title { margin-bottom: 0.5rem; display: block; }
+    </style>
+    <div id="quotas-panel" class="section" ng-app="Quotas" ng-controller="QuotasCtrl" ng-init="initController()">
+        <p tal:condition="in_user" i18n:translate="">Define limits on resources that this user is allowed to create or consume. Leave blank for unlimited rights.</p>
+        <p tal:condition="not in_user" i18n:translate="">Define limits on resources that users in this account are allowed to create or consume. Leave blank for unlimited rights.</p>
+        <div class="expando" id="ec2-section" ng-cloak="">
+            <span class="title" >
+                <a ng-click="toggleEC2Content()">
+                    <i class="fi-plus" ng-show="!ec2_expanded"></i>
+                    <i class="fi-minus" ng-show="ec2_expanded"></i>
+                    &nbsp;<span i18n:translate="">EC2</span>
+                </a>
+            </span>
+            <div class="ec2-content" ng-show="ec2_expanded">
+                ${panel('form_field', field=quota_form['ec2_images_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['ec2_instances_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['ec2_instance_cpu'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['ec2_instance_disk'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['ec2_instance_memory'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['ec2_volumes_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['ec2_total_size_all_vols'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['ec2_snapshots_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['ec2_elastic_ip_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+            </div>
+        </div>
+        <div class="expando" id="s3-section" ng-cloak="">
+            <span class="title" >
+                <a ng-click="toggleS3Content()">
+                    <i class="fi-plus" ng-show="!s3_expanded"></i>
+                    <i class="fi-minus" ng-show="s3_expanded"></i>
+                    &nbsp;<span i18n:translate="">S3/Walrus</span>
+                </a>
+            </span>
+            <div class="s3-content" ng-show="s3_expanded">
+                ${panel('form_field', field=quota_form['s3_buckets_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['s3_objects_per_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['s3_bucket_size'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['s3_total_size_all_buckets'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+            </div>
+        </div>
+        <div class="expando" id="autoscale-section" ng-cloak="">
+            <span class="title" >
+                <a ng-click="toggleAutoscaleContent()">
+                    <i class="fi-plus" ng-show="!autoscale_expanded"></i>
+                    <i class="fi-minus" ng-show="autoscale_expanded"></i>
+                    &nbsp;<span i18n:translate="">Auto scaling</span>
+                </a>
+            </span>
+            <div class="autoscale-content" ng-show="autoscale_expanded">
+                ${panel('form_field', field=quota_form['autoscale_groups_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['launch_configs_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['scaling_policies_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+            </div>
+        </div>
+        <div class="expando" id="elb-section" ng-cloak="">
+            <span class="title" >
+                <a ng-click="toggleELBContent()">
+                    <i class="fi-plus" ng-show="!elb_expanded"></i>
+                    <i class="fi-minus" ng-show="elb_expanded"></i>
+                    &nbsp;<span i18n:translate="">Elastic load balancing</span>
+                </a>
+            </span>
+            <div class="elb-content" ng-show="elb_expanded">
+                ${panel('form_field', field=quota_form['elb_load_balancers_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+            </div>
+        </div>
+        <div class="expando" id="iam-section" ng-cloak="">
+            <span class="title" >
+                <a ng-click="toggleIAMContent()">
+                    <i class="fi-plus" ng-show="!iam_expanded"></i>
+                    <i class="fi-minus" ng-show="iam_expanded"></i>
+                    &nbsp;<span i18n:translate="">IAM</span>
+                </a>
+            </span>
+            <div class="iam-content" ng-show="iam_expanded">
+                ${panel('form_field', field=quota_form['iam_groups_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['iam_users_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['iam_roles_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+                ${panel('form_field', field=quota_form['iam_inst_profiles_max'], reverse=True, leftcol_width=2, rightcol_width=10, pattern=layout.non_negative_pattern, error_msg=quota_err)}
+            </div>
+        </div>
+    </div>
+    <script src="${request.static_path('eucaconsole:static/js/widgets/quotas.js')}"></script>
+</div>
+

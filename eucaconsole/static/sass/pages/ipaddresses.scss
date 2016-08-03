@@ -1,0 +1,18 @@
+/* @fileOverview IP Addresses landing page CSS */
+@import "../includes/landingpage";
+
+form #ipcount {
+    width: 3rem;
+}
+
+#controls_domain label {
+    right: auto;
+}
+
+.reveal-modal {
+    .button[type=submit] {
+        display: block;
+        margin: 0 auto 0 auto;
+    }
+}
+

@@ -1,0 +1,138 @@
+<metal:block use-macro="main_template" i18n:domain="eucaconsole">
+
+<div metal:fill-slot="main_content">
+    <div class="row" id="contentwrap"
+            tal:define="html_attrs {'disabled': 'disabled'} if keypair else {};
+                        html_attrs_val {'pattern': '^[\x20-\x7F]{1,255}$'};"
+            ng-app="KeypairPage" ng-controller="KeypairPageCtrl" ng-init="initController('${controller_options_json}')">
+        <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
+            <metal:crumbs metal:fill-slot="crumbs">
+                <li><a href="${request.route_path('keypairs')}" i18n:translate="">Key pairs</a></li>
+                <li class="current">
+                    <a tal:condition="keypair">${keypair_name }</a>
+                    <a tal:condition="not keypair and keypair_route_id == 'new'" i18n:translate="">Create New Key Pair</a>
+                    <a tal:condition="not keypair and keypair_route_id == 'new2'" i18n:translate="">Import Public Key</a>
+                </li>
+            </metal:crumbs>
+        </metal:breadcrumbs>
+        <!-- Notifications -->
+        <metal:block metal:use-macro="layout.global_macros['notifications']" />
+        <h3 id="pagetitle">
+            <metal:block tal:condition="keypair">
+                <strong i18n:translate="">Details for key pair:</strong>
+                <em class="breakword">${keypair_name}</em>
+            </metal:block>
+            <metal:block tal:condition="not keypair">
+                <strong i18n:translate="" tal:condition="keypair_route_id == 'new'">Create new key pair</strong>
+                <strong i18n:translate="" tal:condition="keypair_route_id == 'new2'">Import public key</strong>
+            </metal:block>
+        </h3>
+        <!-- New Keypair Material Download -->
+        <div tal:condition="keypair_created ">
+           <form id="download-keypair-form" action="${request.route_path('file_download')}" method="post">
+               ${structure:keypair_form['csrf_token']}
+           </form>
+        </div>
+
+        <div class="large-12 columns">
+            <div class="panel ${'has-actions' if keypair else ''}">
+                <metal:block metal:use-macro="layout.global_macros['actions_menu']" tal:condition="keypair">
+                    <metal:actions metal:fill-slot="actions">
+                        <li>
+                            <a data-reveal-id="delete-keypair-modal" i18n:translate="" id="delete-keypair-action">
+                                Delete key pair
+                            </a>
+                        </li>
+                    </metal:actions>
+                </metal:block>
+                <div tal:condition="keypair">
+                    <h6 i18n:translate="">Key pair</h6>
+                    <div class="row controls-wrapper readonly">
+                        <div class="large-2 small-3 columns"><label i18n:translate="">Name</label></div>
+                        <div class="large-10 small-9 columns value breakword">${keypair_name if keypair_name else ''}</div>
+                    </div>
+                    <div class="row controls-wrapper readonly">
+                        <div class="large-2 small-3 columns"><label i18n:translate="">Fingerprint</label></div>
+                        <div class="large-10 small-9 columns value breakword">${keypair.fingerprint if keypair.fingerprint else ''}</div>
+                    </div>
+                </div>
+                <div tal:condition="not keypair and keypair_route_id == 'new'">
+                    <p i18n:translate="">You can use this key pair to launch more than one instance.</p>
+                    <p i18n:translate="">
+                        Save the file in a place you will remember. You will need to enter the path later to connect to your instances.
+                    </p>
+                    <form action="${request.route_path('keypair_create')}" method="post" data-abide="abide">
+                        ${structure:keypair_form['csrf_token']}
+                        ${panel('form_field', field=keypair_form['name'], leftcol_width=3, rightcol_width=9, autofocus='', ng_attrs={'model': 'keypairName'}, **html_attrs_val)}
+                        <hr />
+                        <div tal:condition="not keypair">
+                            <label>
+                                <span class="req">*</span>
+                                <span i18n:translate="">Required fields</span>
+                           </label>
+                        </div>
+                        <div>
+                            <button type="submit" class="button" ng-disabled="isNotValid" i18n:translate="">Create and Download</button>
+                            <a href="${request.route_path('keypairs')}"
+                               class="cancel-link" i18n:translate="">Cancel</a>
+                        </div>
+                     </form>
+                 </div>
+                <div tal:condition="not keypair and keypair_route_id == 'new2'">
+                    <p i18n:translate="">Importing a public key allows you to use an existing SSH key to access your Eucalyptus instances.</p>
+                    <form action="${request.route_path('keypair_import')}" method="post" data-abide="abide">
+                        ${structure:keypair_import_form['csrf_token']}
+                        ${panel('form_field', field=keypair_import_form['name'], leftcol_width=3, rightcol_width=9, leftcol_width_large=3, rightcol_width_large=9, autofocus='', ng_attrs={'model': 'keypairName'}, **html_attrs_val)}
+                        ${panel('form_field', field=keypair_import_form['key_material'], leftcol_width=3, rightcol_width=9, leftcol_width_large=3, rightcol_width_large=9, ng_attrs={'model': 'keypairMaterial'}, **html_attrs)}
+                        <div class="row">
+                            <div class="small-3 columns">&nbsp;</div>
+                            <div class="small-9 columns">
+                                <label for="key-import-file">Or: </label>
+                                <input type="file" id="key-import-file"/>
+                            </div>
+                        </div>
+                        <div class="row controls-wrapper readonly" tal:condition="keypair">
+                            <div class="large-2 small-3 columns"><label i18n:translate="">Fingerprint</label></div>
+                            <div class="large-10 small-9 columns value">${keypair.fingerprint if keypair.fingerprint else ''}</div>
+                        </div>
+                        <hr/>
+                        <div tal:condition="not keypair">
+                            <label>
+                                <span class="req">*</span>
+                                <span i18n:translate="">Required fields</span>
+                           </label>
+                        </div>
+                        <div tal:condition="not keypair">
+                            <button type="submit" class="button" ng-disabled="isNotValid" i18n:translate="">Import</button>
+                            <a href="${request.route_path('keypairs')}"
+                               class="cancel-link" i18n:translate="">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="large-12 columns">
+            <metal:block metal:use-macro="layout.global_macros['help_expando']" />
+            <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
+                <div tal:condition="keypair" tal:omit-tag="">
+                    <div id="help-html-console_delete_keypair" ng-include="'${layout.help_path('console_delete_keypair.html')}'"></div> 
+                </div>
+                <div tal:condition="not keypair and keypair_route_id == 'new'" tal:omit-tag="">
+                    <div id="help-html-console_create_keypair" ng-include="'${layout.help_path('console_create_keypair.html')}'"></div> 
+                </div>
+                <div tal:condition="not keypair and keypair_route_id == 'new2'" tal:omit-tag="">
+                    <div id="help-html-console_import_keypair" ng-include="'${layout.help_path('console_import_keypair.html')}'"></div> 
+                </div>
+            </div>
+        </div>
+        <!--! Modal dialogs reused across landing and detail page -->
+        ${panel('keypair_dialogs', keypair=keypair, delete_form=delete_form)}
+    </div>
+</div>
+
+<div metal:fill-slot="tail_js">
+    <script src="${request.static_path('eucaconsole:static/js/pages/keypair.js')}"></script>
+</div>
+
+</metal:block>
+

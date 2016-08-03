@@ -1,0 +1,149 @@
+/* @fileOverview Scaling Group detail page CSS */
+@import "../includes/eucavariables";
+
+// Import landing page styles for table view display on Scaling group policies page
+@import "../includes/landingpage";
+
+
+.panel.has-actions {
+    padding-top: 60px;
+}
+
+// Hide "?" help icon in breadcrumbs
+#breadcrumbs .icon-block { display: none; }
+
+input[type="number"] {
+    width: 3rem;
+}
+
+#health_check_period, #default_cooldown {
+    width: 4rem;
+}
+
+#launch_config, #health_check_type {
+    max-width: 10rem;
+}
+
+#capacity-section {
+    input {
+        width: 3rem;
+    }
+    .controls-wrapper.inline {
+        display: inline-block;
+        label {
+            right: 0;
+        }
+    }
+    .columns {
+        padding-left: 1rem;
+    }
+}
+
+#controls_desired_capacity {
+    padding-left: 1.8rem;
+    label {
+        margin-left: -1rem;
+    }
+}
+
+[data-abide] #capacity-section .error {
+    small.error {
+        position: absolute;
+        width: 15rem;
+        left: 8px; bottom: -1.5rem;
+    }
+}
+
+// Avoid flash of unstyled content for multi-select widgets
+// Note: Chosen selector will allow widgets to display
+#availability_zones, #termination_policies {
+    visibility: hidden;
+}
+
+
+// Scaling group policies page
+table.table.scaling-policies {
+    hr {
+        margin-top: 4px;
+        margin-bottom: 4px;
+    }
+}
+
+// Scaling group instances page
+.tile {
+    @include panel-tile-mixin;
+    &.policy .header .title {
+        cursor: default;
+            color: $hpe-gray;
+        &:hover {
+            color: $hpe-green;
+            text-decoration: underline; 
+        }
+    }
+}
+
+
+// Scaling group instances page
+.tile {
+    .footer {
+        &.healthy {
+            background-color: $hpe-slate;
+            &.pending { background-color: lighten($hpe-slate, 20%); }
+        }
+    }
+}
+
+
+// Scaling group alarms page
+#evaluation_periods, #period {
+    display: inline-block;
+    width: 4rem;
+}
+
+#threshold {
+    width: 100%;
+}
+
+#unit {
+    position: relative; left: -9999rem;
+}
+
+
+.unit-label {
+    position: relative;
+    top: 6px;
+}
+
+// Scaling group next step dialog
+
+.dialog-option {
+    text-align: left;
+}
+
+#refresh-history {
+    margin-left: 1.0rem;
+    margin-bottom: 0.25rem;
+}
+
+
+#sorting-controls {
+    padding-top: 0.1rem;
+}
+
+// Status colors
+$scaling-status-color-successful: $hpe-slate;
+$scaling-status-color-in-progress: lighten($hpe-slate, 20%);
+$scaling-status-color-failed: darkred;
+$scaling-status-color-not-yet-in-service: $hpe-lightgray;
+$scaling-status-color-canceled: $hpe-gray;
+$scaling-status-color-waiting-for-launch: $hpe-lightgray;
+$scaling-status-color-waiting-for-terminate: $hpe-lightgray;
+
+// Scaling group history status
+.status.Successful { background-color: $scaling-status-color-successful; }
+.status.In-progress { background-color: $scaling-status-color-in-progress; }
+.status.Failed { background-color: $scaling-status-color-failed; }
+.status.Not-yet-in-service { background-color: $scaling-status-color-not-yet-in-service; }
+.status.Canceled { background-color: $scaling-status-color-canceled; }
+.status.Waiting-for-launch { background-color: $scaling-status-color-waiting-for-launch; }
+.status.Waiting-for-terminate { background-color: $scaling-status-color-waiting-for-terminate; }

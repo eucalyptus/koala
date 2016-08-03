@@ -1,0 +1,30 @@
+/* @fileOverview IAM Account detail view page CSS */
+/* Dropdown elements */
+/* Set the link colors and styles for top-level nav */
+/* ----------------------------------------- Item list
+----------------------------------------- */
+/* ----------------------------------------- Chosen Widget Modification
+----------------------------------------- */
+.chosen-container-multi .chosen-choices li.search-choice { display: none; }
+
+/* ----------------------------------------- IAM Account Icons
+----------------------------------------- */
+.iam-account-icon { color: #333; background-color: #cccccc; margin-right: 3px; }
+.iam-account-icon a { color: white; margin-left: 2px; }
+
+/* ----------------------------------------- Extra Element Padding
+----------------------------------------- */
+.padded-element { padding: 5px 5px; }
+
+.top-bottom-padding { padding-top: 10px; padding-bottom: 15px; }
+
+.content { width: 100%; padding-left: 10px; padding-right: 10px; }
+
+.panel { overflow: hidden; }
+
+.top-section { padding-bottom: 0.5rem; }
+
+form[name="account-new-form"] #account-name, form[name="account-new-form"] .userinput.name { width: 50%; }
+form[name="account-new-form"].ng-invalid-reserved small.error.reserved { display: block; }
+form[name="account-new-form"].ng-invalid-reserved .userinput.name { border-color: darkred; background-color: #ffe9ec; }
+form[name="account-new-form"].ng-valid-reserved small.error.reserved { display: none; }

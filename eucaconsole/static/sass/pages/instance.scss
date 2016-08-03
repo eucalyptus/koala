@@ -1,0 +1,104 @@
+/* @fileOverview single Instance page CSS */
+
+@import "../includes/eucavariables";
+
+// Import landing page styles for tile view display on instance volumes page
+@import "../includes/landingpage";
+
+// Status colors
+$instance-status-color-running: $hpe-slate;
+$instance-status-color-pending: lighten($hpe-slate, 20%);
+$instance-status-color-stopped: darkred;
+$instance-status-color-stopping: lighten(red, 20%);
+$instance-status-color-terminated: $hpe-gray;
+$instance-status-color-terminating: $hpe-lightgray;
+
+$volume-status-color-attached: $hpe-slate;
+$volume-status-color-attaching: lighten($hpe-slate, 20%);
+$volume-status-color-detaching: lighten($hpe-purple, 20%);
+
+
+.row .status.running { background-color: $instance-status-color-running; }
+.row .status.pending { background-color: $instance-status-color-pending; }
+.row .status.stopped { background-color: $instance-status-color-stopped; }
+.row .status.stopping { background-color: $instance-status-color-stopping; }
+.row .status.terminated { background-color: $instance-status-color-terminated; }
+.row .status.shutting-down { background-color: $instance-status-color-terminating; }
+
+
+// Forms
+select { width: 50%; }
+
+form .row.controls-wrapper {
+    margin-bottom: 0;
+}
+
+#instance_type {
+    width: 100%;
+}
+
+// Misc
+.busy {
+    margin-left: 1rem;
+}
+
+// Hide "?" help icon in breadcrumbs
+#breadcrumbs .icon-block { display: none; }
+
+#change-instance-state {
+    display: inline-block;
+    margin-left: 1rem;
+}
+
+#current-status {
+    position: relative; top: 2px;
+}
+
+.connect-center {
+    text-align: center;
+}
+
+// Alert icon for missing security group rules
+.fi-alert {
+    color: darkred;
+}
+
+// Instance volumes page
+.tile {
+    @include panel-tile-mixin;
+    .footer {
+        &.attached { background-color: $volume-status-color-attached; }
+        &.attaching { background-color: $volume-status-color-attaching; }
+        &.detaching { background-color: $volume-status-color-detaching; }
+    }
+}
+
+#attach-volume-modal {
+    [data-abide] .inline .error small.error {
+        display: block !important;
+        margin-bottom: 0;
+    }
+    #device {
+        width: 10rem;
+    }
+}
+
+
+
+
+/* -----------------------------------------
+   Media Queries
+----------------------------------------- */
+
+/* Small screen */
+@media screen and (max-width: 480px) {
+    select { width: 80%; }
+}
+
+#userdatalabel {
+    right: 0;
+}
+
+#userdata {
+    margin: 0 0 0;
+}

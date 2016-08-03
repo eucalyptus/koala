@@ -1,0 +1,335 @@
+<!--! Modal dialogs for Instances landing and detail page -->
+<div tal:omit-tag="" i18n:domain="eucaconsole">
+    <div id="change-state-dialogs">
+        <div id="reboot-instance-modal" class="reveal-modal small" data-reveal=""
+             tal:define="landingpage_action request.route_path('instances_reboot') + layout.querystring;
+                         detailpage_action request.route_path('instance_reboot', id=instance.id) if instance else '';
+                         action landingpage_action if landingpage else detailpage_action;">
+            <h3 i18n:translate="">Reboot instance</h3>
+            <p i18n:translate="">Rebooting preserves the root file system of your instance across restarts.</p>
+            <p>
+                <span i18n:translate="">Are you sure you want to reboot</span>
+                <strong tal:condition="not landingpage">${instance_name}</strong>
+                <strong tal:condition="landingpage">{{ instanceName }}</strong>?
+            </p>
+            <form method="post" action="${action}" id="reboot-form">
+                ${structure:reboot_form['csrf_token']}
+                <div tal:condition="landingpage" tal:omit-tag="">
+                    <input type="hidden" name="instance_id" value="{{ instanceID }}" />
+                </div>
+                <div class="dialog-submit-button">
+                    <button type="submit" id="reboot_instance_submit_button" class="button expand" i18n:translate="">
+                        Yes, Reboot
+                    </button>
+                </div>
+                <div class="dialog-progress-display hide">
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
+                </div>
+            </form>
+            <a href="#" id="reboot_instance_close_link" class="close-reveal-modal">&#215;</a>
+        </div>
+        <div id="start-instance-modal" class="reveal-modal small" data-reveal=""
+             tal:define="landingpage_action request.route_path('instances_start') + layout.querystring;
+                         detailpage_action request.route_path('instance_start', id=instance.id) if instance else '';
+                         action landingpage_action if landingpage else detailpage_action;">
+            <h3>
+                <span i18n:translate="" ng-if="!multipleItemsSelected">Start instance</span>
+                <span i18n:translate="" ng-if="multipleItemsSelected">Start instances</span>
+            </h3>
+            <p>
+                <span i18n:translate="">Are you sure you want to start</span>
+                <strong tal:condition="not landingpage">${instance_name}</strong>
+                <strong tal:condition="landingpage">{{ instanceName }}</strong>?
+            </p>
+            <form method="post" action="${action}" id="start-form">
+                ${structure:start_form['csrf_token']}
+                <div tal:condition="landingpage" tal:omit-tag="">
+                    <input type="hidden" name="instance_id" value="{{ instanceID }}" />
+                </div>
+                <div class="dialog-submit-button">
+                    <button type="submit" id="start_instance_submit_button" class="button expand" i18n:translate="">
+                        Yes, Start Instance(s)
+                    </button>
+                </div>
+                <div class="dialog-progress-display hide">
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
+                </div>
+            </form>
+            <a href="#" id="start_instance_close_link" class="close-reveal-modal">&#215;</a>
+        </div>
+        <div id="stop-instance-modal" class="reveal-modal small" data-reveal=""
+             tal:define="landingpage_action request.route_path('instances_stop') + layout.querystring;
+                         detailpage_action request.route_path('instance_stop', id=instance.id) if instance else '';
+                         action landingpage_action if landingpage else detailpage_action;">
+            <h3>
+                <span i18n:translate="" ng-if="!multipleItemsSelected">Stop instance</span>
+                <span i18n:translate="" ng-if="multipleItemsSelected">Stop instances</span>
+            </h3>
+            <p>
+                <span i18n:translate="">Are you sure you want to stop</span>
+                <strong tal:condition="not landingpage">${instance_name}</strong>
+                <strong tal:condition="landingpage">{{ instanceName }}</strong>?
+            </p>
+            <form method="post" action="${action}" id="stop-form">
+                ${structure:stop_form['csrf_token']}
+                <div tal:condition="landingpage" tal:omit-tag="">
+                    <input type="hidden" name="instance_id" value="{{ instanceID }}" />
+                </div>
+                <div class="dialog-submit-button">
+                    <button type="submit" id="stop_instance_submit_button" class="button expand">
+                        <span i18n:translate="" ng-if="!multipleItemsSelected">Yes, Stop Instance</span>
+                        <span i18n:translate="" ng-if="multipleItemsSelected">Yes, Stop Instances</span>
+                    </button>
+                </div>
+                <div class="dialog-progress-display hide">
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
+                </div>
+            </form>
+            <a href="#" class="close-reveal-modal">&#215;</a>
+        </div>
+        <div id="terminate-instance-modal" class="reveal-modal small" data-reveal=""
+             tal:define="landingpage_action request.route_path('instances_terminate') + layout.querystring;
+                         detailpage_action request.route_path('instance_terminate', id=instance.id) if instance else '';
+                         action landingpage_action if landingpage else detailpage_action;">
+            <h3>
+                <span i18n:translate="" ng-if="!multipleItemsSelected">Terminate instance</span>
+                <span i18n:translate="" ng-if="multipleItemsSelected">Terminate instances</span>
+            </h3>
+            <div ng-show="rootDevice == 'ebs'">
+                <p i18n:translate="">
+                    Terminating an EBS-backed instance may also delete the root volume if the volume is set up to do so.
+                    Data on that volume will be lost. To keep the volume, you may stop the instance instead.
+                </p>
+            </div>
+            <div>
+                <p>
+                    <span i18n:translate="">Are you sure you want to terminate</span>
+                    <strong tal:condition="not landingpage" class="breakword">${instance_name}</strong>
+                    <strong tal:condition="landingpage" class="breakword">{{ instanceName }}</strong>?
+                </p>
+            </div>
+            <form method="post" action="${action}" id="terminate-form">
+                ${structure:terminate_form['csrf_token']}
+                <div tal:condition="landingpage" tal:omit-tag="">
+                    <input type="hidden" name="instance_id" value="{{ instanceID }}" />
+                </div>
+                <div class="dialog-submit-button">
+                    <button type="submit" id="terminate_instance_submit_button" class="button expand" i18n:translate="">
+                        Yes, Terminate
+                    </button>
+                </div>
+                <div class="dialog-progress-display hide">
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
+                </div>
+            </form>
+            <a href="#" id="terminate_instance_close_link" class="close-reveal-modal">&#215;</a>
+        </div>
+        <div id="console-output-modal" class="reveal-modal medium" data-reveal="">
+            <h3 class="pagetitle">
+                <strong i18n:translate="">Console output for instance:</strong>
+                <em tal:condition="not landingpage">${instance_name}</em>
+                <em tal:condition="landingpage">{{ instanceName }}</em>
+            </h3>
+            <textarea id="instance-console-output" class="console-output" ng-model="consoleOutput"></textarea>
+            <a href="#" id="console_output_close_link" class="close-reveal-modal">&#215;</a>
+        </div>
+        <div id="connect-instance-modal" class="reveal-modal medium" data-reveal="">
+            <h3 class="pagetitle">
+                <strong i18n:translate="">Connect to instance:</strong>
+                <em tal:condition="not landingpage">${instance_name}</em>
+                <em tal:condition="landingpage">{{ instanceName }}</em>
+            </h3>
+            <div ng-show="!(platform == 'windows')">
+                <div ng-show="keyName">
+                    <p>
+                        <span i18n:translate="">To connect to your instance, be sure</span>
+                        <span ng-if="securityGroups.length == 1" i18n:translate="">security group</span>
+                        <span ng-if="securityGroups.length &gt; 1" i18n:translate="">at least one of the security groups</span>
+                        <strong ng-repeat="secgroup in securityGroups">
+                            {{ secgroup.name }}<span ng-if="!$last">, </span>
+                        </strong>
+                        <span i18n:translate="">
+                            has TCP port 22 open to inbound traffic and then perform the following steps
+                            (these instructions do not apply if you did not select a key pair when you launched this instance):
+                        </span>
+                    </p>
+                    <ol>
+                        <li i18n:translate="">Open an SSH terminal window.</li>
+                        <li>
+                            <span i18n:translate="">
+                                Change your directory to the one where you stored your key file
+                            </span>
+                            <strong>{{ keyName }}.pem</strong>
+                        </li>
+                        <li>
+                            <span i18n:translate="">Run the following command to set the correct permissions for your key file:</span><br/>
+                            <strong>chmod 400 {{ keyName }}.pem</strong>
+                        </li>
+                        <li>
+                            <span i18n:translate="">Connect to your instance via its public IP address by running the following command:</span><br/>
+                            <strong>ssh -i {{ keyName }}.pem root@{{ instancePublicIP }}</strong>
+                        </li>
+                    </ol>
+                </div>
+                <div ng-show="!keyName">
+                    <p i18n:translate="">
+                        You cannot connect to this instance using Secure Shell (SSH) because it does not have
+                        a key pair.  Key pairs are assigned at instance launch.
+                    </p>
+                </div>
+            </div>
+            <div ng-show="platform == 'windows'">
+                <p>
+                    <span i18n:translate="">To connect to your instance, be sure</span>
+                    <span ng-if="securityGroups.length == 1" i18n:translate="">security group</span>
+                    <span ng-if="securityGroups.length &gt; 1" i18n:translate="">at least one of the security groups</span>
+                    <strong ng-repeat="secgroup in securityGroups">
+                        {{ secgroup.name }}<span ng-if="!$last">, </span>
+                    </strong>
+                    <span i18n:translate="">
+                        has TCP port 3389 open to inbound traffic and then perform the following steps
+                        (these instructions do not apply if you did not select a key pair when you launched this instance):
+                    </span>
+                </p>
+                <ol>
+                    <li><a ng-click="promptFile('${request.route_path('instance_get_password', id='_id_')}')" i18n:translate="">
+                        Browse to your key file "{{ keyName }}.pem" in your local file system and use it to retrieve your instance password.
+                    </a></li>
+                    <li i18n:translate="">Open a remote desktop client. </li>
+                    <li i18n:translate="">Use the following for your username and password: </li>
+                </ol>
+                <div class="row">
+                    <div class="small-6 columns connect-center"> <span i18n:translate="">USERNAME</span> </div>
+                    <div class="small-6 columns connect-center"> <span i18n:translate="">PASSWORD</span> </div>
+                    <div class="small-6 columns connect-center"> <span> {{ publicDNS }}\Administrator </span> </div>
+                    <div class="small-6 columns connect-center">
+                        <span id="the-password"> <a id="password-link" ng-click="promptFile('${request.route_path('instance_get_password', id='_id_')}')" i18n:translate="">get password for {{ keyName }}</a></span>
+                    </div>
+                    <input type="file" id="file" name="file" class="ng-hide"/>
+                </div>
+            </div>
+            <a href="#" id="connect_instance_close_link" class="close-reveal-modal">&#215;</a>
+        </div>
+        <div id="associate-ip-to-instance-modal" class="reveal-modal small" data-reveal=""
+             tal:define="landingpage_action request.route_path('instances_associate') + layout.querystring;
+                         detailpage_action request.route_path('instance_associate', id=instance.id) if instance else '';
+                         action landingpage_action if landingpage else detailpage_action;
+                         html_attrs {'data-placeholder': 'select IP...'};
+                         ip_addresses_available len(associate_ip_form.ip_address.choices);">
+            <h3 i18n:translate="">Associate elastic IP address with instance</h3>
+            <p tal:condition="instance">
+                <span i18n:translate="">Associate</span>
+                <b>${ instance_name }</b>
+                <span i18n:translate="">with an elastic IP address.</span>
+            </p>
+            <p tal:condition="not instance">
+                <span i18n:translate="">Associate</span>
+                <b>{{ instanceName }}</b>
+                <span i18n:translate="">with an elastic IP address.</span>
+            </p>
+            <form method="post" action="${action}" id="associate-ip-to-instance-form" data-abide="abide"
+                  tal:condition="ip_addresses_available">
+                ${structure:associate_ip_form['csrf_token']}
+                <div tal:condition="landingpage" tal:omit-tag="">
+                    <input type="hidden" name="instance_id" value="{{ instanceID }}" />
+                </div>
+                <div tal:condition="instance">
+                    ${panel('form_field', field=associate_ip_form.ip_address, **html_attrs)}
+                </div>
+                <div tal:condition="not instance">
+                    ${panel('form_field', field=associate_ip_form.ip_address, ng_attrs={'model': 'associateIP', 'options': 'k as v for (k, v) in ipAddressList'}, **html_attrs)}
+                </div>
+                <div>
+                    <label>
+                        <span class="req">*</span>
+                        <span i18n:translate="">Required fields</span>
+                    </label>
+                </div>
+                <div class="dialog-submit-button">
+                    <button type="submit" id="associate_ip_to_instance_submit_button" class="button expand" i18n:translate="">Associate Address with Instance</button>
+                </div>
+                <div class="dialog-progress-display hide">
+                    <span i18n:translate="">Sending request</span>&nbsp;<i class="busy"></i>
+                </div>
+            </form>
+            <div tal:condition="not ip_addresses_available">
+                <div>
+                    <strong i18n:translate="">Note:</strong>
+                    <span i18n:translate="">There are no elastic IP addresses available.</span>
+                    <span i18n:translate="">To associate an instance with an IP address, you will need to</span>
+                    <a href="${request.route_path('ipaddresses')}?allocate=1"><strong>allocate elastic IPs from the cloud</strong></a>.
+                </div>
+            </div>
+            <a href="#" id="associate_ip_to_instance_close_link" class="close-reveal-modal">&#215;</a>
+        </div>
+        <div id="disassociate-ip-from-instance-modal" class="reveal-modal small" data-reveal=""
+             tal:define="landingpage_action request.route_path('instances_disassociate') + layout.querystring;
+                         detailpage_action request.route_path('instance_disassociate', id=instance.id) if instance else '';
+                         action landingpage_action if landingpage else detailpage_action;">
+            <h3>
+                <span i18n:translate="" ng-if="!multipleItemsSelected">Disassociate elastic IP address from instance</span>
+                <span i18n:translate="" ng-if="multipleItemsSelected">Disassociate elastic IP addresses from instances</span>
+            </h3>
+            <div>
+                <p>
+                    <span i18n:translate=""> 
+                        If you disassociate an elastic IP address from an instance, you will no longer be able to connect to that instance using that IP address.
+                    </span>
+                </p>
+            </div>
+            <div>
+                <p>
+                    <span i18n:translate="">
+                        Are you sure you want to disassociate 
+                    </span>
+                    <span ng-if="!multipleItemsSelected">
+                        <span tal:condition="instance"><b>{{ instancePublicIP }}</b></span>
+                        <span tal:condition="not instance"><b>{{ ipAddress }}</b></span>
+                        <span i18n:translate="">from instance</span>
+                        <span tal:condition="instance"><b>${instance.id}</b>?</span>
+                        <span tal:condition="not instance"><b>{{ instanceName }}</b>?</span>
+                    </span>
+                    <span ng-if="multipleItemsSelected">
+                        <span ng-repeat="ip in ipAddress.split(', ')">
+                            <strong>{{ ip }}</strong>
+                            <span i18n:translate="">from instance</span>
+                            <strong>{{ instanceID.split(', ')[$index] }}</strong><span ng-hide="$last">, </span><span i18n:translate="" ng-show="$last">?</span>
+                        </span>
+                    </span>
+                </p>
+            </div>
+            <form method="post" action="${action}" id="disassociate-ip-to-instance-form">
+                ${structure:disassociate_ip_form['csrf_token']}
+                <div tal:condition="landingpage" tal:omit-tag="">
+                    <input type="hidden" name="ip_address" value="{{ ipAddress }}" />
+                </div>
+                <div tal:condition="not landingpage" tal:omit-tag="">
+                    <input type="hidden" name="ip_address" value="{{ instancePublicIP }}" />
+                </div>
+                <div class="dialog-submit-button">
+                    <button type="submit" id="disassociate_ip_to_instance_submit_button" class="button expand">
+                        <span i18n:translate="" ng-if="!multipleItemsSelected">Yes, Disassociate Address from Instance</span>
+                        <span i18n:translate="" ng-if="multipleItemsSelected">Yes, Disassociate Addresses from Instances</span>
+                    </button>
+                </div>
+                <div class="dialog-progress-display hide">
+                    <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
+                </div>
+            </form>
+            <a href="#" id="disassociate_ip_to_instance_close_link" class="close-reveal-modal">&#215;</a>
+        </div>
+        <div id="create-image-denied-modal" class="reveal-modal small" data-reveal="">
+            <h3 i18n:translate="">Image creation already in progress</h3>
+            <p>
+                <span i18n:translate=""> 
+                    You cannot create another image from this instance while there is one in progress. Please wait for that operation to complete and try again.
+                </span>
+            </p>
+            <div class="dialog-submit-button">
+                <a ng-href="/images/p{{ instanceID }}" id="disassociate_ip_to_instance_submit_button" class="button expand" i18n:translate="">Check Image Creation Progress</a>
+            </div>
+            <a href="#" id="create_denied_close_link" class="close-reveal-modal">&#215;</a>
+        </div>
+    </div>
+</div>
+

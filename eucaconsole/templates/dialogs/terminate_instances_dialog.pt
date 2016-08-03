@@ -1,0 +1,29 @@
+<!--! Modal dialogs for Instances landing and detail page -->
+<div tal:omit-tag="" i18n:domain="eucaconsole">
+    <div id="batch-terminate-modal" class="reveal-modal small" data-reveal="">
+        <h3 i18n:translate="">Terminate instances</h3>
+        <p i18n:translate="">
+            Are you sure you want to terminate these instances?
+            Remove any instances below that you do not wish to terminate.
+        </p>
+        <form method="post" action="${request.route_path('instances_batch_terminate') + layout.querystring}"
+              id="batch-terminate-form">
+            ${structure:batch_terminate_form['csrf_token']}
+            <div>
+                <select multiple="" name="instance_ids" id="instance-ids" ng-cloak="">
+                    <option ng-repeat="item in items" selected="" value="{{ item.id }}"
+                            ng-if="item.status !== 'terminated'">{{ item.name }}</option>
+                </select>
+            </div>
+            <br />
+            <div class="dialog-submit-button">
+                <button type="submit" id="terminate_all_instances_submit_button" class="button expand" i18n:translate="">Yes, Terminate</button>
+            </div>
+            <div class="dialog-progress-display hide">
+                <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
+            </div>
+        </form>
+        <a href="#" id="terminate_all_instances_close_link" class="close-reveal-modal">&#215;</a>
+    </div>
+</div>
+

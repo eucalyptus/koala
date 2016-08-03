@@ -1,0 +1,91 @@
+/* @fileOverview Login page CSS */
+@import "../includes/eucavariables";
+
+
+#notifications-wrapper {
+    padding-top: 2rem;
+}
+
+#ssl-warning {
+    .fi-alert { color: darkred; }
+    p {
+        line-height: 1.2rem;
+        margin-top: 0.25rem;
+    }
+}
+
+#maincontent {
+    min-height: 24rem;
+}
+
+#login-wrapper {
+    position: relative;
+    padding: 10px;
+    label {
+        font-weight: bold;
+        color: $euca-darkgrey;
+        white-space: nowrap;
+    }
+    input {
+        height: 2.25rem;
+    }
+    .hide-aws {
+        max-width: 480px;
+        margin: 0 auto;
+    }
+    .tabs {
+        @include standard-tabs-mixin;
+    }
+    .tabs-content {
+        padding: 1rem;
+        background-color: white;
+        .content {
+            width: 95%;
+            margin: 0 auto;
+        }
+    }
+    .button {
+        display: block;
+        width: 100%;
+        margin-top: 12px;
+        margin-bottom: 12px;
+    }
+}
+
+#password, #secret_key {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 1rem;
+    color: black;
+}
+
+// Handle disabled JS
+.no-js #javascript-warning { display: block; }
+.js #javascript-warning { display: none; }
+
+
+// --- Media queries
+// --------------------
+//
+
+/* Medium/large screen */
+@media screen and (min-width: $topbar-breakpoint) {
+    #login-panel-wrapper { margin-top: 4rem; }
+    #login-panel h6 { padding-left: 1rem; }
+}
+
+/* Small screen */
+@media screen and (max-width: $topbar-breakpoint) {
+    #login-panel-wrapper {
+        margin-top: 1rem;
+    }
+    #login-panel {
+        border-radius: 0;
+        box-shadow: none;
+        padding: 10px;
+    }
+    #login-panel .header {
+        border-radius: 0;
+        box-shadow: none;
+        top: 0; left: 0; right: 0;
+    }
+}

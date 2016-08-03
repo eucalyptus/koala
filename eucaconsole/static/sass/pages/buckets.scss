@@ -1,0 +1,68 @@
+/* @fileOverview Buckets landing page CSS */
+@import "../includes/eucavariables";
+
+@import "../includes/landingpage";
+
+
+.gridwrapper {
+    .has-bucket-icon {
+        padding-left: 20px;
+        background: url(../../img/svg/bucket_solo_green.svg) no-repeat;
+    }
+    .has-shared-icon {
+        padding-left: 20px;
+        background: url(../../img/svg/bucket_shared.svg) no-repeat;
+    }
+    .tile .header a {
+        &.has-bucket-icon {
+            padding-left: 26px;
+            background-size: 11px;
+            background-position: 8px 9px;
+        }
+        &.has-shared-icon {
+            padding-left: 20px;
+        }
+    }
+}
+
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+     /* IE10/11 specific styles */
+    .gridwrapper .tile .header a.has-bucket-icon {
+        background-size: 90px;  // Avoid tiny bucket icon in tile view header
+    }
+}
+
+.button.cancel {
+    background-color: darken(red, 20%);
+}
+
+#open-shared-btn {
+    margin-left: 1rem;
+}
+
+.bucket-progress {
+    border: 1px solid black;
+    position: relative;
+    width: 100%;
+    height: 30px;
+    margin-bottom: 15px;
+    .meter {  // barbershop progress indicator
+        position: absolute;
+        background-color: $hp-accessible-blue;
+        background-image: linear-gradient(-45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent);
+        -webkit-animation: move 2s linear infinite;
+        animation: move 2s linear infinite;
+        padding-left: 3px;
+        height: 28px;
+        margin: 0px;
+    }
+    .status {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        margin-top: 5px;
+        margin-bottom: 0;
+        font-size: 1.0rem;
+        font-weight: bold;
+    }
+}

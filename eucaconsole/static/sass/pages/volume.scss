@@ -1,0 +1,77 @@
+/* @fileOverview Volume detail page CSS */
+@import "../includes/eucavariables";
+
+// Import landing page styles for tile view display on Volume snapshots page
+@import "../includes/landingpage";
+
+// Volume status choices are: creating, available, in-use, deleting, deleted, error
+// Attach status choices (volume.attach_data.status) are: attaching, attached, detaching, detached
+
+// Status colors
+$volume-status-color-creating: lighten($hpe-purple, 20%);
+$volume-status-color-available: $hpe-purple;
+$volume-status-color-detached: $hpe-purple;
+$volume-status-color-detaching: lighten($hpe-purple, 20%);
+$volume-status-color-deleting: $hpe-lightgray;
+$volume-status-color-deleted: $hpe-gray;
+$volume-status-color-error: darkred;
+$volume-status-color-attached: $hpe-slate;
+$volume-status-color-attaching: lighten($hpe-slate, 20%);
+
+
+// Hide "?" help icon in breadcrumbs
+#breadcrumbs .icon-block { display: none; }
+
+// ***********
+// Volume page
+input#size { width: 4rem; }
+input#name { width: 50%; }
+select#zone { width: 50%; }
+
+
+// Volume status
+.status { background-color: $hpe-gray; text-transform: capitalize; }
+.status.creating { background-color: $volume-status-color-creating; }
+.status.available { background-color: $volume-status-color-available; }
+.status.in-use { background-color: $volume-status-color-attached; }
+.status.deleting { background-color: $volume-status-color-deleting; }
+.status.deleted { background-color: $volume-status-color-deleted; }
+.status.failed { background-color: $volume-status-color-error; }
+
+// Volume attach_data status styles
+.status.attaching { background-color: $volume-status-color-attaching; }
+.status.attached { background-color: $volume-status-color-attached; }
+.status.detached { background-color: $volume-status-color-detached;  }
+.status.detaching { background-color: $volume-status-color-detaching;  }
+
+.reveal-modal {
+    #device {
+        width: 10rem;
+    }
+}
+
+
+// *********************
+// Volume snapshots page
+.tile {
+    @include panel-tile-mixin;
+    .footer {
+        &.has-progress {
+            .progress {
+                padding-right: 0;
+                .meter {
+                    color: black;
+                    text-align: left;
+                }
+            }
+            .completed {
+                position: relative;
+                top: -3px;
+            }
+        }
+    }
+}
+
+.status.pending { background-color: lighten($hpe-slate, 10%); }
+.status.completed { background-color: $hpe-slate; }
+

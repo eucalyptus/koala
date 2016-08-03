@@ -1,0 +1,202 @@
+<metal:block use-macro="main_template" i18n:domain="eucaconsole">
+
+<div metal:fill-slot="head_css">
+    <link rel="stylesheet" href="${request.static_path('eucaconsole:static/js/thirdparty/codemirror/codemirror.css')}" />
+    <link rel="stylesheet" type="text/css" href="${request.static_path('eucaconsole:static/css/pages/group.css')}" />
+    <style type="text/css">
+        input#group-name { width: 50%; }
+    </style>
+</div>
+
+<div metal:fill-slot="main_content">
+    <div class="row" id="contentwrap"
+         ng-app="GroupPage" ng-controller="GroupPageCtrl" ng-init="initController('${controller_options_json}')">
+        <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
+            <metal:crumbs metal:fill-slot="crumbs">
+                <li><a href="${request.route_path('groups')}" i18n:translate="">Groups</a></li>
+                <li class="current">
+                    <a tal:condition="group" href="#">${group.group_name}</a>
+                    <a tal:condition="not group and group_route_id == 'new'" i18n:translate="">Create new group</a>
+                </li>
+            </metal:crumbs>
+        </metal:breadcrumbs>
+        <!-- Notifications -->
+        <metal:block metal:use-macro="layout.global_macros['notifications']" />
+        <h3 id="pagetitle">
+            <metal:block tal:condition="group">
+                <strong i18n:translate="">Details for group:</strong>
+                <em>${group.group_name}</em>
+            </metal:block>
+            <metal:block tal:condition="not group and group_route_id == 'new'">
+                <strong i18n:translate="">Create new group</strong>
+            </metal:block>
+        </h3>
+        <div class="large-12 columns"
+            tal:define="readonly True if group else False;">
+            <div class="panel has-actions">
+                <metal:block metal:use-macro="layout.global_macros['actions_menu']" tal:condition="group">
+                    <metal:actions metal:fill-slot="actions">
+                        <li>
+                            <a id="delete-group-action" i18n:translate="">
+                                Delete group
+                            </a>
+                        </li>
+                    </metal:actions>
+                </metal:block>
+                <div tal:condition="not group and group_route_id == 'new'"
+                    tal:define="html_attrs {'pattern': '^[a-zA-Z0-9\+\=\,\.\@\-]{1,128}$',
+                         'error_msg': group_name_validation_error_msg};">
+                    <form action="${request.route_path('group_create')}" method="post" data-abide="abide">
+                        ${structure:group_form['csrf_token']}
+                        <div class="section columns">
+                            <div class="row">
+                                <p><span class="subsection-label" i18n:translate="">Add group to account:</span>&nbsp;${layout.account}</p>
+                            </div>
+                            ${panel('form_field', field=group_form.group_name, leftcol_width=1, rightcol_width=11, autofocus='', ng_attrs={'model': 'groupName'}, **html_attrs)}
+                        </div>
+                        <hr />
+                        <div class="expando" id="advanced-section" ng-cloak="" ng-init="expanded = false">
+                            <div class="title">
+                                <a ng-click="expanded = !expanded">
+                                    <i class="fi-plus" ng-show="!expanded"></i>
+                                    <i class="fi-minus" ng-show="expanded"></i>
+                                    &nbsp;<span i18n:translate="">Advanced</span>
+                                </a>
+                            </div>
+                            <div>&nbsp;</div>
+                            <div class="section columns" ng-show="expanded">
+                                <div class="">
+                                    ${panel('form_field', field=group_form.path, leftcol_width=1, rightcol_width=11)}
+                                </div>
+                            </div>
+                            <div>&nbsp;</div>
+                        </div>
+                        <hr />
+                        <div class="section row">
+                            <div class="columns small-6">
+                                <button type="submit" class="button" id="create-btn" ng-disabled="isNotValid">
+                                    <span i18n:translate="">Create Group</span>
+                                </button>
+                                <a href="${request.route_path('groups')}"
+                                    class="cancel-link" i18n:translate="">Cancel</a>
+                            </div>
+                            <div class="columns small-6">
+                                <div tal:condition="not group">
+                                    <label class="right">
+                                        <span class="req">*</span>
+                                        <span i18n:translate="">Required fields</span>
+                                   </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div tal:condition="group"
+                    tal:define="html_attrs {'pattern': '^[a-zA-Z0-9\+\=\,\.\@\-]{1,128}$',
+                        'error_msg': group_name_validation_error_msg};">
+                    <form action="${request.route_path('group_update', name=group.group_name)}" method="post" data-abide="abide">
+                        ${structure:group_update_form['csrf_token']}
+                        <div class="section">
+                            <h6 i18n:translate="">General</h6>
+                            <div>
+                                ${panel('form_field', field=group_update_form.group_name, leftcol_width=3, rightcol_width=9, ng_attrs={'model': 'groupName'}, **html_attrs)}
+                            </div>
+                            <div class="row controls-wrapper readonly">
+                                <div class="large-2 small-3 columns"><label class="right" i18n:translate="">Creation time</label></div>
+                                <div class="large-10 small-9 columns value" ng-cloak="">
+                                    {{ '${group_create_date}' | date: '${layout.angular_date_format}' }}
+                                </div>
+                            </div>
+                            <div class="row controls-wrapper readonly">
+                                <div class="large-2 small-3 columns"><label class="right" i18n:translate="">ARN</label></div>
+                                <div class="large-10 small-9 columns value inline breakword" ng-non-bindable="">${group_arn if group_arn else ''}</div>
+                            </div>
+                            <div class="top-bottom-padding">
+                                ${panel('form_field', field=group_update_form['path'], leftcol_width=3, rightcol_width=9)}
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="section" id='group-users'>
+                            <h6 i18n:translate="">Users</h6>
+                            <div class="row controls-wrapper readonly">
+                                <div class="small-10 columns">
+                                    <select name="input-users-select" id="users-select" class="chosen"
+                                        multiple="true" i18n:attributes="data-placeholder" data-placeholder="Search users and select to add">
+                                    <option ng-repeat="user in allUsers" ng-selected="isSelected(user)">{{user}}</option>
+                                    </select>
+                                </div>
+                            </div> 
+                            <div class="row controls-wrapper readonly">
+                                <div id="users-in-group" class="column fields top-bottom-padding">
+                                    <div class="item-list">
+                                        <span class="label radius secondar item" ng-repeat="user in groupUsers">
+                                            <span> {{ user }} </span>
+                                            <a class="remove" title="Remove user from group" i18n:attributes="title"
+                                               ng-click="removeUser(user)"><i class="fi-x"></i></a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row controls-wrapper readonly">
+                                <div class="columns">
+                                    <button type="submit" class="button" id="save-changes-btn" ng-disabled="isNotChanged">
+                                        <span tal:condition="group" i18n:translate="">Save Changes</span>
+                                    </button>
+                                    <a href="${request.route_path('groups')}"
+                                        class="cancel-link" i18n:translate="">Cancel</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <hr />
+                    <div tal:define="policies_url request.route_path('group_policies_json', name=group.group_name);
+                                     policy_url request.route_path('group_policy_json', name=group.group_name, policy='_policy_');
+                                     remove_url request.route_path('group_delete_policy', name=group.group_name, policy='_policy_');
+                                     update_url request.route_path('group_update_policy', name=group.group_name, policy='_policy_');
+                                     add_url request.route_path('iam_policy_new', _query={'type':'group', 'id':group.group_name})">
+                        <div class="section">
+                            <h6 i18n:translate="">Permissions</h6>
+                            <div>
+                                <p>
+                                    <strong i18n:translate="">Group policies</strong>
+                                </p>
+                                ${panel('policy_list', policies_url=policies_url, policy_url=policy_url, remove_url=remove_url, update_url=update_url, add_url=add_url)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="large-12 columns">
+            <metal:block metal:use-macro="layout.global_macros['help_expando']" />
+            <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
+                <!--! Help goes here -->
+                <div tal:condition="not group">
+                    <div id="help-html-console_create_iam_group"
+                        ng-include="'${layout.help_path('console_create_iam_group.html')}'">
+                    </div> 
+                </div>
+                <div tal:condition="group">
+                    <div id="help-html-console_edit_iam_group"
+                        ng-include="'${layout.help_path('console_edit_iam_group.html')}'">
+                    </div>
+                </div> 
+            </div>
+        </div>
+        <!--! Modal dialogs reused across landing and detail page -->
+        ${panel('group_dialogs', group=group, delete_form=delete_form)}
+    </div>
+</div>
+
+<div metal:fill-slot="tail_js">
+    <script src="${request.static_path('eucaconsole:static/js/thirdparty/jquery/chosen.jquery.min.js')}"></script>
+    <div tal:condition="group">
+        <script src="${request.static_path('eucaconsole:static/js/pages/group.js')}"></script>
+    </div>
+    <div tal:condition="not:group">
+        <script src="${request.static_path('eucaconsole:static/js/pages/group_new.js')}"></script>
+    </div>
+</div>
+
+</metal:block>
+

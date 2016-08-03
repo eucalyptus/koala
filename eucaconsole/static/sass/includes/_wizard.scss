@@ -1,0 +1,166 @@
+// Copyright 2013-2015 Hewlett Packard Enterprise Development LP
+//
+// Redistribution and use of this software in source and binary forms,
+// with or without modification, are permitted provided that the following
+// conditions are met:
+//
+// Redistributions of source code must retain the above copyright notice,
+// this list of conditions and the following disclaimer.
+//
+// Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Import common Foundation variables
+@import "../includes/eucavariables";
+
+
+/* @section Wizard styles */
+.wizard {
+    position: relative;
+    background-color: transparent;
+    &.has-title {
+        position: relative;
+        padding-top: 42px;
+        h6.title {
+            position: absolute;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            top: 0; left: 0; right: 0;
+            line-height: 2.5rem;
+            padding-left: 12px;
+            background-color: $hpe-green;
+            color: white;
+            @include ellipsis-overflow;
+        }
+    }
+    .row.controls-wrapper.readonly {
+        margin-bottom: 0.5rem;
+    }
+    .tabs {
+        dd {
+            @include wizard-tabs-mixin;
+        }
+    }
+    .tabs-content {
+        div.large-3.small-4.columns {
+            padding-left: 0;
+        }
+        min-height: 400px;
+        margin: 0 0 0 0;
+        padding: 1rem;
+        background-color: white;
+        .content {
+            width: 100%;
+            .description {
+                color: $hpe-gray;
+            }
+            .rule-description-label {
+                color: $hpe-gray;
+            }
+        }
+    }
+    // Alert icon for missing security group rules
+    .fi-alert {
+        color: darkred;
+    }
+    // Style placeholder in multi-chosen widget to look like a standard select drop-down choice
+    .chosen-container-multi {
+        .chosen-choices {
+            li.search-field {
+                input.default {
+                    color: $hpe-lightgray;
+                    font-size: $euca-font-size;
+                    font-family: $euca-text-font-family;
+                    margin-left: 3px;
+                }
+            }
+        }
+    }
+
+    select {
+        font-family: inherit;
+    }
+}
+
+.summary {
+    background-color: white;
+    position: relative;
+    top: 2px;
+    padding: 8px;
+    padding-bottom: 2rem;
+    margin-bottom: 1rem;
+    label {
+        position: relative;
+        right: -1rem;
+        color: $hpe-gray;
+        margin-top: 4px;
+        cursor: default;
+    }
+    .value {
+        word-break: break-all;
+        line-height: 1rem;
+        color: $hpe-black;
+        &.breakword {
+            word-break: normal;
+            word-wrap: break-word;
+        }
+    }
+    .row {
+        margin-bottom: 5px;
+    }
+    .title {
+        font-weight: bold;
+        color: $hpe-gray;
+        border-bottom: 1px solid $hpe-lightgray;
+        margin-top: 7px;
+        margin-bottom: 0.25rem;
+    }
+    .section {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid $hpe-lightgray;
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+    #tag-preview {
+        word-break: break-all;
+    }
+}
+
+// Security group rules preview, used in Launch Instance and Launch Config wizards
+.rules-display {
+    .rules-title {
+        word-break: break-all;
+        .normal-word-break {
+            word-break: normal;
+        }
+    }
+}
+
+
+/* -----------------------------------------
+   Media Queries
+----------------------------------------- */
+
+/* Extra small screen (< 481px) */
+@media screen and (max-width: 560px) {
+    dl.tabs {
+        a {
+            b { display: none; }
+        }
+    }
+}
+

@@ -1,0 +1,400 @@
+<metal:block use-macro="main_template" i18n:domain="eucaconsole">
+
+<head metal:fill-slot="head_css">
+    <link rel="stylesheet" type="text/css" href="${request.static_path('eucaconsole:static/css/pages/instances.css')}" />
+</head>
+
+<div metal:fill-slot="main_content" ng-app="InstancesPage" ng-controller="InstancesCtrl" ng-init="initController('${controller_options_json}')">
+    <div class="row" id="contentwrap" ng-controller="ItemsCtrl"
+         ng-init="initController('instances', '${initial_sort_key}', '${json_items_endpoint}')">
+        <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
+            <metal:crumbs metal:fill-slot="crumbs">
+                <li class="current"><a href="#" i18n:translate="">Instances</a></li>
+            </metal:crumbs>
+        </metal:breadcrumbs>
+        <!-- Notifications -->
+        <metal:block metal:use-macro="layout.global_macros['notifications']" />
+        <h3 id="pagetitle"><strong i18n:translate="">Instances</strong></h3>
+        <div metal:use-macro="layout.global_macros['landing_page_datagrid']">
+            <div metal:fill-slot="new_button">
+                <a class="button" i18n:translate="" id="launch-instance-btn"
+                   href="${request.route_path('instance_create')}">Launch New Instance</a>
+                <metal:block metal:use-macro="layout.global_macros['more_actions']">
+                    <div metal:fill-slot="menu_items" tal:omit-tag="">
+                        <li ng-class="{'disabled': (items | filter: {selected: true}).length !== 1}">
+                            <a i18n:translate="" class="more-actions-details"
+                               ng-href="${prefix}/{{ (items | filter: {selected: true})[0].id }}">
+                                View details
+                            </a>
+                        </li>
+                        <li ng-class="{'disabled': (items | filter: {selected: true, status: 'running'}).length !== 1}">
+                            <a i18n:translate="" class="more-actions-connect"
+                               ng-click="revealModal('connect', (items | filter: {selected: true, status: 'running'})[0])">
+                                Connect to instance
+                            </a>
+                        </li>
+                        <li ng-class="{'disabled': (items | filter: {selected: true}).length !== 1}">
+                            <a i18n:translate="" class="more-actions-launchmore"
+                               ng-href="${prefix}/{{ (items | filter: {selected: true})[0].id }}/more">
+                                Launch more like this
+                            </a>
+                        </li>
+                        <li ng-class="{'disabled': (items | filter: {selected: true, status: 'running'}).length !== 1}">
+                            <a i18n:translate="" class="more-actions-consoleoutput"
+                               ng-click="revealConsoleOutputModal((items | filter: {selected: true, status: 'running'})[0])">
+                                View console output
+                            </a>
+                        </li>
+                        <hr />
+                        <li ng-class="{'disabled': (items | filter: {selected: true}).length !== 1}">
+                            <a i18n:translate="" class="more-actions-volumes"
+                               ng-href="${prefix}/{{ (items | filter: {selected: true})[0].id }}/volumes">
+                                Manage volumes
+                            </a>
+                        </li>
+                        <li ng-class="{'disabled': (items | filter: {selected: true}).length !== 1}">
+                            <a i18n:translate="" class="more-actions-monitoring"
+                               ng-href="${prefix}/{{ (items | filter: {selected: true})[0].id }}/monitoring">
+                                Monitor
+                            </a>
+                        </li>
+                        <hr />
+                        <li ng-class="{'disabled': (items | filter: {selected: true, status: 'running'}).length !== 1}">
+                            <a i18n:translate="" class="more-actions-associateip"
+                               ng-click="revealModal('associate-ip-to', (items | filter: {selected: true, status: 'running'})[0])">
+                                Associate IP address
+                            </a>
+                        </li>
+                        <li ng-class="{'disabled': (items | filter: {selected: true, status: 'running'} | hasElasticIP).length &lt; 1}">
+                            <a i18n:translate="" class="more-actions-disassociate"
+                               ng-click="revealMultiSelectModal('disassociate-ip-from', (items | filter:{selected: true}))">
+                                Disassociate IP address
+                            </a>
+                        </li>
+                        <hr />
+                        <li ng-class="{'disabled': (items | filter: {selected: true}).length !== 1}">
+                            <a i18n:translate="" class="more-actions-launchconfig"
+                               ng-href="{{ getCreateLaunchConfigPath((items | filter: {selected: true})[0]) }}">
+                                Create scaling group launch configuration
+                            </a>
+                        </li>
+                        <li ng-class="{'disabled': (items | filter: {selected: true}).length !== 1}">
+                            <a i18n:translate="" class="more-actions-image"
+                               ng-click="createImageClicked((items | filter: {selected: true})[0])">
+                                Create image
+                            </a>
+                        </li>
+                        <hr />
+                        <li ng-class="{'disabled': (items | filter: {selected: true, status: 'running', root_device_type: 'ebs'}).length &lt; 1}">
+                            <a i18n:translate="" class="more-actions-stop"
+                               ng-click="revealMultiSelectModal('stop', (items | filter:{selected: true, status: 'running', root_device_type: 'ebs'}))">
+                                Stop
+                            </a>
+                        </li>
+                        <li ng-class="{'disabled': (items | filter: {selected: true, status: 'stopped', root_device_type: 'ebs'}).length &lt; 1}">
+                            <a i18n:translate="" class="more-actions-start"
+                               ng-click="revealMultiSelectModal('start', (items | filter:{selected: true, status: 'stopped', root_device_type: 'ebs'}))">
+                                Start
+                            </a>
+                        </li>
+                        <li ng-class="{'disabled': (items | filter: {selected: true, status: 'running'}).length &lt; 1}">
+                            <a i18n:translate="" class="more-actions-reboot"
+                               ng-click="revealMultiSelectModal('reboot', (items | filter:{selected: true, status: 'running'}))">
+                                Reboot
+                            </a>
+                        </li>
+                        <li>
+                            <a i18n:translate="" class="more-actions-terminate"
+                               ng-click="revealMultiSelectModal('terminate', (items | filter:{selected: true}))">
+                                Terminate
+                            </a>
+                        </li>
+                    </div>
+                </metal:block>
+                <metal:block metal:use-macro="layout.global_macros['selectall_items_checkbox']" />
+            </div>
+            <div metal:fill-slot="tile_header">
+                <span metal:use-macro="layout.global_macros['select_item_checkbox']"></span>
+                <a ng-href="${prefix}/{{ item.id }}" class="has-checkbox">
+                    {{ item.name }}
+                </a>
+            </div>
+            <div metal:fill-slot="tile_dropdown_button" tal:omit-tag="">
+                <span id="tile-item-dropdown_{{ item.id }}" class="tiny secondary button dropdown" data-dropdown="item-dropdown_{{ item.id }}"><i class="grid-action"></i></span>
+                <ul id="item-dropdown_{{ item.id }}" class="f-dropdown" data-dropdown-content="">
+                    <li>
+                        <a ng-href="${prefix}/{{ item.id }}" i18n:translate="">View details</a>
+                    </li>
+                    <li ng-show="item.status == 'running'">
+                        <a i18n:translate="" ng-click="revealModal('connect', item)">Connect to instance</a>
+                    </li>
+                    <li>
+                        <a ng-href="${prefix}/{{ item.id }}/more" i18n:translate="">Launch more like this</a>
+                    </li>
+                    <li>
+                        <a i18n:translate="" id="create-launchconfig-action-gridview-{{item.id}}"
+                            ng-href="{{ getCreateLaunchConfigPath(item) }}">
+                            Create launch configuration
+                        </a>
+                    </li>
+                    <li ng-show="item.status == 'running' || item.status == 'stopped'">
+                        <a i18n:translate="" id="create-image-action-gridview-{{item.id}}"
+                           ng-click="createImageClicked(item)">
+                           Create image
+                        </a>
+                    </li>
+                    <li ng-show="item.status == 'running'">
+                        <a i18n:translate="" id="view-consoleoutput-action-gridview-{{item.id}}" ng-click="revealConsoleOutputModal(item)">
+                            View console output
+                        </a>
+                    </li>
+                    <li ng-show="item.status !== 'terminated' &amp;&amp; !item.transitional">
+                        <a ng-href="${prefix}/{{ item.id }}/volumes" i18n:translate="">Manage volumes</a>
+                    </li>
+                    <li>
+                        <a i18n:translate="" ng-href="${prefix}/{{ item.id }}/monitoring">Monitor</a>
+                    </li>
+                    <li ng-show="item.status == 'running'">
+                        <a i18n:translate="" ng-click="revealModal('associate-ip-to', item)">
+                            Associate IP address
+                        </a>
+                   </li>
+                    <li ng-show="item.status == 'running' &amp;&amp; item.has_elastic_ip == true">
+                        <a i18n:translate="" ng-click="revealModal('disassociate-ip-from', item)">
+                            Disassociate IP address
+                        </a>
+                   </li>
+                    <li ng-show="item.status !== 'running' &amp;&amp; !item.transitional &amp;&amp; item.status !== 'terminated' &amp;&amp; item.root_device_type === 'ebs'">
+                        <a i18n:translate="" ng-click="revealModal('start', item)">Start</a>
+                    </li>
+                    <li ng-show="item.root_device_type === 'ebs' &amp;&amp; item.status === 'running'">
+                        <a i18n:translate="" ng-click="revealModal('stop', item)">Stop</a>
+                    </li>
+                    <li ng-show="item.status == 'running'">
+                        <a i18n:translate="" ng-click="revealModal('reboot', item)">Reboot</a>
+                    </li>
+                    <li ng-show="item.status !== 'terminated' &amp;&amp; item.status !== 'shutting-down'">
+                        <a i18n:translate="" ng-click="revealModal('terminate', item)">Terminate</a>
+                    </li>
+                    <li ng-show="item.status == 'terminated'" tal:condition="layout.cloud_type == 'euca'">
+                        <a i18n:translate="" ng-click="removeFromView(item, '${request.route_path('instances_terminate', id='_id_')}')">Remove from view</a>
+                    </li>
+                </ul>
+            </div>
+            <div metal:fill-slot="tile_content" tal:omit-tag="">
+                <div>
+                    <span class="label" title="Instance ID" i18n:attributes="title" data-tooltip="">ID</span>
+                    {{ item.id }}
+                </div>
+                <div ng-show="item.alarm_status">
+                    <span class="label" title="CloudWatch alarm status" i18n:attributes="title" data-tooltip="">CW</span>
+                    <a class="alarm-status" ng-class="item.alarm_status | toClassName" ng-href="${prefix}/{{item.id}}/monitoring">
+                        {{ item.alarm_status }}
+                    </a>
+                </div>
+                <div>
+                    <span class="label" title="Image" i18n:attributes="title" data-tooltip="">IM</span>
+                    <a ng-href="/images/{{ item.image_id }}">
+                        {{ item.image_name | limitTo: 64 || item.image_id }}
+                        <span ng-show="item.image_name &amp;&amp; item.image_name.length &gt; 64"
+                              data-tooltip="tooltip" class="label round has-tip ellipsis"
+                              title="{{ sanitizeContent(item.image_name) }}">...</span>
+                    </a>
+                </div>
+                <div>
+                    <span class="label" title="IP address" i18n:attributes="title" data-tooltip="">IP</span>
+                    <a ng-href="/ipaddresses/{{ item.ip_address }}" ng-show="item.has_elastic_ip">{{ item.ip_address }}</a>
+                    <span ng-show="!item.has_elastic_ip">{{ item.ip_address }}</span>
+                </div>
+                <div>
+                    <div tal:omit-tag="" tal:condition="not: is_vpc_supported">
+                        <span class="label" title="Availability zone" i18n:attributes="title" data-tooltip="">AZ</span>
+                        {{ item.availability_zone }}
+                    </div>
+                    <div tal:omit-tag="" tal:condition="is_vpc_supported">
+                        <span class="label" title="VPC subnet" i18n:attributes="title" data-tooltip="">VS</span>
+                        {{ item.vpc_subnet_display }} | {{ item.vpc_name }} ({{ item.availability_zone }})
+                    </div>
+                </div>
+                <div>
+                    <span class="label" title="Root device" i18n:attributes="title" data-tooltip="">RD</span>
+                    {{ item.root_device_type }}
+                </div>
+                <div>
+                    <span class="label" title="Key name" i18n:attributes="title" data-tooltip="">KN</span>
+                    <span ng-show="!item.key_name">None</span>
+                    <span ng-show="item.key_name">
+                        <a ng-show="item.exists_key" ng-href="/keypairs/{{ item.key_name }}">{{ item.key_name }}</a>
+                        <span ng-show="!item.exists_key">{{ item.key_name }}</span>
+                    </span>
+                </div>
+                <div>
+                    <span class="label" title="Security groups" i18n:attributes="title" data-tooltip="">SG</span>
+                    <span ng-repeat="security_group in item.security_groups">
+                        <i class="fi-alert" ng-show="security_group.rules_count == 0" data-tooltip="" i18n:attributes="title"
+                            title="Warning: No rules defined for security group. Instance may be unreachable."></i>
+                    </span>
+                    <a ng-href="${prefix}/{{ item.id }}">{{ item.security_groups.length }}</a>
+                </div>
+                <div>
+                    <span class="label" title="Launch time" i18n:attributes="title" data-tooltip="">LT</span>
+                    {{ item.launch_time | date: '${layout.angular_date_format}' }}
+                </div>
+            </div>
+            <metal:block metal:fill-slot="tile_footer">
+                <div ng-show="item.status"
+                     class="footer status {{ item.status.replace('-', '') }}">
+                    {{ item.status.replace('-', ' ') }}
+                    <span class="busy" ng-show="item.transitional"></span>
+                </div>
+            </metal:block>
+            <metal:block metal:fill-slot="tableview_headers">
+                <th metal:use-macro="layout.global_macros['selectall_header_checkbox']"></th>
+                <th i18n:translate="" st-skip-natural="true" st-sort="name">NAME (ID)</th>
+                <th i18n:translate="" st-skip-natural="true" st-sort="status">STATUS</th>
+                <th i18n:translate="" st-skip-natural="true" st-sort="alarm_status">ALARMS</th>
+                <th i18n:translate="" st-skip-natural="true" st-sort="image_id">IMAGE ID</th>
+                <th st-skip-natural="true" st-sort="availability_zone"
+                    tal:attributes="st-sort 'sortable_subnet_zone' if is_vpc_supported else 'availability_zone'">
+                    <span i18n:translate="" tal:condition="is_vpc_supported">VPC SUBNET/</span><span i18n:translate="">ZONE</span>
+                </th>
+                <th i18n:translate="" st-skip-natural="true" st-sort="sortable_ip">PUBLIC ADDR</th>
+                <th i18n:translate="" st-skip-natural="true" st-sort="key_name">KEY NAME</th>
+                <th i18n:translate="" st-skip-natural="true" st-sort="sortable_secgroups">SECURITY GROUP</th>
+                <th i18n:translate="" st-skip-natural="true" st-sort="launch_time" st-sort-default="reverse">LAUNCH TIME</th>
+                <th i18n:translate="" class="actions">ACTIONS</th>
+            </metal:block>
+            <metal:block metal:fill-slot="tableview_columns">
+                <td><metal:block metal:use-macro="layout.global_macros['select_item_checkbox']" /></td>
+                <td class="id breakword"><a ng-href="${prefix}/{{ item.id }}">{{ item.name || item.id | ellipsis: 30 }}</a></td>
+                <td class="status">
+                    <span class="label radius status {{ item.status }}">{{ item.status }}</span>
+                    <span class="busy" ng-show="item.transitional"></span>
+                </td>
+                <td class="alarm-status">
+                    <a class="label radius alarm-status" ng-class="item.alarm_status | toClassName"
+                          ng-if="item.alarm_status" ng-href="${prefix}/{{item.id}}/monitoring">
+                        {{ item.alarm_status }}
+                    </a>
+                </td>
+                <td><a ng-href="/images/{{ item.image_id }}">{{ item.image_id }}</a></td>
+                <td>
+                    <span tal:condition="is_vpc_supported">
+                        {{ item.vpc_subnet_display }} | {{ item.vpc_name }} ({{ item.availability_zone }})
+                    </span>
+                    <span tal:condition="not: is_vpc_supported">
+                        {{ item.availability_zone }}
+                    </span>
+                </td>
+                <td>
+                    <a ng-href="/ipaddresses/{{ item.ip_address }}" ng-show="item.has_elastic_ip">{{ item.ip_address }}</a>
+                    <span ng-show="!item.has_elastic_ip">{{ item.ip_address }}</span>
+                </td>
+                <td class="breakword">
+                    <span ng-show="!item.key_name">None</span>
+                    <span ng-show="item.key_name">
+                        <a ng-show="item.exists_key" ng-href="/keypairs/{{ item.key_name }}">{{ item.key_name | ellipsis: 30 }}</a>
+                        <span ng-show="!item.exists_key">{{ item.key_name | ellipsis: 30 }}</span>
+                    </span>
+                </td>
+                <td class="breakword">
+                    <div ng-repeat="security_group in item.security_groups">
+                        <i class="fi-alert" ng-show="security_group.rules_count == 0" data-tooltip="" i18n:attributes="title"
+                            title="Warning: No rules defined for security group. Instance may be unreachable."></i>
+                        <a ng-href="/securitygroups/{{ security_group.id }}">{{ security_group.name | ellipsis: 30 }}</a>
+                    </div>
+                </td>
+                <td class="breakword">
+                    {{ item.launch_time | date: '${layout.angular_date_format}' }}
+                </td>
+                <td>
+                    <span class="actions">
+                        <span id="table-item-dropdown_{{ item.id }}" class="tiny secondary button dropdown round" data-dropdown="item-dropdown_{{ item.id }}"><i class="grid-action"></i></span>
+                        <ul id="item-dropdown_{{ item.id }}" class="f-dropdown" data-dropdown-content="">
+                            <li>
+                                <a ng-href="${prefix}/{{ item.id }}" i18n:translate="">View details</a>
+                            </li>
+                            <li ng-show="item.status == 'running'">
+                                <a i18n:translate="" ng-click="revealModal('connect', item)">Connect to instance</a>
+                            </li>
+                            <li>
+                                <a ng-href="${prefix}/{{ item.id }}/more" i18n:translate="">Launch more like this</a>
+                            </li>
+                            <li>
+                                <a i18n:translate="" id="create-launchconfig-action-tileview-{{item.id}}"
+                                    ng-href="{{ getCreateLaunchConfigPath(item) }}">
+                                    Create launch configuration
+                                </a>
+                            </li>
+                            <li ng-show="item.status == 'running' || item.status == 'stopped'">
+                                <a i18n:translate="" id="create-image-action-gridview-{{item.id}}"
+                                   ng-click="createImageClicked(item)">
+                                   Create image
+                                </a>
+                            </li>
+                            <li ng-show="item.status == 'running'">
+                                <a i18n:translate="" id="view-consoleoutput-action-tileview-{{item.id}}" ng-click="revealConsoleOutputModal(item)">
+                                    View console output
+                                </a>
+                            </li>
+                            <li ng-show="item.status !== 'terminated' &amp;&amp; !item.transitional">
+                                <a ng-href="${prefix}/{{ item.id }}/volumes" i18n:translate="">Manage volumes</a>
+                            </li>
+                            <li>
+                                <a i18n:translate="" ng-href="${prefix}/{{ item.id }}/monitoring">Monitor</a>
+                            </li>
+                            <li ng-show="item.status == 'running'">
+                                <a i18n:translate="" ng-click="revealModal('associate-ip-to', item)">
+                                    Associate IP address
+                                </a>
+                            </li>
+                            <li ng-show="item.status == 'running' &amp;&amp; item.has_elastic_ip == true">
+                                <a i18n:translate="" ng-click="revealModal('disassociate-ip-from', item)">
+                                    Disassociate IP address
+                                </a>
+                            </li>
+                            <li ng-show="item.status !== 'running' &amp;&amp; !item.transitional &amp;&amp; item.status !== 'terminated' &amp;&amp; item.root_device_type === 'ebs'">
+                                <a i18n:translate="" ng-click="revealModal('start', item)">Start</a>
+                            </li>
+                            <li ng-show="item.root_device_type === 'ebs' &amp;&amp; item.status === 'running'">
+                                <a i18n:translate="" ng-click="revealModal('stop', item)">Stop</a>
+                            </li>
+                            <li ng-show="item.status == 'running'">
+                                <a i18n:translate="" ng-click="revealModal('reboot', item)">Reboot</a>
+                            </li>
+                            <li ng-show="item.status !== 'terminated' &amp;&amp; item.status !== 'shutting-down'">
+                                <a i18n:translate="" ng-click="revealModal('terminate', item)">Terminate</a>
+                            </li>
+                            <li ng-show="item.status == 'terminated'" tal:condition="layout.cloud_type == 'euca'">
+                                <a i18n:translate=""
+                                   ng-click="removeFromView(item, '${request.route_path('instances_terminate', id='_id_')}${layout.querystring}')">
+                                    Remove from view
+                                </a>
+                            </li>
+                        </ul>
+                    </span>
+                </td>
+            </metal:block>
+        </div>
+        <!--! Modal dialogs reused across landing and detail page -->
+        ${panel('instance_dialogs', landingpage=True, start_form=start_form, stop_form=stop_form, reboot_form=reboot_form, terminate_form=terminate_form, associate_ip_form=associate_ip_form, disassociate_ip_form=disassociate_ip_form)}
+    </div>
+</div>
+
+<metal:block metal:fill-slot="offcanvas_right">
+    <div id="help-content-div" class="help-content">
+        <div id="help-html-console_instances" ng-include="'${layout.help_path('console_instances.html')}'"></div> 
+    </div>
+</metal:block>
+
+<div metal:fill-slot="tail_js">
+    <script src="${request.static_path('eucaconsole:static/js/thirdparty/jquery/jquery.base64.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/thirdparty/jquery/chosen.jquery.min.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/widgets/expando.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/pages/landingpage.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/thirdparty/angular/angular-smart-table.min.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/pages/instances.js')}"></script>
+</div>
+
+</metal:block>
+

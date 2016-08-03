@@ -1,0 +1,79 @@
+/* @fileOverview User detail page CSS */
+@import "../includes/eucavariables";
+
+// Import landing page styles for tile view display on User page
+@import "../includes/landingpage";
+
+// User status choices are: creating, available, in-use, deleting, deleted, error
+
+// Status colors
+$keys-status-color-active: $hpe-slate;
+$keys-status-color-inactive: $hpe-gray;
+
+
+// ***********
+// User page
+
+// User status
+.status { background-color: transparent; }
+.status.Inactive { background-color: $keys-status-color-inactive; }
+.status.Active { background-color: $keys-status-color-active; }
+
+.reveal-modal {
+    #device {
+        width: 10rem;
+    }
+}
+
+// Hide "?" help icon in breadcrumbs
+#breadcrumbs .icon-block { display: none; }
+
+.or-circle {
+    font-size: 0.8rem;
+    position: absolute;
+    top: 30%; right: -22px;
+    width: 35px; height: 35px;
+    padding-top: 4px;
+    background-color: #fff;
+    border: 4px solid #eee;
+    border-radius: 30px;
+    text-align: center;
+}
+
+.gen-password {
+    position: relative;
+    padding-right: 20px;
+    border-right: 4px solid #eee;
+}
+
+.set-password {
+    position: relative;
+    padding-left: 35px;
+}
+
+.CodeMirror {
+    border: 1px solid $euca-lightgrey;
+    min-height: 400px;
+}
+
+.content {
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.password-set {
+    font-size: 0.875rem;
+    padding-top: 4px;
+    font-weight: bold;
+    line-height: 1rem;
+}
+
+
+// *********************
+// User snapshots page
+.tile {
+    @include panel-tile-mixin;
+}
+
+

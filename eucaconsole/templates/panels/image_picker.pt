@@ -1,0 +1,92 @@
+<div tal:omit-tag="" i18n:domain="eucaconsole">
+    <!--! Image Picker widget (Used in Launch Instance wizard) -->
+    <link rel="stylesheet" type="text/css" href="${request.static_path('eucaconsole:static/css/widgets/image_picker.css')}" />
+    <link rel="stylesheet" type="text/css" href="${request.static_path('eucaconsole:static/css/widgets/magic_search.css')}"/>
+    <div id="image-picker" tal:define="launchconfig_wizard 'launchconfig' in request.url"
+         ng-controller="ImagePickerCtrl" ng-init="initImagePicker('${controller_options_json}')">
+        <!--! Image picker widget -->
+        <div class="row">
+            <div class="large-12 columns">
+                <label>
+                    <span i18n:translate="">Select a machine image for your</span>
+                    <span i18n:translate="" tal:condition="not launchconfig_wizard">virtual machine instance</span>
+                    <span i18n:translate="" tal:condition="launchconfig_wizard">launch configuration</span>
+                </label>
+                <div>
+                    <magic-search template="${request.static_path('eucaconsole:static/js/thirdparty/magic-search/magic_search.html')}"
+                        strings="{'remove':'${layout.searchtext_remove}', 'cancel':'${layout.searchtext_cancel}', 'prompt':'${layout.searchtext_prompt}', 'text':'${layout.searchtext_text_facet}'}"
+                        facets="${search_facets}" filter-keys="${filter_keys}"></magic-search>
+                </div>
+                <table class="table" ng-cloak="">
+                    <tbody style="max-height: ${maxheight}">
+                    <tr ng-show="itemsLoading">
+                        <td colspan="2">
+                            <div ng-show="itemsLoading">
+                                <span i18n:translate="">Loading...</span>&nbsp;&nbsp;<span class="busy"></span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr ng-show="!itemsLoading &amp;&amp; items.length == 0">
+                        <td colspan="3">
+                            <span i18n:translate="">No images were found matching the criteria.</span>
+                        </td>
+                    </tr>
+                    <tr ng-show="!itemsLoading" ng-repeat="item in items" class="rowitem-image"
+                        ng-class="{'selected': item.id == selectedImageParam || item.id == imageID}">
+                        <td class="icon">
+                            <span class="image {{ item.platform_key }}"></span>
+                        </td>
+                        <td class="desc">
+                            <div class="name">
+                                <strong class="image-title">{{ item.name || item.id }}</strong>
+                                <span ng-show="!item.name" class="label radius {{ item.architecture }}">{{ item.architecture }}</span>
+                            </div>
+                            <div ng-show="item.name">
+                                <span class="image-id">{{ item.id }}</span>
+                                <span class="label radius {{ item.architecture }}">{{ item.architecture }}</span>
+                            </div>
+                            <div ng-show="item.description">
+                                {{ item.description }}
+                            </div>
+                            <div class="clearfix"></div>
+                        </td>
+                        <td class="btns">
+                            <a class="button tiny round" i18n:translate=""
+                               ng-click="imageSelected(item); loadImageInfo(item.id); visitNextStep(2, $event)">Select</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="small-12 columns" >
+                        <div class="small-4 columns">
+                            <label i18n:translate="" class="right inline-label">OR: enter an image ID</label>
+                        </div>
+                        <div class="small-4 columns value">
+                            <input type="text" name="image_id" id="image-id-input" ng-model="$parent.imageID" />
+                        </div>
+                        <div class="small-4 columns value">
+                            <a id="visit-step-2" class="button tiny round" ng-click="loadImageInfo(imageID); visitNextStep(2, $event)" ng-disabled="isNotValid">
+                                <span i18n:translate="">Next</span>
+                                <a class="cancel-link"
+                                   href="${request.route_path('launchconfigs' if launchconfig_wizard else 'instances')}">Cancel</a>
+                            </a>
+                        </div>
+                        <div class="small-12 columns" ng-class="$parent.imageIDErrorClass">
+                            <small class="error" id="image-id-validation-error" i18n:translate="">
+                                Image ID must be 12 alphanumeric characters and begin with 'emi-' or 'ami-'.
+                            </small> 
+                        </div>
+                        <div class="small-12 columns" ng-class="$parent.imageIDNonexistErrorClass">
+                            <small class="error" id="image-id-nonexist-error" i18n:translate="">
+                                Cannot find Image ID. 
+                            </small> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="${request.static_path('eucaconsole:static/js/thirdparty/magic-search/magic_search.js')}"></script>
+        <script src="${request.static_path('eucaconsole:static/js/widgets/image_picker.js')}"></script>
+    </div>
+</div>

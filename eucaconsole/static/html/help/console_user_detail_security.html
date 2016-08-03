@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<title>IAM User Detail - Security</title>
+</head>
+<body id="user_detail_ui_context">
+
+
+    <h1 class="title topictitle1">IAM User Detail - Security </h1>
+
+    
+    <div class="body taskbody"><p class="shortdesc"> This page allows you to view and edit the details for am IAM user. </p>
+</div>
+
+
+    <div class="topic task nested1" id="user_detail_general">
+        <h2 class="title topictitle2">Security credentials tab</h2>
+
+        
+        <div class="body taskbody"><p class="shortdesc">This tab lets you create or modify a password and generate access keys for a
+            user.</p>
+</div>
+
+        <div class="topic task nested2" id="user_detail_general_rename">
+            <h3 class="title topictitle3">Generate a random password</h3>
+
+
+            <div class="body taskbody">
+                <div class="section context">To generate a random password for the user:</div>
+
+                <ol class="ol steps"><li class="li step">
+                        <span class="ph cmd">Click the <span class="ph uicontrol">Generate Random Password</span> button. The
+                            system will set a random password for the selected user, and a dialog
+                            box will appear, prompting you to save the generated password, which is
+                            delived in a comma-separated values (CSV) file.</span>
+                    </li>
+<li class="li step">
+                        <span class="ph cmd">Save the CSV file in a secure place.</span>
+                    </li>
+</ol>
+
+            </div>
+
+        </div>
+
+        <div class="topic task nested2" id="user_detail_general_add_to_group">
+            <h3 class="title topictitle3">Manually enter a password</h3>
+
+
+            <div class="body taskbody">
+                <div class="section context">To manually create a password:</div>
+
+                <ol class="ol steps"><li class="li step">
+                        <span class="ph cmd">Type a password in the <span class="ph uicontrol">New password</span> text box.
+                            Note that an indicator will appear under the text box as you type,
+                            indicating how strong the password is.</span>
+                    </li>
+<li class="li step">
+                        <span class="ph cmd">Verify the password by typing it again into the <span class="ph uicontrol">Confirm new
+                                password</span> text box.</span>
+                    </li>
+<li class="li step">
+                        <span class="ph cmd">Click the <span class="ph uicontrol">Save Password</span> button.</span>
+                    </li>
+<li class="li step">
+                        <span class="ph cmd">A <span class="ph uicontrol">Change Password</span> dialog box will appear,
+                            prompting you to enter your password to continue.</span>
+                    </li>
+<li class="li step">
+                        <span class="ph cmd">Type your password into the Your password text box.</span>
+                    </li>
+<li class="li step">
+                        <span class="ph cmd">Click the <span class="ph uicontrol">OK</span> button. A dialog box will appear,
+                            prompting you to save the new password, which is delivered in a
+                            comma-separated values (CSV) file. Save the file in a secure
+                            place.</span>
+                    </li>
+</ol>
+
+            </div>
+
+        </div>
+
+        <div class="topic task nested2" id="user_detail_general_add_to_groups">
+            <h3 class="title topictitle3">Delete a password</h3>
+
+            
+
+            <div class="body taskbody"><p class="shortdesc">If a password is set for the user, the word "Yes" will appear next to the
+                Password set? label. You can delete this password.</p>
+
+                <div class="section context">To delete a password:<div class="note note"><span class="notetitle">Note:</span> Deleting the password will disable console
+                        access for the user.</div>
+</div>
+
+                <ol class="ol steps"><li class="li step">
+                        <span class="ph cmd">Click the <span class="ph uicontrol">Delete password</span> link on the screen. A
+                            dialog box asking you to verify the password deletion appears.</span>
+                    </li>
+<li class="li step">
+                        <span class="ph cmd">Click the <span class="ph uicontrol">Yes, Delete Password</span> button to delete
+                            the password, or dismiss the dialog box by clicking the
+                                <span class="ph uicontrol">x</span> in the upper right corner to cancel the
+                            delete operation.</span>
+                    </li>
+</ol>
+
+            </div>
+
+        </div>
+
+        <div class="topic task nested2" id="user_detail_access_keys">
+            <h3 class="title topictitle3">Generate access keys</h3>
+
+            
+            <div class="body taskbody"><p class="shortdesc">To access to the cloud through Euca2ools or other third party tools, the user
+                will need a set of access keys. </p>
+
+                <div class="section context">To generate access keys:</div>
+
+                <ol class="ol steps"><li class="li step">
+                        <span class="ph cmd">Click the <span class="ph uicontrol">Generate Access Keys</span> button. A dialog
+                            box will appear, prompting you to save the comma-separated value file
+                            containing the access keys. </span>
+                    </li>
+<li class="li step">
+                        <span class="ph cmd">Save the generated key file in a secure place.</span>
+                    </li>
+</ol>
+
+                <div class="section postreq">The generated access key will appear in the list of access keys.</div>
+
+            </div>
+
+        </div>
+
+        <div class="topic task nested2" id="user_detail_access_keys_manage">
+            <h3 class="title topictitle3">Manage access keys</h3>
+
+            
+            <div class="body taskbody"><p class="shortdesc"> Each access key associated with the selected user is shown in a list in the
+                    <span class="ph uicontrol">Access keys</span> section of the page. The list shows the
+                access key ID, and a status of either <samp class="ph codeph">Active</samp> or
+                    <samp class="ph codeph">Inactive</samp>. Each entry in the list of access keys has a context
+                menu, accessible in the <span class="ph uicontrol">Actions</span> column. Clicking the action
+                icon brings up a menu of actions that you can perform on the selected
+                instance.</p>
+
+                <div class="section context">The following context menu actions are availabe:</div>
+
+            </div>
+
+            <div class="topic task nested3" id="user_details_access_keys_manage_activate">
+                <h4 class="title topictitle4">Activate</h4>
+
+                
+                <div class="body taskbody"><p class="shortdesc"/>
+
+                    <div class="li step p">
+                            <span class="ph cmd">Activates the selected access key.</span>
+                        </div>
+
+                </div>
+
+            </div>
+
+            <div class="topic task nested3" id="user_details_access_keys_manage_deactivate">
+                <h4 class="title topictitle4">Deactivate</h4>
+
+                
+                <div class="body taskbody"><p class="shortdesc"/>
+
+                    <div class="li step p">
+                            <span class="ph cmd">Deactivates the selected access key.</span>
+                        </div>
+
+                </div>
+
+            </div>
+
+            <div class="topic task nested3" id="user_details_access_keys_manage_delete">
+                <h4 class="title topictitle4">Delete</h4>
+
+                
+                <div class="body taskbody"><p class="shortdesc"/>
+
+                    <div class="li step p">
+                            <span class="ph cmd">Deletes the selected access key.</span>
+                        </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="topic task nested1" id="user_detail_ui_context_menu">
+        <h2 class="title topictitle2">Actions menu</h2>
+
+        
+        <div class="body taskbody"><p class="shortdesc">Clicking the <span class="ph uicontrol">Actions</span> button brings up a menu of actions
+            that you can perform on the selected user.</p>
+
+            <div class="section context">The following context menu actions are availabe:</div>
+
+        </div>
+
+
+        <div class="topic task nested2" id="user_details_ui_manage_snapshots_steps">
+            <h3 class="title topictitle3">Disable</h3>
+
+            
+            <div class="body taskbody"><p class="shortdesc"/>
+
+                <div class="li step p">
+                        <span class="ph cmd">This item deletes a user's password and creates an IAM access "deny all
+                            actions" policy that prevents them from executing any actions against
+                            the cloud. The user's other information, including active access keys,
+                            is maintained until you either make the user active again or delete
+                            them. </span>
+                    </div>
+
+            </div>
+
+        </div>
+
+
+
+
+        <div class="topic task nested2" id="user_details_ui_delete_steps">
+            <h3 class="title topictitle3">Delete</h3>
+
+            
+            <div class="body taskbody"><p class="shortdesc"> </p>
+
+                <div class="li step p">
+                        <span class="ph cmd">This item allows you to delete a user.</span>
+                        <div class="itemgroup info">
+                            <div class="note note"><span class="notetitle">Note:</span>  This menu item deletes a user and all keys, passwords and
+                                permissions associated with that user.</div>
+
+                        </div>
+                    </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</body>
+</html>

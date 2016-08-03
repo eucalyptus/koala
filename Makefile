@@ -2,7 +2,7 @@
 
 # Add Compass watcher (Converts Sass .scss files to .css)
 watch:
-	compass watch koala/static
+	compass watch eucaconsole/static
 
 # Make i18n translations from Python and XHTML files
 translations:
@@ -13,3 +13,8 @@ translations:
 # Handy way to test if our Chameleon-based XHTML templates are valid XML (for i18n)
 xmltest:
 	python setup.py extract_messages
+
+ci:
+	python setup.py test
+	grunt karma:ci
+	grunt jshint

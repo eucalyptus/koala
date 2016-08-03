@@ -1,0 +1,26 @@
+/* @fileOverview Snapshot detail page CSS */
+@import "../includes/eucavariables";
+
+.progress {
+    display: inline-block;
+    width: 50%;
+    .meter {  // barbershop progress indicator
+        background-color: $hpe-disabledgreen;
+        padding-left: 6px;
+        padding-top: 4px;
+    }
+}
+
+.label.status {
+    text-transform: capitalize;
+    &.failed {
+        background-color: darkred;
+    }
+    &.completed { 
+        background-color: $hpe-slate;
+    }
+    &.pending { 
+        background-color: lighten($hpe-slate, 20%); 
+    }
+}
+

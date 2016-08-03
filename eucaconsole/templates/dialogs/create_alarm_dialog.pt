@@ -1,0 +1,168 @@
+<!--! Create alarm dialog
+      NOTE: This has been replaced by templates/cloudwatch/create_alarm_dialog.pt and create_alarm_modal_template.pt -->
+<div id="create-alarm-wrapper" ng-app="CreateAlarm" ng-controller="CreateAlarmCtrl" i18n:domain="eucaconsole"
+     ng-init="initController('${controller_options_json}')">
+    <style type="text/css">
+        #alarm-conflict-alert { position: relative; top: -12px; color: darkred; }
+    </style>
+    <div id="create-alarm-modal" class="reveal-modal ${modal_size}" data-reveal="">
+        <h3 i18n:translate="">Create alarm</h3>
+        <p i18n:translate="">&nbsp;</p>
+        <form method="post" data-abide="" id="create-alarm-form"
+              ng-submit="handleCreateAlarm('${request.route_path('cloudwatch_alarms_create')}', $event)">
+            ${structure:alarm_form['csrf_token']}
+            <input type="hidden" name="redirect_location" value="${redirect_location}" />
+            <input type="hidden" name="namespace" value="{{ namespace }}" />
+            ${panel('form_field', field=alarm_form['name'], leftcol_width=2, rightcol_width=10, ng_attrs=dict(model='alarmName'))}
+            <div class="row" ng-if="existingAlarmConflict">
+                <div class="small-10 columns right" id="alarm-conflict-alert">
+                    <i class="fi-alert"></i>
+                    <span i18n:translate="">
+                        The alarm name you have entered conflicts with an existing alarm. Please use a different name.
+                    </span>
+                </div>
+            </div>
+            ${panel('form_field', field=alarm_form['description'], leftcol_width=2, rightcol_width=10)}
+            <hr />
+            <div class="row controls-wrapper">
+                <div class="small-2 columns">
+                    <label class="right">Trigger alarm</label>
+                </div>
+                <div class="small-10 columns">
+                    <div class="row">
+                        <div class="large-5 columns">
+                            <div class="row">
+                                <div class="small-5 columns">
+                                    <span class="inline-label">
+                                        <span i18n:translate="">When</span>&nbsp;<span>the</span>
+                                    </span>
+                                </div>
+                                <div class="small-7 columns">
+                                    ${structure:alarm_form['statistic']}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="large-7 columns"
+                             tal:define="metric_attrs {'ng-model': 'metric', 'ng-change': 'updateMetricNamespace()'}">
+                            ${structure:alarm_form.metric(**metric_attrs)}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="large-6 columns">
+                            <div class="row">
+                                <div class="small-2 columns">
+                                    <span i18n:translate="" class="inline-label">for</span>
+                                </div>
+                                <div class="small-10 columns">
+                                    <select id="dimension" name="dimension" ng-model="dimension">
+                                        <option i18n:translate="" value="">select...</option>
+                                        <option i18n:translate="" value="availability_zone"
+                                                ng-selected="namespace === 'AWS/ELB'">Availability zone</option>
+                                        <option i18n:translate="" value="image"
+                                                ng-disabled="['AWS/EC2', 'AWS/AutoScaling'].indexOf(namespace) === -1">Image</option>
+                                        <option i18n:translate="" value="instance"
+                                                ng-disabled="['AWS/EC2', 'AWS/AutoScaling'].indexOf(namespace) === -1">Instance</option>
+                                        <option i18n:translate="" value="instance_type"
+                                                ng-disabled="['AWS/EC2', 'AWS/AutoScaling'].indexOf(namespace) === -1">Instance type</option>
+                                        <option i18n:translate="" value="load_balancer"
+                                                ng-disabled="namespace !== 'AWS/ELB'">Load balancer</option>
+                                        <option i18n:translate="" value="scaling_group"
+                                                ng-selected="namespace === 'AWS/AutoScaling'">Scaling group</option>
+                                        <option i18n:translate="" value="volume"
+                                                ng-disabled="namespace !== 'AWS/EBS'"
+                                                ng-selected="namespace === 'AWS/EBS'">Volume</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="large-6 columns">
+                            <!-- Pull in select fields for dimension value choices.
+                                 The appropriate field is displayed based on the dimension choice above -->
+                            <span ng-show='dimension == "availability_zone"'>
+                                ${structure:alarm_form.availability_zone()}
+                            </span>
+                            <span ng-show='dimension === "image"'>
+                                ${structure:alarm_form.image_id(**{'placeholder': 'Image ID'})}
+                            </span>
+                            <span ng-show='dimension === "instance"'>
+                                ${structure:alarm_form.instance_id()}
+                            </span>
+                            <span ng-show='dimension === "instance_type"'>
+                                ${structure:alarm_form.instance_type()}
+                            </span>
+                            <span ng-show='dimension === "load_balancer"'>
+                                ${structure:alarm_form.load_balancer_name()}
+                            </span>
+                            <span ng-show='dimension === "volume"'>
+                                ${structure:alarm_form.volume_id()}
+                            </span>
+                            <span ng-show='dimension === "scaling_group"'>
+                                ${structure:alarm_form.scaling_group_name()}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-1 columns">
+                            <span i18n:translate="" class="inline-label">is</span>
+                        </div>
+                        <div class="small-2 columns">
+                            ${structure:alarm_form['comparison']}
+                        </div>
+                        <div class="small-3 columns">
+                            ${structure:alarm_form.threshold(**{'placeholder': 'amount...', 'type': 'number', 'required': 'required', 'pattern': layout.integer_gt_zero_pattern})}
+                            <small class="error">${alarm_form.threshold.error_msg}</small>
+                        </div>
+                        <div class="small-6 columns">
+                            <div class="unit-label">{{ unitLabel }}</div>
+                            ${structure:alarm_form.unit(**{'ng-model': 'unit'})}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="row controls-wrapper">
+                <div class="small-2 columns">
+                    <label class="right" i18n:translate="">Evaluation</label>
+                </div>
+                <div class="small-10 columns">
+                    <div>
+                        <span i18n:translate="">Evaluate this measurement</span>
+                        ${structure:alarm_form.evaluation_periods(**{'type': 'number', 'min': 1, 'step': 1})}
+                        <span i18n:translate="">times</span>
+                    </div>
+                    <div>
+                        <span i18n:translate="">with each measurement lasting</span>
+                        ${structure:alarm_form.period(**{'type': 'number', 'min': 1, 'step': 1, 'required': 'required', 'pattern': layout.integer_gt_zero_pattern})}
+                        <span i18n:translate="">minutes</span><br />
+                        <small class="error">${alarm_form.period.error_msg}</small>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div>
+                <label>
+                    <span class="req">*</span>
+                    <span i18n:translate="">Required fields</span>
+                </label>
+            </div>
+            <div class="row">
+                <button type="submit" class="button expand" i18n:translate="" id="create-alarm-btn"
+                        ng-show="!isCreatingAlarm" ng-disabled="existingAlarmConflict">
+                    Create Alarm
+                </button>
+                <div ng-show="isCreatingAlarm">
+                    <span i18n:translate="">Creating alarm...</span>
+                    <span class="busy">&nbsp;</span>
+                </div>
+            </div>
+        </form>
+        <a href="#" id="create_alarm_close_link" class="close-reveal-modal">&#215;</a>
+        <br />
+        <metal:block metal:use-macro="layout.global_macros['dialog_help_expando']" />
+        <div class="help-content" ng-show="isDialogHelpExpanded" ng-cloak="">
+            <!--! Create alarm help -->
+            <div id="help-html-console_create_alarm" ng-include="'${layout.help_path('console_create_alarm.html')}'"></div> 
+        </div>
+        <script src="${request.static_path('eucaconsole:static/js/pages/create_alarm.js')}"></script>
+    </div>
+</div>

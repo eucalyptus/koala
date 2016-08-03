@@ -1,0 +1,23 @@
+/* @fileOverview Scaling Groups landing page CSS */
+@import "../includes/eucavariables";
+
+@import "../includes/landingpage";
+
+
+// Status colors
+$status-color-healthy: $hpe-slate;
+$status-color-unhealthy: darkred;
+
+.alarm-status.alarm { background-color: $alarm-status-color-alarm; }
+.alarm-status.insufficient_data { background-color: $alarm-status-color-insufficient-data; }
+.alarm-status.ok { background-color: $alarm-status-color-ok; }
+
+
+// Tile view
+.tile .status.healthy { background-color: $status-color-healthy; }
+.tile .status.unhealthy { background-color: $status-color-unhealthy; }
+
+// Table view
+.fi-check { color: $hpe-green; }
+.fi-alert { color: $status-color-unhealthy; }
+

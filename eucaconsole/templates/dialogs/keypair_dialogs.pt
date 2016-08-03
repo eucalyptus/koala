@@ -1,0 +1,33 @@
+<!--! Modal dialogs for Keypairs on landing and detail page -->
+<div tal:omit-tag="" i18n:domain="eucaconsole">
+    <div id="delete-keypair-modal" class="reveal-modal small" data-reveal=""
+         tal:define="landingpage_action request.route_path('keypair_delete');
+                     detailpage_action request.route_path('keypair_delete', id=keypair.name) if keypair else '';
+                     action landingpage_action if landingpage else detailpage_action;">
+        <h3>
+            <span i18n:translate="" ng-if="!multipleItemsSelected">Delete key</span>
+            <span i18n:translate="" ng-if="multipleItemsSelected">Delete keys</span>
+        </h3>
+        <p>
+            <span i18n:translate="">Are you sure you want to delete key</span>
+            <span tal:condition="keypair"><b class="breakword">${keypair_name}</b>?</span>
+            <span tal:condition="not keypair"><b class="breakword">{{ keypairName }}</b>?</span>
+        </p>
+        <form action="${action}" method="post">
+            ${structure:delete_form['csrf_token']}
+            <div tal:condition="landingpage" tal:omit-tag="">
+                <input type="hidden" name="name" value="{{ keypairName }}"/>
+            </div>
+            <div tal:condition="not landingpage" tal:omit-tag="">
+                <input type="hidden" name="name" value="${keypair_name}" />
+            </div>
+            <div class="dialog-submit-button">
+                <button type="submit" id="delete_keypair_submit_button" class="button expand" i18n:translate="">Yes, Delete</button>
+            </div>
+            <div class="dialog-progress-display hide">
+                <span i18n:translate="">Sending request </span>&nbsp;<i class="busy"></i>
+            </div>
+        </form>
+        <a href="#" id="delete_keypair_close_link" class="close-reveal-modal">&#215;</a>
+    </div>
+ </div>

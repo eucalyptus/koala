@@ -1,0 +1,211 @@
+<metal:block use-macro="main_template" i18n:domain="eucaconsole">
+
+<head metal:fill-slot="head_css">
+    <link rel="stylesheet" type="text/css" href="${request.static_path('eucaconsole:static/css/pages/scalinggroup_wizard.css')}" />
+</head>
+
+<div metal:fill-slot="main_content">
+    <div class="row" id="contentwrap" ng-app="ScalingGroupWizard" ng-controller="ScalingGroupWizardCtrl"
+         ng-init="initController('${controller_options_json}')">
+        <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
+            <metal:crumbs metal:fill-slot="crumbs">
+                <li><a href="${request.route_path('scalinggroups')}" i18n:translate="">Scaling groups</a></li>
+                <li class="current"><a href="#" i18n:translate="">Create scaling group</a></li>
+            </metal:crumbs>
+        </metal:breadcrumbs>
+        <!-- Notifications -->
+        <metal:block metal:use-macro="layout.global_macros['notifications']" />
+        <h3 id="pagetitle">
+            <strong i18n:translate="">Create new scaling group</strong>
+        </h3>
+        <div class="large-8 columns">
+            <div class="wizard no-title">
+                <form action="${request.route_path('scalinggroup_create')}" id="scalinggroup-wizard-form"
+                      method="post" data-abide="abide">
+                    ${structure:create_form['csrf_token']}
+                    <dl class="tabs" data-tab="">
+                        <dd class="active">
+                            <a id="tabStep1" href="#step1" ng-click="visitNextStep(1, $event)">
+                                <span class="cir">1</span> <b i18n:translate="">General</b>
+                            </a>
+                        </dd>
+                        <dd>
+                            <a id="tabStep2" href="#step2" ng-click="visitNextStep(2, $event)">
+                                <span class="cir">2</span> <b i18n:translate="">Membership</b>
+                            </a>
+                        </dd>
+                    </dl>
+                    <div class="tabs-content">
+                        <!--! Step 1: General tab content -->
+                        <div class="content active" id="step1"
+                            tal:define="html_attrs_val {'pattern': '^[^\/\\\]{1,255}$'};
+                                        vpc_subnet_html_attrs {'data-placeholder': vpc_subnet_placeholder_text};">
+                            ${panel('form_field', field=create_form['name'], leftcol_width_large=3, rightcol_width_large=9, ng_attrs={'model': 'scalingGroupName'}, **html_attrs_val)}
+                            <div tal:condition="launch_config_param">
+                                <input type="hidden" id="hidden_launch_config_input" name="launch_config" value="${launch_config_param}" />
+                                <div class="row controls-wrapper">
+                                    <div class="large-3 small-4 columns">
+                                        <label class="right" i18n:translate="">Launch configuration</label>
+                                    </div>
+                                    <div class="large-9 small-8 columns launchconfig-value">${launch_config_param}</div>
+                                </div>
+                            </div>
+                            <div tal:condition="not launch_config_param">
+                                ${panel('form_field', field=create_form['launch_config'], leftcol_width_large=3, rightcol_width_large=9, ng_attrs={'model': 'launchConfig'})}
+                            </div>
+                            <div tal:condition="is_vpc_supported">
+                                ${panel('form_field', field=create_form['vpc_network'], leftcol_width_large=3, rightcol_width_large=9, ng_attrs={'model': 'vpcNetwork'}, leftcol_width=4, rightcol_width=8)}
+                                <div ng-show="vpcNetwork != '' &amp;&amp; vpcNetwork != 'None'">
+                                    ${panel('form_field', field=create_form['vpc_subnet'], leftcol_width=4, rightcol_width=8, leftcol_width_large=3, rightcol_width_large=9, ng_attrs={'model': 'vpcSubnets', 'options': 'k as v for (k, v) in vpcSubnetChoices'}, **vpc_subnet_html_attrs)}
+                                    <span id="vpc_subnet_empty_option" class="hide" i18n:translate="">No subnets found</span>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row controls-wrapper" id="capacity-section">
+                                <div class="medium-2 columns">
+                                    <h6 i18n:translate="">Capacity</h6>
+                                </div>
+                                <div class="medium-10 columns">
+                                    ${panel('form_field', field=create_form['min_size'], leftcol_width_large=6, rightcol_width_large=6, maxlength=2, ng_attrs={'model': 'minSize', 'change': 'handleSizeChange()'})}
+                                    ${panel('form_field', field=create_form['desired_capacity'], leftcol_width_large=6, rightcol_width_large=6, maxlength=2, ng_attrs={'model': 'desiredCapacity', 'change': 'handleSizeChange()'})}
+                                    ${panel('form_field', field=create_form['max_size'], leftcol_width_large=6, rightcol_width_large=6, maxlength=2, ng_attrs={'model': 'maxSize', 'change': 'handleSizeChange()'})}
+                                </div>
+                            </div>
+                            <div tal:define="term_policies_html_attrs {'data-placeholder': termination_policies_placeholder_text}" ng-cloak="">
+                                ${panel('form_field', field=create_form['termination_policies'], leftcol_width_large=3, rightcol_width_large=9, ng_attrs={'model': 'terminationPolicies'}, **term_policies_html_attrs)}
+                            </div>
+                            <hr />
+                            ${panel('autoscale_tag_editor', tags=[])}
+                            <hr />
+                            <div>
+                                <label>
+                                    <span class="req">*</span>
+                                    <span i18n:translate="">Required fields</span>
+                                </label>
+                            </div>
+                            <div>&nbsp;</div>
+                            <div class="row">
+                                <div class="large-3 small-4 columns">&nbsp;</div>
+                                <div class="large-9 small-8 columns field inline">
+                                    <a id="visit-step-2" class="button small round" ng-click="visitNextStep(2, $event)" ng-disabled="isNotValid">
+                                        <span i18n:translate="">Next</span>
+                                        <a class="cancel-link" href="${request.route_path('scalinggroups')}" i18n:translate="">Cancel</a>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <!--! Step 2: Membership tab content -->
+                        <div class="content" id="step2" tal:define="avail_zones_attrs {'data-placeholder': avail_zones_placeholder_text};
+                                            load_balancers_html_attrs {'data-placeholder': elb_placeholder_text}">
+                            ${panel('form_field', field=create_form['health_check_period'], leftcol_width_large=3, rightcol_width_large=9, ng_attrs={'model': 'healthCheckPeriod'}, step=30)}
+                            <div ng-show="vpcNetwork == '' || vpcNetwork == 'None'">
+                                ${panel('form_field', field=create_form['availability_zones'], leftcol_width_large=3, rightcol_width_large=9, ng_attrs={'model': 'availZones'}, **avail_zones_attrs)}
+                            </div>
+                            ${panel('form_field', field=create_form['load_balancers'], leftcol_width_large=3, rightcol_width_large=9, ng_attrs={'model': 'loadBalancers'}, **load_balancers_html_attrs)}
+                            <div>&nbsp;</div>
+                            <hr />
+                            <div>
+                                <label>
+                                    <span class="req">*</span>
+                                    <span i18n:translate="">Required fields</span>
+                                </label>
+                            </div>
+                            <div class="row">
+                                <div class="large-3 small-4 columns">&nbsp;</div>
+                                <div class="large-9 small-8 columns field inline">
+                                    <button type="submit" class="button" id="create-scalinggroup-btn" ng-disabled="isNotValid">
+                                        <span i18n:translate="">Create Scaling Group</span>
+                                    </button>
+                                    <a class="cancel-link" href="${request.route_path('scalinggroups')}" i18n:translate="">Cancel</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix">&nbsp;</div>
+                </form>
+                <div class="">
+                    <metal:block metal:use-macro="layout.global_macros['help_expando']" />
+                    <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
+                        <!-- HELP CONTENT -->
+                        <div id="help-html-console_create_scaling_group_general" ng-show="currentStepIndex == 1"
+                            ng-include="'${layout.help_path('console_create_scaling_group_general.html')}'">
+                        </div>
+                        <div id="help-html-console_create_scaling_group_membership" ng-show="currentStepIndex == 2"
+                            ng-include="'${layout.help_path('console_create_scaling_group_membership.html')}'">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="large-4 columns" ng-cloak="">
+            <div class="help-padding">&nbsp;</div>
+            <div class="summary" ng-cloak="">
+                <h5 i18n:translate="" class="title">Summary</h5>
+                <div class="section step1">
+                    <div class="row">
+                        <label i18n:translate="">Name:</label>
+                        <div class="columns value breakword">{{ scalingGroupName }}</div>
+                    </div>
+                    <div class="row">
+                        <label i18n:translate="">Launch configuration:</label>
+                        <div class="columns value">
+                            <span tal:condition="not launch_config_param" tal:omit-tag="">{{ launchConfig }}</span>
+                            <span tal:condition="launch_config_param" ng-non-bindable="">${launch_config_param}</span>
+                        </div>
+                    </div>
+                    <div tal:condition="is_vpc_supported" class="row" ng-show="vpcNetwork != ''">
+                        <label i18n:translate="">VPC network:</label>
+                        <div class="columns value">{{ vpcNetworkName }}</div>
+                    </div>
+                    <div tal:condition="is_vpc_supported" class="row" ng-show="vpcSubnetNames.length">
+                        <label i18n:translate="">VPC subnet:</label>
+                        <div class="columns value">
+                            <div ng-repeat="vpcSubnetName in vpcSubnetNames">{{ vpcSubnetName }}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label i18n:translate="">Instances:</label>
+                        <div class="columns value">
+                            Min: {{ minSize }}, Desired: {{ desiredCapacity }}, Max: {{ maxSize }}
+                        </div>
+                    </div>
+                </div>
+                <div class="section step2 hide">
+                    <div class="row">
+                        <label i18n:translate="">Health check:</label>
+                        <div class="columns value">{{ healthCheckType }}</div>
+                    </div>
+                    <div class="row">
+                        <label i18n:translate="">Grace period:</label>
+                        <div class="columns value">{{ healthCheckPeriod }}</div>
+                    </div>
+                    <div class="row">
+                        <label i18n:translate="">Availability zones:</label>
+                        <div class="columns value">
+                            <span ng-repeat="zone in availZones">{{ zone }}<span ng-show="!$last">, </span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--! Warning modal when no launch configs exist -->
+        <div id="create-warn-modal" class="reveal-modal small" data-reveal="">
+            <h3 i18n:translate="">No launch configurations found</h3>
+            <p i18n:translate="">
+                You must create a launch configuration before you can create a scaling group.
+            </p>
+            <a href="${request.route_path('launchconfig_new')}" i18n:translate="">Create launch configuration</a>
+            <a href="#" class="close-reveal-modal">&#215;</a>
+        </div>
+    </div>
+</div>
+
+<div metal:fill-slot="tail_js">
+    <script src="${request.static_path('eucaconsole:static/js/thirdparty/jquery/chosen.jquery.min.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/thirdparty/utils/purl.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/pages/scalinggroup_wizard.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/widgets/tag-editor/tag-editor.js')}"></script>
+</div>
+
+</metal:block>
+

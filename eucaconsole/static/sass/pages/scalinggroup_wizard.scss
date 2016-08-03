@@ -1,0 +1,40 @@
+// Import common Foundation variables
+@import "../includes/eucavariables";
+
+// Import common wizard styles
+@import "../includes/wizard";
+
+// Capacity section
+#controls_min_size, #controls_desired_capacity, #controls_max_size {
+    display: inline-block; margin-left: 1rem;
+    input {
+        width: 3.5rem;
+        max-width: 3.5rem;
+        margin-left: 4px;
+    }
+}
+
+#controls_max_size {
+    margin-left: -1rem;
+}
+
+#health_check_period {
+    width: 4rem;
+}
+
+#capacity-section {
+    margin-bottom: 1rem;
+}
+
+[data-abide] #capacity-section .error {
+    small.error {
+        position: absolute;
+        width: 15rem;
+        left: 8px; bottom: -1.5rem;
+    }
+}
+
+.launchconfig-value {
+    line-height: 1.5rem;
+}
+

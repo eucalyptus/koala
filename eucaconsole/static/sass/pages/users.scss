@@ -1,0 +1,8 @@
+/* @fileOverview IAM Users landing page CSS */
+@import "../includes/eucavariables";
+
+@import "../includes/landingpage";
+
+.status.active { background-color: $hpe-slate; }
+.status.disabled { background-color: $hpe-gray;}
+.status.undefined { background-color: transparent; }

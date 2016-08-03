@@ -1,0 +1,121 @@
+<metal:block use-macro="main_template" i18n:domain="eucaconsole">
+
+<head metal:fill-slot="head_css">
+    <link rel="stylesheet" type="text/css" href="${request.static_path('eucaconsole:static/css/pages/scalinggroup.css')}" />
+</head>
+
+<div metal:fill-slot="main_content">
+    <div class="row" id="contentwrap" ng-app="ScalingGroupPolicies" ng-controller="ScalingGroupPoliciesCtrl"
+         ng-init="initPage()">
+        <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
+            <metal:crumbs metal:fill-slot="crumbs">
+                <li><a href="${request.route_path('scalinggroups')}" i18n:translate="">Scaling groups</a></li>
+                <li class="current"><a>${scaling_group_name}</a></li>
+            </metal:crumbs>
+        </metal:breadcrumbs>
+        <!-- Notifications -->
+        <metal:block metal:use-macro="layout.global_macros['notifications']" />
+        <h3 id="pagetitle">
+            <strong i18n:translate="">Details for scaling group:</strong>
+            <em>${scaling_group_name}</em>
+        </h3>
+        <div class="large-12 columns">
+            <dl class="tabs" id="scalinggroup-subnav">
+                <dd><a href="${request.route_path('scalinggroup_view', id=scaling_group.name)}" i18n:translate="">General</a></dd>
+                <dd><a href="${request.route_path('scalinggroup_history', id=scaling_group.name)}" i18n:translate="">Scaling history</a></dd>
+                <dd class="active"><a href="#" i18n:translate="">Scaling policies</a></dd>
+                <dd><a href="${request.route_path('scalinggroup_instances', id=scaling_group.name)}">Instances</a></dd>
+                <dd><a href="${request.route_path('scalinggroup_monitoring', id=scaling_group.name)}">Monitoring</a></dd>
+            </dl>
+            <div class="panel gridwrapper no-title">
+                <div>&nbsp;</div>
+                <a href="${request.route_path('scalinggroup_policy_new', id=scaling_group.name)}" id="create-policy-btn"
+                   class="button" i18n:translate="">Add scaling policy</a>
+                <table class="table scaling-policies" tal:condition="policies">
+                    <thead>
+                        <th i18n:translate="">Policy Name</th>
+                        <th i18n:translate="">Action</th>
+                        <th i18n:translate="">Alarm Name</th>
+                        <th i18n:translate="">Alarm Threshold</th>
+                        <th i18n:translate="">Alarm Dimension</th>
+                        <th i18n:translate="" class="count">Cooldown (Secs)</th>
+                        <th class="actions" i18n:translate="">Actions</th>
+                    </thead>
+                    <tbody>
+                        <tr tal:repeat="policy policies">
+                            <td>${layout.escape_braces(policy.name)}</td>
+                            <td>${policy.scale_text}</td>
+                            <td>
+                                <div tal:repeat="alarm policy.alarms">
+                                    <a ng-href="/alarms/{{ '${alarm.name}' | b64encode }}">${alarm.name}</a>
+                                    <hr tal:condition="not: repeat.alarm.end" />
+                                </div>
+                            </td>
+                            <td>
+                                <div tal:repeat="alarm policy.alarms" class="threshold">
+                                    ${alarm.metric} ${alarm.comparison} ${int(alarm.threshold)}
+                                    <span i18n:translate="">for</span>
+                                    ${alarm.evaluation_periods * int(alarm.period / 60.0)} <span i18n:translate="">minutes</span>
+                                    <hr tal:condition="not: repeat.alarm.end" />
+                                </div>
+                            </td>
+                            <td>
+                                <div tal:repeat="alarm policy.alarms" tal:omit-tag="">
+                                    <div tal:repeat="(key, val) alarm.dimensions.items()" class="dimension-item">
+                                        ${key} = ${', '.join(val)}
+                                    </div>
+                                    <hr tal:condition="not: repeat.alarm.end" />
+                                </div>
+                            </td>
+                            <td class="count">${policy.cooldown}</td>
+                            <td>
+                                <span class="actions">
+                                    <a class="tiny secondary button dropdown right round"
+                                       data-dropdown="item-dropdown_${policy_ids[policy.encoded_name]}" ><i class="grid-action"></i></a>
+                                    <ul id="item-dropdown_${policy_ids[policy.encoded_name]}" class="f-dropdown" data-dropdown-content="" >
+                                        <li><a i18n:translate="" ng-click="revealDeleteModal('${policy.name}')">Delete policy</a></li>
+                                    </ul>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div>&nbsp;</div>
+            </div>
+        </div>
+        <div class="large-12 columns">
+            <metal:block metal:use-macro="layout.global_macros['help_expando']" />
+             <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
+                 <!--! Help goes here -->
+                <div id="help-html-console_scaling_group_detail_policies"
+                    ng-include="'${layout.help_path('console_scaling_group_detail_policies.html')}'">
+                </div> 
+            </div>
+        </div>
+        <!--! Modal dialogs -->
+        <div id="delete-policy-modal" class="reveal-modal small" data-reveal="">
+            <h3 i18n:translate="">Delete scaling group policy</h3>
+            <p>
+                <span i18n:translate="">Are you sure you want to delete the policy</span>
+                <b>{{ policyName }}</b>?
+            </p>
+            <form action="${request.route_path('scalinggroup_policy_delete', id=scaling_group.name)}" method="post">
+                ${structure:delete_form['csrf_token']}
+                <input type="hidden" name="name" value="{{ policyName }}" />
+                <button type="submit" class="button expand" i18n:translate="" id="delete-policy-dialog-btn">
+                    Yes, Delete Policy
+                </button>
+            </form>
+            <a class="close-reveal-modal">&#215;</a>
+        </div>
+        <!--! /end modal dialogs -->
+    </div>
+</div>
+
+<div metal:fill-slot="tail_js">
+    <script src="${request.static_path('eucaconsole:static/js/thirdparty/jquery/chosen.jquery.min.js')}"></script>
+    <script src="${request.static_path('eucaconsole:static/js/pages/scalinggroup_policies.js')}"></script>
+</div>
+
+</metal:block>
+
