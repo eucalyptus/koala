@@ -158,6 +158,7 @@ urls = [
     Route(name='elbs_json', pattern='/elbs/json'),
     Route(name='elbs_delete', pattern='/elbs/delete'),
     # Detail page
+    Route(name='elb_wizard', pattern='/elbs/wizard*step'),
     Route(name='elb_new', pattern='/elbs/new'),
     Route(name='elb_create', pattern='/elbs/create'),
     Route(name='elb_delete', pattern='/elbs/{id}/delete'),
@@ -388,4 +389,9 @@ urls = [
     # Update
     Route(name='stack_update', pattern='/stacks/{name}/update'),
     Route(name='stack_cancel_update', pattern='/stacks/{name}/cancelupdate'),
+
+    Route(name='queues', pattern='/queues'),
+    Route(name='queues_json', pattern='/queues/json'),
+    Route(name='queue_view', pattern='/queue/{id}'),
+    Route(name='topics', pattern='/topics'),
 ]

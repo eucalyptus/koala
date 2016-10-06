@@ -565,7 +565,7 @@ class BaseELBView(TaggedItemView):
 
     def add_elb_tags(self, elb_name):
         tags_json = self.request.params.get('tags', '{}')
-        tags_dict = self._normalize_tags(json.loads(tags_json))
+        tags_dict = self.normalize_tags(json.loads(tags_json))
         add_tags_params = {'LoadBalancerNames.member.1': elb_name}
         index = 1
         for key, value in tags_dict.items():
@@ -1132,6 +1132,24 @@ class ELBMonitoringView(BaseELBView):
             'duration_granularities_mapping': DURATION_GRANULARITY_CHOICES_MAPPING,
             'availability_zones': self.availability_zones,
         }))
+
+
+class ELBWizardView(BaseView):
+
+    TEMPLATE = '../templates/elbs/wizard/main.pt'
+
+    def __init__(self, request):
+        super(ELBWizardView, self).__init__(request)
+        self.base_href = '/elb/wizard'
+
+    @view_config(route_name='elb_wizard', renderer=TEMPLATE)
+    def elb_wizard(self):
+        self.render_dict = dict(
+            base_href=self.base_href,
+            cloud_type=self.cloud_type,
+            is_vpc_supported=BaseView.is_vpc_supported(self.request)
+        )
+        return self.render_dict
 
 
 class CreateELBView(BaseELBView):
