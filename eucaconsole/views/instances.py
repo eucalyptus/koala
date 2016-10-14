@@ -656,6 +656,7 @@ class InstanceView(TaggedItemView, BaseInstanceView):
             disassociate_ip_form=self.disassociate_ip_form,
             has_elastic_ip=self.has_elastic_ip,
             vpc_subnet_display=self.get_vpc_subnet_display(self.instance.subnet_id) if self.instance else None,
+            tags=self.serialize_tags(self.instance.tags) if self.instance else [],
             role=self.role,
             running_create=self.running_create,
             controller_options_json=self.get_controller_options_json(),
@@ -1151,9 +1152,9 @@ class InstanceLaunchView(BaseInstanceView, BlockDeviceMappingItemView):
         self.generate_file_form = GenerateFileForm(self.request, formdata=self.request.params or None)
         self.owner_choices = self.get_owner_choices()
         controller_options_json = BaseView.escape_json(json.dumps({
-            'securitygroups_choices': dict(self.launch_form.securitygroup.choices),
-            'keypair_choices': dict(self.launch_form.keypair.choices),
-            'role_choices': dict(self.launch_form.role.choices),
+            'securitygroups_choices': self.list_options(self.launch_form.securitygroup.choices),
+            'keypair_choices': self.list_options(self.launch_form.keypair.choices),
+            'role_choices': self.list_options(self.launch_form.role.choices),
             'vpc_subnet_choices': self.get_vpc_subnets(),
             'default_vpc_network': self.get_default_vpc_network(),
             'securitygroups_json_endpoint': self.request.route_path('securitygroups_json'),
@@ -1174,6 +1175,10 @@ class InstanceLaunchView(BaseInstanceView, BlockDeviceMappingItemView):
             is_vpc_supported=self.is_vpc_supported,
         )
 
+    @staticmethod
+    def list_options(options):
+        return [dict(id=opt[0], label=opt[1]) for opt in options]
+
     @view_config(route_name='instance_create', renderer=TEMPLATE, request_method='GET')
     def instance_create(self):
         """Displays the Launch Instance wizard"""
@@ -1181,7 +1186,7 @@ class InstanceLaunchView(BaseInstanceView, BlockDeviceMappingItemView):
 
     @view_config(route_name='instance_launch', renderer=TEMPLATE, request_method='POST')
     def instance_launch(self):
-        """Handles the POST from the Launch instanced wizard"""
+        """Handles the POST from the Launch instance wizard"""
         if self.launch_form.validate():
             tags_json = self.request.params.get('tags')
             image_id = self.image.id
@@ -1264,7 +1269,8 @@ class InstanceLaunchView(BaseInstanceView, BlockDeviceMappingItemView):
                         instance.add_tag('Name', name)
                     if tags_json:
                         tags = json.loads(tags_json)
-                        for tagname, tagvalue in tags.items():
+                        tags_dict = TaggedItemView.normalize_tags(tags)
+                        for tagname, tagvalue in tags_dict.items():
                             instance.add_tag(tagname, tagvalue)
                 msg = _(u'Successfully sent launch instances request.  It may take a moment to launch instances ')
                 msg += ', '.join(new_instance_ids)
@@ -1577,7 +1583,8 @@ class InstanceCreateImageView(BaseInstanceView, BlockDeviceMappingItemView):
                     image_id = self.ec2_conn.create_image(
                         instance_id, name, description=description, no_reboot=no_reboot, block_device_mapping=bdm)
                     tags = json.loads(tags_json)
-                    self.ec2_conn.create_tags(image_id, tags)
+                    tags_dict = TaggedItemView.normalize_tags(tags)
+                    self.ec2_conn.create_tags(image_id, tags_dict)
                     msg = _(u'Successfully sent create image request.  It may take a few minutes to create the image.')
                     self.invalidate_images_cache()
                     self.request.session.flash(msg, queue=Notification.SUCCESS)
