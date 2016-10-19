@@ -56,6 +56,7 @@ from ..constants.elbs import (
     ELB_PREDEFINED_SECURITY_POLICY_NAME_PREFIX, ELB_CUSTOM_SECURITY_POLICY_NAME_PREFIX,
     AWS_ELB_ACCOUNT_IDS)
 from ..forms import ChoicesManager
+from ..forms.angularcompat import clean_value
 from ..forms.buckets import CreateBucketForm
 from ..forms.elbs import (
     ELBForm, ELBDeleteForm, CreateELBForm, ELBHealthChecksForm, ELBsFiltersForm,
@@ -321,6 +322,8 @@ class BaseELBView(TaggedItemView):
         req_params = self.request.params
         params_logging_enabled = req_params.get('logging_enabled') == 'y'
         params_bucket_name = req_params.get('bucket_name')
+        if params_bucket_name and params_bucket_name.startswith('string:'):
+            params_bucket_name = clean_value(params_bucket_name)
         params_bucket_prefix = req_params.get('bucket_prefix', '')
         params_collection_interval = int(req_params.get('collection_interval', 60))
         if elb is not None:
@@ -565,7 +568,7 @@ class BaseELBView(TaggedItemView):
 
     def add_elb_tags(self, elb_name):
         tags_json = self.request.params.get('tags', '{}')
-        tags_dict = self._normalize_tags(json.loads(tags_json))
+        tags_dict = self.normalize_tags(json.loads(tags_json))
         add_tags_params = {'LoadBalancerNames.member.1': elb_name}
         index = 1
         for key, value in tags_dict.items():
@@ -1060,11 +1063,11 @@ class ELBHealthChecksView(BaseELBView):
     """ELB detail page - Health Checks tab"""
     TEMPLATE = '../templates/elbs/elb_healthchecks.pt'
 
-    def __init__(self, request, elb=None, **kwargs):
+    def __init__(self, request, **kwargs):
         super(ELBHealthChecksView, self).__init__(request, **kwargs)
         self.title_parts.append(_(u'Health Checks'))
         with boto_error_handler(request):
-            self.elb = elb or self.get_elb()
+            self.elb = self.get_elb()
             if not self.elb:
                 raise HTTPNotFound()
             self.elb_form = ELBHealthChecksForm(
@@ -1103,11 +1106,11 @@ class ELBMonitoringView(BaseELBView):
     """ELB detail page - Monitoring tab"""
     TEMPLATE = '../templates/elbs/elb_monitoring.pt'
 
-    def __init__(self, request, elb=None, **kwargs):
+    def __init__(self, request, **kwargs):
         super(ELBMonitoringView, self).__init__(request, **kwargs)
         self.title_parts.append(_(u'Monitoring'))
         with boto_error_handler(request):
-            self.elb = elb or self.get_elb()
+            self.elb = self.get_elb()
             if not self.elb:
                 raise HTTPNotFound()
             self.availability_zones = [zone.get('id') for zone in self.get_availability_zones()]
@@ -1132,6 +1135,24 @@ class ELBMonitoringView(BaseELBView):
             'duration_granularities_mapping': DURATION_GRANULARITY_CHOICES_MAPPING,
             'availability_zones': self.availability_zones,
         }))
+
+
+class ELBWizardView(BaseView):
+
+    TEMPLATE = '../templates/elbs/wizard/main.pt'
+
+    def __init__(self, request):
+        super(ELBWizardView, self).__init__(request)
+        self.base_href = '/elb/wizard'
+
+    @view_config(route_name='elb_wizard', renderer=TEMPLATE)
+    def elb_wizard(self):
+        self.render_dict = dict(
+            base_href=self.base_href,
+            cloud_type=self.cloud_type,
+            is_vpc_supported=BaseView.is_vpc_supported(self.request)
+        )
+        return self.render_dict
 
 
 class CreateELBView(BaseELBView):
@@ -1230,11 +1251,11 @@ class CreateELBView(BaseELBView):
         if self.create_form.validate():
             name = self.request.params.get('name')
             listeners_args = self.get_listeners_args()
-            vpc_subnet = self.request.params.getall('vpc_subnet') or None
+            vpc_subnet = self.create_form.vpc_subnet.data or None
             if vpc_subnet == 'None':
                 vpc_subnet = None
-            securitygroup = self.request.params.getall('securitygroup') or None
-            zone = self.request.params.getall('zone') or None
+            securitygroup = self.create_form.securitygroup.data or None
+            zone = self.create_form.zone.data or None
             cross_zone_enabled = self.request.params.get('cross_zone_enabled') or False
             instances = self.request.params.getall('instances') or None
             backend_certificates = self.request.params.get('backend_certificates') or None
