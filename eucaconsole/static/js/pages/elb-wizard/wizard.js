@@ -81,6 +81,10 @@ angular.module('ELBWizard', [
                 'fromProtocol': 'HTTP',
                 'toProtocol': 'HTTP'
             }],
+            policy: {
+                predefinedPolicy: '',
+                sslUsingCustomPolicy: undefined
+            },
             tags: [],
             vpcNetwork: 'None',
             vpcNetworkChoices: [],
@@ -250,5 +254,5 @@ angular.module('ELBWizard', [
             controllerAs: 'advanced'
         });
 
-    $locationProvider.html5Mode({enabled:true, requireBase:false, rewriteLinks:false });
+    $locationProvider.html5Mode({enabled:true, requireBase:false, rewriteLinks:true});
 });
