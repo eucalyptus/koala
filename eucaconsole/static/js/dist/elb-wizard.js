@@ -146,6 +146,12 @@ angular.module('ELBServiceModule', [])
                 csrf_token: csrfToken,
                 name: values.elbName,
                 elb_listener: JSON.stringify(values.listeners),
+                elb_security_policy_updated: values.policy.securityPolicyUpdated,
+                elb_ssl_using_custom_policy: values.policy.sslUsingCustomPolicy,
+                elb_predefined_policy: values.policy.predefiedPolicy,
+                elb_ssl_protocols: values.policy.sslProtocols,
+                elb_ssl_ciphers: values.policy.sslCiphers,
+                elb_ssl_server_order_pref: values.policy.sslServerOrderPref,
                 tags: JSON.stringify(values.tags),
                 vpc_network: values.vpcNetwork.id,
                 vpc_subnet: values.vpcSubnets.map(function(val) { return val.id; }),
@@ -172,6 +178,17 @@ angular.module('ELBServiceModule', [])
                 url: '/elbs/create',
                 data: $.param(data, true),
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            }).then(function success (response) {
+                var data = response.data || {
+                    results: []
+                };
+                return data.results;
+            });
+        },
+        getPolicies: function () {
+            return $http({
+                method: 'GET',
+                url: '/elbs/policies/json'
             }).then(function success (response) {
                 var data = response.data || {
                     results: []
@@ -265,6 +282,10 @@ angular.module('ELBWizard', [
                 'fromProtocol': 'HTTP',
                 'toProtocol': 'HTTP'
             }],
+            policy: {
+                predefinedPolicy: '',
+                sslUsingCustomPolicy: undefined
+            },
             tags: [],
             vpcNetwork: 'None',
             vpcNetworkChoices: [],
@@ -484,6 +505,7 @@ angular.module('ELBWizard')
 .controller('GeneralController', ['$scope', '$route', '$routeParams', 
         '$location', 'ModalService', 'ELBWizardService', 'certificates', 'policies',
     function ($scope, $route, $routeParams, $location, ModalService, ELBWizardService, certificates, policies) {
+        var vm = this;
 
         ELBWizardService.certsAvailable = certificates;
         ELBWizardService.policies = policies;
@@ -496,6 +518,16 @@ angular.module('ELBWizard')
             }
 
             ELBWizardService.next({});
+        };
+
+        this.isHTTPSListenerDefined = function() {
+            return vm.values.listeners.findIndex(function(val) {
+                return val.fromProtocol == "HTTPS";
+            }) > -1;
+        };
+
+        this.openPolicyModal = function () {
+            ModalService.openModal('securityPolicyEditor');
         };
 
         $scope.$on('$destroy', function () {
@@ -609,6 +641,9 @@ function ($scope, $routeParams, $window, ELBWizardService, ELBService, BucketSer
     vm.creatingELB = false;
     vm.createELB = function($event) {
         $event.preventDefault();
+        if($scope.advancedForm.$invalid) {
+            return;
+        }
         vm.creatingELB = true;
         ELBService.createELB($('#csrf_token').val(), this.values).then(
             function success(result) {
@@ -679,6 +714,7 @@ angular.module('ELBListenerEditorModule', ['ModalModule'])
 
             this.from = {};
             this.to = {};
+            this.policy = {};
 
             var validPorts = [25, 80, 443, 465, 587],
                 validPortMin = 1024,
@@ -762,10 +798,6 @@ angular.module('ELBListenerEditorModule', ['ModalModule'])
             };
             this.cancel = this.reset;
 
-            this.openPolicyModal = function () {
-                ModalService.openModal('securityPolicyEditor');
-            };
-
             this.openCertificateModal = function () {
                 ModalService.openModal('certificateEditor');
             };
@@ -832,16 +864,122 @@ angular.module('ELBListenerEditorModule', ['ModalModule'])
     };
 });
 
-angular.module('ELBSecurityPolicyEditorModule', ['ModalModule'])
+angular.module('ELBSecurityPolicyEditorModule', ['ModalModule', 'ELBServiceModule', 'EucaConsoleUtils'])
 .directive('securityPolicyEditor', function () {
     return {
         restrict: 'E',
         scope: {
             policy: '=ngModel'
         },
+        // values the policy needs
+        // values.policy.securityPolicyUpdated,
+        // values.policy.sslUsingCustomPolicy,
+        // values.policy.predefiedPolicy,
+        // values.policy.sslProtocols,
+        // values.policy.sslCiphers,
+        // values.policy.sslServerOrderPref,
         templateUrl: '/_template/elbs/listener-editor/security-policy',
-        controller: ['$scope', function ($scope) {
-        }]
+        controller: ['$scope', '$timeout', 'ModalService', 'ELBService', 'eucaHandleError', function ($scope, $timeout, ModalService, ELBService, eucaHandleError) {
+            var vm = this;
+            vm.policyRadioButton = 'existing';
+            vm.predefinedPolicyChoices = [];
+            vm.protocolChoices = [
+                {id:'Protocol-TLSv1.2', label:'TLSv1.2'},
+                {id:'Protocol-TLSv1.1', label:'TLSv1.1'},
+                {id:'Protocol-TLSv1', label:'TLSv1'},
+            ];
+            vm.cipherChoices = [
+                'ECDHE-ECDSA-AES128-GCM-SHA256',
+                'ECDHE-RSA-AES128-GCM-SHA256',
+                'ECDHE-ECDSA-AES128-SHA256',
+                'ECDHE-RSA-AES128-SHA256',
+                'ECDHE-ECDSA-AES128-SHA',
+                'ECDHE-RSA-AES128-SHA',
+                'DHE-RSA-AES128-SHA',
+                'ECDHE-ECDSA-AES256-GCM-SHA384',
+                'ECDHE-RSA-AES256-GCM-SHA384',
+                'ECDHE-ECDSA-AES256-SHA384',
+                'ECDHE-RSA-AES256-SHA384',
+                'ECDHE-RSA-AES256-SHA',
+                'ECDHE-ECDSA-AES256-SHA',
+                'AES128-GCM-SHA256',
+                'AES128-SHA256',
+                'AES128-SHA',
+                'AES256-GCM-SHA384',
+                'AES256-SHA256',
+                'AES256-SHA',
+                'DHE-DSS-AES128-SHA',
+                'CAMELLIA128-SHA',
+                'EDH-RSA-DES-CBC3-SHA',
+                'DES-CBC3-SHA',
+                'DHE-DSS-AES256-GCM-SHA384',
+                'DHE-RSA-AES256-GCM-SHA384',
+                'DHE-RSA-AES256-SHA256',
+                'DHE-DSS-AES256-SHA256',
+                'DHE-RSA-AES256-SHA',
+                'DHE-DSS-AES256-SHA',
+                'DHE-RSA-CAMELLIA256-SHA',
+                'DHE-DSS-CAMELLIA256-SHA',
+                'CAMELLIA256-SHA',
+                'EDH-DSS-DES-CBC3-SHA',
+                'DHE-DSS-AES128-GCM-SHA256',
+                'DHE-RSA-AES128-GCM-SHA256',
+                'DHE-RSA-AES128-SHA256',
+                'DHE-DSS-AES128-SHA256',
+                'DHE-RSA-CAMELLIA128-SHA',
+                'DHE-DSS-CAMELLIA128-SHA',
+                'ADH-AES128-GCM-SHA256',
+                'ADH-AES128-SHA',
+                'ADH-AES128-SHA256',
+                'ADH-AES256-GCM-SHA384',
+                'ADH-AES256-SHA',
+                'ADH-AES256-SHA256',
+                'ADH-CAMELLIA128-SHA',
+                'ADH-CAMELLIA256-SHA',
+                'ADH-DES-CBC3-SHA',
+                'ADH-DES-CBC-SHA',
+                'ADH-SEED-SHA',
+                'DES-CBC-SHA',
+                'DHE-DSS-SEED-SHA',
+                'DHE-RSA-SEED-SHA',
+                'EDH-DSS-DES-CBC-SHA',
+                'EDH-RSA-DES-CBC-SHA',
+                'IDEA-CBC-SHA',
+                'SEED-SHA',
+                'DES-CBC3-MD5',
+                'DES-CBC-MD5',
+            ];
+            vm.handleUsePolicy = function ($event) {
+                $event.preventDefault();
+                if ($scope.securityPolicyForm.$invalid) {
+                    return false;
+                }
+                if (vm.policyRadioButton === 'new') {
+                    $scope.policy.sslUsingCustomPolicy = 'on';
+                }
+                else {
+                    $scope.policy.sslUsingCustomPolicy = undefined;
+                }
+                ModalService.closeModal('securityPolicyEditor');
+            };
+            vm.isShowing = function() {
+                return ModalService.isOpen('securityPolicyEditor');
+            };
+            // load certificates
+            if (vm.predefinedPolicyChoices.length === 0) {
+                ELBService.getPolicies().then(
+                    function success(result) {
+                        result.forEach(function(val) {
+                            vm.predefinedPolicyChoices.push(val); 
+                        });
+                        $scope.policy.predefinedPolicy = result[0];
+                    },
+                    function error(errData) {
+                        eucaHandleError(errData.data.message, errData.status);
+                    });
+            }
+        }],
+        controllerAs: 'policyCtrl'
     };
 });
 
