@@ -66,7 +66,9 @@ angular.module('VolumeSnapshots', ['TagEditor', 'EucaConsoleUtils'])
                 // Detect if any snapshots are in progress
                 $scope.snapshots.forEach(function(snapshot) {
                     var progress = parseInt(snapshot.progress.replace('%', ''), 10);
-                    if (progress < 100) {
+                    if (progress != NaN && progress < 100 ){
+                        inProgressCount += 1;
+                    } else if (snapshot.status == 'pending') {
                         inProgressCount += 1;
                     }
                 });

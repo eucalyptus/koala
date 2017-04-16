@@ -196,7 +196,8 @@ class SnapshotsJsonView(LandingPageView):
         filtered_snapshots = self.filter_items(self.get_items())
         volume_ids = list(set([snapshot.volume_id for snapshot in filtered_snapshots]))
         volumes = self.conn.get_all_volumes(filters={'volume_id': volume_ids}) if self.conn else []
-        for snapshot in filtered_snapshots:
+        for filtered_snapshot in filtered_snapshots:
+            snapshot = self.get_snapshot(filtered_snapshot.id)
             volume = [volume for volume in volumes if volume.id == snapshot.volume_id]
             volume_name = ''
             exists_volume = True 
@@ -223,10 +224,16 @@ class SnapshotsJsonView(LandingPageView):
     def get_items(self):
         return self.conn.get_all_snapshots(owner='self') if self.conn else []
 
+    def get_snapshot(self, snapshot_id):
+        snapshots_list = self.conn.get_all_snapshots(snapshot_ids=[snapshot_id])
+        return snapshots_list[0] if snapshots_list else None
+
     @staticmethod
     def is_transitional(snapshot):
         if snapshot.status.lower() in ['completed', 'failed']:
             return False
+        if snapshot.status.lower() == 'pending':
+            return True
         return int(snapshot.progress.replace('%', '')) < 100
 
 
