@@ -420,3 +420,4 @@ Run Karma (Single Run)
 
 See the wiki page https://github.com/eucalyptus/eucaconsole/wiki/JavaScript-UnitTest-Submit-Guideline for more details.
 
+
