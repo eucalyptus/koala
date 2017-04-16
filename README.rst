@@ -4,7 +4,6 @@ Eucalyptus Management Console
 
 The Eucalyptus Management Console is a web-based interface to a local Eucalyptus cloud and/or AWS services.
 
-
 AWS Services supported
 ======================
 
