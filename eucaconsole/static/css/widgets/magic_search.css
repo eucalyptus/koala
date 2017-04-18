@@ -23,6 +23,7 @@
 .search-bar i.cancel:hover { color: darkred; }
 .search-bar .f-dropdown.open { left: 0 !important; }
 
-.search-bar .item-list .item { background-color: white; border: 2px solid #cccccc; height: 1.5rem; }
+.search-bar .item-list { display: flex; align-content: space-around; flex-flow: row wrap; }
+.search-bar .item-list .item { background-color: white; border: 2px solid #cccccc; height: 1.5rem; top: 0px; margin: 0.25rem 0.25rem 0 0; }
 .search-bar .item-list .item a { color: #666666; }
 .search-bar .item-list .item i.fi-x { padding-left: 4px; }
