@@ -67,6 +67,7 @@ class SeleniumApi(object):
 
     def zoom_out(self):
         self.driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + "-")
+        self.driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + "-")
 
     def wait_for_element_present_by_id(self, element_id):
         """
