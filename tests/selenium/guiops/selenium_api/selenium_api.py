@@ -11,6 +11,7 @@ from selenium.common.exceptions import ElementNotVisibleException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 
 
 class UICheckException(Exception):
@@ -63,6 +64,9 @@ class SeleniumApi(object):
         """
         element = self.driver.find_element_by_id(element_id)
         return element.is_enabled()
+
+    def zoom_out(self):
+        self.driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + "-")
 
     def wait_for_element_present_by_id(self, element_id):
         """
