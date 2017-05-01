@@ -21,13 +21,10 @@ angular.module('BucketPolicyServiceModule', [])
             });
         },
 
-        deleteBucketPolicy: function (bucketName, csrfToken) {
+        deleteBucketPolicy: function (bucketName) {
             return $http({
                 method: 'DELETE',
-                url: $interpolate('/buckets/{{name}}/policy')({name: bucketName}),
-                params: {
-                    csrf_token: csrfToken
-                }
+                url: $interpolate('/buckets/{{name}}/policy')({name: bucketName})
             });
         }
    };

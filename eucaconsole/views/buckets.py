@@ -1045,9 +1045,6 @@ class BucketPolicyView(BaseView, BucketMixin):
 
     @view_config(route_name='bucket_policy', renderer='json', request_method='DELETE', xhr=True)
     def bucket_delete_policy(self):
-        csrf_token = self.request.params.get('csrf_token')
-        if not self.is_csrf_valid(token=csrf_token):
-            return JSONResponse(status=400, message=_('Missing CSRF token'))
         if self.bucket:
             with boto_error_handler(self.request):
                 self.log_request(u"Deleting policy for bucket {0}".format(self.bucket.name))

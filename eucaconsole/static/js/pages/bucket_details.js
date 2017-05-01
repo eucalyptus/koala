@@ -94,8 +94,7 @@ angular.module('BucketDetailsPage',
             $scope.deletePolicyError = '';
             $scope.deletingBucketPolicy = true;
             var deleteDialog = $('#bucket-policy-delete-confirmation-modal');
-            var csrfToken = angular.element('#csrf_token').val();
-            BucketPolicyService.deleteBucketPolicy($scope.bucketName, csrfToken)
+            BucketPolicyService.deleteBucketPolicy($scope.bucketName)
                 .then(function success (response) {
                     deleteDialog.foundation('reveal', 'close');
                     $scope.deletingBucketPolicy = false;
