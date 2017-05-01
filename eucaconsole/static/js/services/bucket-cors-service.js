@@ -24,15 +24,12 @@ angular.module('CorsServiceModule', ['EucaRoutes'])
                 });
         },
 
-        deleteCorsConfig: function (bucketName, csrfToken) {
+        deleteCorsConfig: function (bucketName) {
             return eucaRoutes.getRouteDeferred('bucket_cors_configuration', { name: bucketName })
                 .then(function (path) {
                     return $http({
                         method: 'DELETE',
-                        url: path,
-                        params: {
-                            csrf_token: csrfToken
-                        }
+                        url: path
                     });
                 });
         }
