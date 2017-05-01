@@ -97,8 +97,7 @@ angular.module('BucketDetailsPage', ['S3SharingPanel', 'EucaConsoleUtils', 'Cors
             $scope.deleteError = '';
             $scope.deletingCorsConfig = true;
             var deleteDialog = $('#cors-delete-confirmation-modal');
-            var csrfToken = angular.element('#csrf_token').val();
-            CorsService.deleteCorsConfig($scope.bucketName, csrfToken)
+            CorsService.deleteCorsConfig($scope.bucketName)
                 .then(function success (response) {
                     deleteDialog.foundation('reveal', 'close');
                     $scope.deletingCorsConfig = false;
